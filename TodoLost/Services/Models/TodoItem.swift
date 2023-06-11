@@ -19,7 +19,7 @@ struct TodoItem {
         id: String = UUID().uuidString,
         text: String,
         importance: Importance,
-        deadline: Date?,
+        deadline: Date? = nil,
         isDone: Bool,
         dateCreated: Date = Date(),
         dateEdited: Date?
@@ -94,7 +94,7 @@ extension TodoItem {
     }
 }
 
-private extension TodoItem {
+extension TodoItem {
     struct JsonKey {
         static let id = "id"
         static let text = "text"
