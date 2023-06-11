@@ -54,6 +54,7 @@
 		2C6C24012A34AEFE002B107C /* TodoLostUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLostUITests.swift; sourceTree = "<group>"; };
 		2C6C24032A34AEFE002B107C /* TodoLostUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLostUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		2C6C24122A34AFAC002B107C /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
+		2CB15C912A36515E0060584F /* TodoLost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoLost.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +102,7 @@
 		2C6C23D42A34AEFB002B107C = {
 			isa = PBXGroup;
 			children = (
+				2CB15C912A36515E0060584F /* TodoLost.xctestplan */,
 				2C5C7B9E2A3604A900B7DF19 /* .gitignore */,
 				2C6C23DF2A34AEFC002B107C /* TodoLost */,
 				2C6C23F62A34AEFD002B107C /* TodoLostTests */,
