@@ -22,7 +22,7 @@ struct TodoItem {
         deadline: Date? = nil,
         isDone: Bool,
         dateCreated: Date = Date(),
-        dateEdited: Date?
+        dateEdited: Date? = nil
     ) {
         self.id = id
         self.text = text

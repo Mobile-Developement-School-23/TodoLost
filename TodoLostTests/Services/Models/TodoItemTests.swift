@@ -21,10 +21,10 @@ final class TodoItemTests: XCTestCase {
             id: "foo",
             text: "bar",
             importance: .important,
-            deadline: Date(),
+            deadline: Date.distantFuture,
             isDone: false,
-            dateCreated: Date(),
-            dateEdited: Date()
+            dateCreated: Date.distantPast,
+            dateEdited: Date.now
         )
         
         // When
@@ -49,7 +49,7 @@ final class TodoItemTests: XCTestCase {
         let itemSUT = TodoItem(
             text: "foo",
             importance: .important,
-            deadline: Date(),
+            deadline: Date.now,
             isDone: false,
             dateEdited: nil
         )
@@ -71,7 +71,7 @@ final class TodoItemTests: XCTestCase {
         let itemSUT = TodoItem(
             text: "foo",
             importance: .important,
-            deadline: Date(),
+            deadline: Date.now,
             isDone: false,
             dateEdited: nil
         )
