@@ -216,37 +216,39 @@ final class TodoItemTests: XCTestCase {
         let dataSUT = makeData(.csv)
         var itemSUT: TodoItem?
         
-        var csvId: String = ""
-        var csvText: String = ""
-        var csvImportance: String = ""
-        var csvDeadline: Int?
-        var csvIsDone: Bool = false
-        var csvDateCreated: Int = 1
-        var csvDateEdited: Int?
-        
         // When
-        let csvString = String(data: dataSUT!, encoding: .utf8)
-        let csvRows = csvString?.split(separator: "\n").map { String($0) }
-        if let csvFields = csvRows?.last?.split(separator: ",").map({ String($0) }) {
-            itemSUT = TodoItem.parse(csv: csvString!)
+        let csvString = String(data: dataSUT!, encoding: .utf8)!
+        let csvRows = csvString.split(separator: "\n").map { String($0) }
+        let csvValues = csvRows[1].split(separator: ",")
+        
+        var expectedFields = [String]()
+        
+        if let csvFields = csvRows.last?.split(separator: ",").map({ String($0) }) {
+            itemSUT = TodoItem.parse(csv: csvString)
             
-            csvId = csvFields[0]
-            csvText = csvFields[1]
-            csvImportance = csvFields[2]
-            csvDeadline = Int(csvFields[3])
-            csvIsDone = Bool(csvFields[4]) ?? false
-            csvDateCreated = Int(csvFields[5]) ?? 1
-            csvDateEdited = Int(csvFields[6])
+            expectedFields.append(itemSUT!.id)
+            expectedFields.append(itemSUT!.text)
+            expectedFields.append(itemSUT!.importance.rawValue)
+            
+            if itemSUT!.deadline != nil {
+                expectedFields.append(String(Int(itemSUT!.deadline!.timeIntervalSince1970)))
+            }
+            
+            expectedFields.append(String(itemSUT!.isDone))
+            expectedFields.append(String(Int(itemSUT!.dateCreated.timeIntervalSince1970)))
+            
+            if itemSUT!.dateEdited != nil {
+                expectedFields.append(String(Int(itemSUT!.dateEdited!.timeIntervalSince1970)))
+            }
         }
         
         // Then
-        XCTAssertEqual(csvId, itemSUT?.id)
-        XCTAssertEqual(csvText, itemSUT?.text)
-        XCTAssertEqual(csvImportance, itemSUT?.importance.rawValue)
-        XCTAssertEqual(csvDeadline, itemSUT?.deadline.flatMap { Int($0.timeIntervalSince1970) })
-        XCTAssertEqual(csvIsDone, itemSUT?.isDone)
-        XCTAssertEqual(csvDateCreated, Int(itemSUT?.dateCreated.timeIntervalSince1970 ?? 0))
-        XCTAssertEqual(csvDateEdited, itemSUT?.dateEdited.flatMap { Int($0.timeIntervalSince1970) })
+        XCTAssertEqual(csvRows.count, 2)
+        XCTAssertEqual(csvValues.count, expectedFields.count)
+        
+        for (index, value) in csvValues.enumerated() {
+            XCTAssertEqual(String(value), expectedFields[index])
+        }
     }
 
     

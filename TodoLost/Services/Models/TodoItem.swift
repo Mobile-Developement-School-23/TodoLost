@@ -98,7 +98,7 @@ extension TodoItem {
 
 // MARK: - CSV data
 
-extension TodoItem {
+extension TodoItem {    
     static func parse(csv: String) -> TodoItem? {
         let csvRows = csv.split(separator: "\n")
         guard csvRows.count > 1 else {
@@ -106,14 +106,16 @@ extension TodoItem {
         }
         
         let csvHeaderComponents = csvRows[0].components(separatedBy: ",")
-        let csvValues = csvRows[1].split(separator: ",")
+        let csvValues = csvRows[1].components(separatedBy: ",")
         
         guard
             let idIndex = csvHeaderComponents.firstIndex(of: JsonKey.id),
             let textIndex = csvHeaderComponents.firstIndex(of: JsonKey.text),
             let importanceIndex = csvHeaderComponents.firstIndex(of: JsonKey.importance),
+            let deadlineIndex = csvHeaderComponents.firstIndex(of: JsonKey.deadline),
             let isDoneIndex = csvHeaderComponents.firstIndex(of: JsonKey.isDone),
-            let dateCreatedIndex = csvHeaderComponents.firstIndex(of: JsonKey.dateCreated)
+            let dateCreatedIndex = csvHeaderComponents.firstIndex(of: JsonKey.dateCreated),
+            let dateEditedIndex = csvHeaderComponents.firstIndex(of: JsonKey.dateEdited)
         else {
             return nil
         }
@@ -133,7 +135,7 @@ extension TodoItem {
         let dateCreated = Date(timeIntervalSince1970: dateCreatedTimestamp)
         
         var deadline: Date?
-        if let deadlineIndex = csvHeaderComponents.firstIndex(of: JsonKey.deadline) {
+        if csvValues[deadlineIndex] != "" {
             let deadlineTimestampString = String(csvValues[deadlineIndex])
             if let deadlineTimestamp = TimeInterval(deadlineTimestampString) {
                 deadline = Date(timeIntervalSince1970: deadlineTimestamp)
@@ -141,7 +143,7 @@ extension TodoItem {
         }
         
         var dateEdited: Date?
-        if let dateEditedIndex = csvHeaderComponents.firstIndex(of: JsonKey.dateEdited) {
+        if csvValues[dateEditedIndex] != "" {
             let dateEditedTimestampString = String(csvValues[dateEditedIndex])
             if let dateEditedTimestamp = TimeInterval(dateEditedTimestampString) {
                 dateEdited = Date(timeIntervalSince1970: dateEditedTimestamp)
