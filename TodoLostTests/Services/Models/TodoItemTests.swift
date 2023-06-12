@@ -111,7 +111,7 @@ final class TodoItemTests: XCTestCase {
     
     func test_parse_shouldAllDataSerialization() {
         // Given
-        let dataSUT = makeDataSUT()
+        let dataSUT = makeData(.json)
         var itemSUT: TodoItem?
         
         var jsonId: String = ""
@@ -158,16 +158,113 @@ final class TodoItemTests: XCTestCase {
         }
     }
     
-    // MARK: - Private Methods
+    // MARK: - Item to CSV Serialization
     
-    private func makeDataSUT() -> Data? {
+    func test_itemToCSV_withUserID_shouldAllDataSerialization() {
+        // Given
+        let itemSUT = TodoItem(
+            id: "foo",
+            text: "bar",
+            importance: .important,
+            deadline: Date(),
+            isDone: false,
+            dateCreated: Date.distantPast,
+            dateEdited: nil
+        )
+        
+        // When
+        let csv = itemSUT.csv
+        
+        let csvRows = csv.split(separator: "\n")
+        
+        let csvHeader = csvRows.first
+        let csvValues = csvRows[1].split(separator: ",")
+        
+        var expectedFields = [
+            itemSUT.id,
+            itemSUT.text,
+            itemSUT.importance.rawValue
+        ]
+        
+        if itemSUT.deadline != nil {
+            expectedFields.append(String(Int(itemSUT.deadline!.timeIntervalSince1970)))
+        }
+        
+        expectedFields.append(String(itemSUT.isDone))
+        expectedFields.append(String(Int(itemSUT.dateCreated.timeIntervalSince1970)))
+        
+        if itemSUT.dateEdited != nil {
+            expectedFields.append(String(Int(itemSUT.dateEdited!.timeIntervalSince1970)))
+        }
+        
+        // Then
+        XCTAssertEqual(csvRows.count, 2)
+        
+        XCTAssertEqual(csvHeader, "\(TodoItem.JsonKey.id),\(TodoItem.JsonKey.text),\(TodoItem.JsonKey.importance),\(TodoItem.JsonKey.deadline),\(TodoItem.JsonKey.isDone),\(TodoItem.JsonKey.dateCreated),\(TodoItem.JsonKey.dateEdited)")
+        
+        XCTAssertEqual(csvValues.count, expectedFields.count)
+        
+        for (index, value) in csvValues.enumerated() {
+            XCTAssertEqual(String(value), expectedFields[index])
+        }
+    }
+    
+    // MARK: - CSV Serialization to item
+    
+    func test_parse_csv_shouldAllDataSerialization() {
+        // Given
+        let dataSUT = makeData(.csv)
+        var itemSUT: TodoItem?
+        
+        var csvId: String = ""
+        var csvText: String = ""
+        var csvImportance: String = ""
+        var csvDeadline: Int?
+        var csvIsDone: Bool = false
+        var csvDateCreated: Int = 1
+        var csvDateEdited: Int?
+        
+        // When
+        let csvString = String(data: dataSUT!, encoding: .utf8)
+        let csvRows = csvString?.split(separator: "\n").map { String($0) }
+        if let csvFields = csvRows?.last?.split(separator: ",").map({ String($0) }) {
+            itemSUT = TodoItem.parse(csv: csvString!)
+            
+            csvId = csvFields[0]
+            csvText = csvFields[1]
+            csvImportance = csvFields[2]
+            csvDeadline = Int(csvFields[3])
+            csvIsDone = Bool(csvFields[4]) ?? false
+            csvDateCreated = Int(csvFields[5]) ?? 1
+            csvDateEdited = Int(csvFields[6])
+        }
+        
+        // Then
+        XCTAssertEqual(csvId, itemSUT?.id)
+        XCTAssertEqual(csvText, itemSUT?.text)
+        XCTAssertEqual(csvImportance, itemSUT?.importance.rawValue)
+        XCTAssertEqual(csvDeadline, itemSUT?.deadline.flatMap { Int($0.timeIntervalSince1970) })
+        XCTAssertEqual(csvIsDone, itemSUT?.isDone)
+        XCTAssertEqual(csvDateCreated, Int(itemSUT?.dateCreated.timeIntervalSince1970 ?? 0))
+        XCTAssertEqual(csvDateEdited, itemSUT?.dateEdited.flatMap { Int($0.timeIntervalSince1970) })
+    }
+
+    
+    // MARK: - Private
+    
+    private enum TypeFile: String {
+        case json
+        case csv
+    }
+    
+    private func makeData(_ type: TypeFile) -> Data? {
         var jsonData: Data?
         
         guard let jsonFile = Bundle.main.path(
             forResource: "TodoItems",
-            ofType: "json"
+            ofType: type.rawValue
         ) else {
-            XCTFail("JSON file not found")
+            XCTFail("file not found")
             fatalError()
         }
         

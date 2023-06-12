@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C24B3FC2A378D97004C5816 /* TodoItems.csv in Resources */ = {isa = PBXBuildFile; fileRef = 2C24B3FA2A378AA2004C5816 /* TodoItems.csv */; };
 		2C451A532A35E03100135FF8 /* TodoItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C451A522A35E03100135FF8 /* TodoItemTests.swift */; };
 		2C451A562A35F21A00135FF8 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
 		2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6C23E02A34AEFC002B107C /* AppDelegate.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2C24B3FA2A378AA2004C5816 /* TodoItems.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoItems.csv; sourceTree = "<group>"; };
 		2C3458082A35A9DF00B5FA6A /* TodoItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TodoItems.json; sourceTree = "<group>"; };
 		2C451A522A35E03100135FF8 /* TodoItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemTests.swift; sourceTree = "<group>"; };
 		2C5C7B9E2A3604A900B7DF19 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -99,6 +101,7 @@
 			isa = PBXGroup;
 			children = (
 				2C3458082A35A9DF00B5FA6A /* TodoItems.json */,
+				2C24B3FA2A378AA2004C5816 /* TodoItems.csv */,
 				2C451A522A35E03100135FF8 /* TodoItemTests.swift */,
 			);
 			path = Models;
@@ -297,6 +300,7 @@
 			files = (
 				2C451A562A35F21A00135FF8 /* TodoItems.json in Resources */,
 				2C6C23ED2A34AEFD002B107C /* LaunchScreen.storyboard in Resources */,
+				2C24B3FC2A378D97004C5816 /* TodoItems.csv in Resources */,
 				2C6C23EA2A34AEFD002B107C /* Assets.xcassets in Resources */,
 				2C6C23E82A34AEFC002B107C /* Main.storyboard in Resources */,
 			);
