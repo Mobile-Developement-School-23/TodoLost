@@ -70,7 +70,7 @@ final class TodoItemTests: XCTestCase {
         // Given
         let itemSUT = TodoItem(
             text: "foo",
-            importance: .important,
+            importance: .normal,
             deadline: Date.now,
             isDone: false,
             dateEdited: nil
@@ -84,7 +84,7 @@ final class TodoItemTests: XCTestCase {
         }
         
         // Then
-        XCTAssertNil(jsonDictionary[TodoItem.JsonKey.importance] as? Int)
+        XCTAssertNil(jsonDictionary[TodoItem.JsonKey.importance])
     }
     
     func test_itemToJSON_deadlineNotSet_shouldDeadlineNotSave() {
@@ -104,7 +104,7 @@ final class TodoItemTests: XCTestCase {
         }
         
         // Then
-        XCTAssertNil(jsonDictionary[TodoItem.JsonKey.deadline] as? Int)
+        XCTAssertNil(jsonDictionary[TodoItem.JsonKey.deadline])
     }
     
     // MARK: - JSON Serialization to item
@@ -166,48 +166,66 @@ final class TodoItemTests: XCTestCase {
             id: "foo",
             text: "bar",
             importance: .important,
-            deadline: Date(),
+            deadline: .now,
             isDone: false,
-            dateCreated: Date.distantPast,
+            dateCreated: .distantPast,
+            dateEdited: .distantFuture
+        )
+        
+        // When
+        let csv = itemSUT.csv
+        let parseData = TodoItem.parse(csv: csv)
+        
+        // Then
+        XCTAssertEqual(itemSUT.id, parseData?.id)
+        XCTAssertEqual(itemSUT.text, parseData?.text)
+        XCTAssertEqual(itemSUT.importance, parseData?.importance)
+        if let deadlineSUT = itemSUT.deadline, let deadline = parseData?.deadline {
+            XCTAssertEqual(deadlineSUT.timeIntervalSince1970, deadline.timeIntervalSince1970, accuracy: 1)
+        } else {
+            XCTAssertEqual(itemSUT.deadline, parseData?.deadline)
+        }
+        XCTAssertEqual(itemSUT.isDone, parseData?.isDone)
+        if let dateCreated = parseData?.dateCreated.timeIntervalSince1970 {
+            XCTAssertEqual(itemSUT.dateCreated.timeIntervalSince1970, dateCreated, accuracy: 1)
+        } else {
+            XCTAssertEqual(itemSUT.dateCreated.timeIntervalSince1970, parseData?.dateCreated.timeIntervalSince1970)
+        }
+        
+        if let dateEditedSUT = itemSUT.dateEdited, let dateEdited = parseData?.dateEdited {
+            XCTAssertEqual(dateEditedSUT.timeIntervalSince1970, dateEdited.timeIntervalSince1970, accuracy: 1)
+        } else {
+            XCTAssertEqual(itemSUT.dateEdited, parseData?.dateEdited)
+        }
+    }
+    
+    func test_itemToCSV_importanceSetToNormal_shouldImportanceNotSave() {
+        // Given
+        let itemSUT = TodoItem(
+            text: "foo",
+            importance: .normal,
+            deadline: Date.now,
+            isDone: false,
             dateEdited: nil
         )
         
         // When
         let csv = itemSUT.csv
-        
         let csvRows = csv.split(separator: "\n")
+        let csvHeader = csvRows[0].components(separatedBy: ",")
+        let csvValues = csvRows[1].components(separatedBy: ",")
         
-        let csvHeader = csvRows.first
-        let csvValues = csvRows[1].split(separator: ",")
-        
-        var expectedFields = [
-            itemSUT.id,
-            itemSUT.text,
-            itemSUT.importance.rawValue
-        ]
-        
-        if itemSUT.deadline != nil {
-            expectedFields.append(String(Int(itemSUT.deadline!.timeIntervalSince1970)))
+        guard let importanceIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.importance) else {
+            XCTFail()
+            return
         }
         
-        expectedFields.append(String(itemSUT.isDone))
-        expectedFields.append(String(Int(itemSUT.dateCreated.timeIntervalSince1970)))
-        
-        if itemSUT.dateEdited != nil {
-            expectedFields.append(String(Int(itemSUT.dateEdited!.timeIntervalSince1970)))
-        }
+        let importance = csvValues[importanceIndex]
         
         // Then
-        XCTAssertEqual(csvRows.count, 2)
-        
-        XCTAssertEqual(csvHeader, "\(TodoItem.JsonKey.id),\(TodoItem.JsonKey.text),\(TodoItem.JsonKey.importance),\(TodoItem.JsonKey.deadline),\(TodoItem.JsonKey.isDone),\(TodoItem.JsonKey.dateCreated),\(TodoItem.JsonKey.dateEdited)")
-        
-        XCTAssertEqual(csvValues.count, expectedFields.count)
-        
-        for (index, value) in csvValues.enumerated() {
-            XCTAssertEqual(String(value), expectedFields[index])
-        }
+        XCTAssertEqual(importance, "")
     }
+    
     
     // MARK: - CSV Serialization to item
     
@@ -218,37 +236,41 @@ final class TodoItemTests: XCTestCase {
         
         // When
         let csvString = String(data: dataSUT!, encoding: .utf8)!
-        let csvRows = csvString.split(separator: "\n").map { String($0) }
-        let csvValues = csvRows[1].split(separator: ",")
+        let csvRows = csvString.split(separator: "\n")
+        let csvHeader = csvRows[0].components(separatedBy: ",")
+        let csvValues = csvRows[1].components(separatedBy: ",")
         
-        var expectedFields = [String]()
-        
-        if let csvFields = csvRows.last?.split(separator: ",").map({ String($0) }) {
-            itemSUT = TodoItem.parse(csv: csvString)
-            
-            expectedFields.append(itemSUT!.id)
-            expectedFields.append(itemSUT!.text)
-            expectedFields.append(itemSUT!.importance.rawValue)
-            
-            if itemSUT!.deadline != nil {
-                expectedFields.append(String(Int(itemSUT!.deadline!.timeIntervalSince1970)))
-            }
-            
-            expectedFields.append(String(itemSUT!.isDone))
-            expectedFields.append(String(Int(itemSUT!.dateCreated.timeIntervalSince1970)))
-            
-            if itemSUT!.dateEdited != nil {
-                expectedFields.append(String(Int(itemSUT!.dateEdited!.timeIntervalSince1970)))
-            }
+        guard
+            let idIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.id),
+            let textIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.text),
+            let importanceIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.importance),
+            let deadlineIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.deadline),
+            let isDoneIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.isDone),
+            let dateCreatedIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.dateCreated),
+            let dateEditedIndex = csvHeader.firstIndex(of: TodoItem.JsonKey.dateEdited)
+        else {
+            XCTFail()
+            return
         }
+        
+        let id = csvValues[idIndex]
+        let text = csvValues[textIndex].replacingOccurrences(of: "|", with: ",")
+        let importance = csvValues[importanceIndex]
+        let deadline = csvValues[deadlineIndex]
+        let isDone = csvValues[isDoneIndex]
+        let dateCreated = csvValues[dateCreatedIndex]
+        let dateEdited = csvValues[dateEditedIndex]
+        
+        itemSUT = TodoItem.parse(csv: csvString)
         
         // Then
-        XCTAssertEqual(csvRows.count, 2)
-        XCTAssertEqual(csvValues.count, expectedFields.count)
-        
-        for (index, value) in csvValues.enumerated() {
-            XCTAssertEqual(String(value), expectedFields[index])
-        }
+        XCTAssertEqual(itemSUT?.id, id)
+        XCTAssertEqual(itemSUT?.text, text)
+        XCTAssertEqual(itemSUT?.importance.rawValue, importance)
+        XCTAssertEqual(itemSUT?.deadline?.timeIntervalSince1970, TimeInterval(deadline))
+        XCTAssertEqual(itemSUT?.isDone, Bool(isDone))
+        XCTAssertEqual(itemSUT?.dateCreated.timeIntervalSince1970, TimeInterval(dateCreated))
+        XCTAssertEqual((itemSUT?.dateEdited?.timeIntervalSince1970), TimeInterval(dateEdited))
     }
 
     
@@ -262,16 +284,18 @@ final class TodoItemTests: XCTestCase {
     private func makeData(_ type: TypeFile) -> Data? {
         var jsonData: Data?
         
-        guard let jsonFile = Bundle.main.path(
-            forResource: "TodoItems",
-            ofType: type.rawValue
-        ) else {
+        guard let testBundle = Bundle(identifier: "ru.zyfunphoto.TodoLostTests") else {
+            XCTFail("test bundle not found")
+            return nil
+        }
+        
+        guard let filePath = testBundle.path(forResource: "TodoItems", ofType: type.rawValue) else {
             XCTFail("file not found")
-            fatalError()
+            return nil
         }
         
         do {
-            guard let data = try String(contentsOfFile: jsonFile).data(using: .utf8) else {
+            guard let data = try String(contentsOfFile: filePath).data(using: .utf8) else {
                 XCTFail("File could not be converted to Data")
                 fatalError()
             }
@@ -283,4 +307,5 @@ final class TodoItemTests: XCTestCase {
         
         return jsonData
     }
+
 }

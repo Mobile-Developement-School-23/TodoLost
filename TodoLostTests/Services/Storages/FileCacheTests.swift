@@ -11,12 +11,30 @@ import XCTest
 final class FileCacheTests: XCTestCase {
     var fileCache: IFileCache?
     let fileName = "Foo"
+    
+    let items = [
+        TodoItem(
+            text: "Foo",
+            importance: .low,
+            isDone: false
+        ),
+        TodoItem(
+            id: "Foo",
+            text: "Foo, bar, baz",
+            importance: .normal,
+            deadline: .distantFuture,
+            isDone: false,
+            dateCreated: .distantPast,
+            dateEdited: .now
+        )
+    ]
 
     override func setUp() {
         super.setUp()
         
         fileCache = FileCache()
-        createSavedTestTodoItem()
+        items.forEach({ createSavedTestDataToJSON($0) })
+        items.forEach({ createSavedTestDataToCSV($0) })
     }
     
     override func tearDown() {
@@ -68,9 +86,9 @@ final class FileCacheTests: XCTestCase {
         XCTAssertTrue(items.isEmpty)
     }
     
-    // MARK: - Tests FileManager
+    // MARK: - Storage for json
     
-    func test_saveTo_shouldNotErrors() {
+    func test_saveToStorageJSON_shouldNotErrors() {
         // Given
         var saveError: Error?
         let item = TodoItem(
@@ -83,7 +101,7 @@ final class FileCacheTests: XCTestCase {
         fileCache?.addToCache(item)
         
         do {
-            try fileCache?.saveToStorage(fileName: fileName)
+            try fileCache?.saveToStorage(jsonFileName: fileName)
         } catch {
             saveError = error
         }
@@ -92,13 +110,13 @@ final class FileCacheTests: XCTestCase {
         XCTAssertNil(saveError)
     }
     
-    func test_loadFrom_shouldLoadItemsToCache() {
+    func test_loadFromStorageJSON_shouldLoadItemsToCache() {
         // Given
         var items: [String: TodoItem] = [:]
         
         // When
         do {
-            try fileCache?.loadFromStorage(fileName: fileName)
+            try fileCache?.loadFromStorage(jsonFileName: fileName)
         } catch {
             XCTFail(error.localizedDescription)
         }
@@ -107,15 +125,75 @@ final class FileCacheTests: XCTestCase {
         
         // Then
         XCTAssertFalse(items.isEmpty)
+        XCTAssertGreaterThanOrEqual(items.count, 2)
     }
     
-    func test_loadFrom_wrongFilename_shouldErrorFileNotFound() {
+    func test_loadFromStorageJSON_wrongFilename_shouldErrorFileNotFound() {
         // Given
         var errorSUT: Error?
         
         // When
         do {
-            try fileCache?.loadFromStorage(fileName: "Bar")
+            try fileCache?.loadFromStorage(jsonFileName: "Bar")
+        } catch {
+            errorSUT = error
+        }
+        
+        // Then
+        XCTAssertNotNil(errorSUT)
+    }
+    
+    // MARK: - Storage for csv
+    
+    func test_SaveToStorageCSV_shouldNotErrors() {
+        // Given
+        var saveError: Error?
+        let item = TodoItem(
+            text: "Foo, bar, baz",
+            importance: .low,
+            isDone: false
+        )
+        
+        // When
+        fileCache?.addToCache(item)
+        
+        do {
+            try fileCache?.saveToStorage(csvFileName: fileName)
+        } catch {
+            saveError = error
+        }
+        
+        // Then
+        XCTAssertNil(saveError)
+    }
+    
+    func test_loadFromStorageCSV_shouldLoadItemsToCache() {
+        // Given
+        var items: [String: TodoItem] = [:]
+        
+        // When
+        do {
+            try fileCache?.loadFromStorage(csvFileName: fileName)
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+        
+        items = fileCache?.items ?? [:]
+        
+        print(items)
+        
+        // Then
+        XCTAssertFalse(items.isEmpty)
+        XCTAssertGreaterThanOrEqual(items.count, 2)
+    }
+    
+    func test_loadFromStorageCSV_wrongFilename_shouldErrorFileNotFound() {
+        // Given
+        var errorSUT: Error?
+        
+        // When
+        do {
+            try fileCache?.loadFromStorage(csvFileName: "Bar")
         } catch {
             errorSUT = error
         }
@@ -126,17 +204,21 @@ final class FileCacheTests: XCTestCase {
     
     // MARK: - Private method
     
-    private func createSavedTestTodoItem() {
-        let item = TodoItem(
-            text: "Foo",
-            importance: .low,
-            isDone: false
-        )
-
+    private func createSavedTestDataToJSON(_ item: TodoItem) {
         fileCache?.addToCache(item)
 
         do {
-            try fileCache?.saveToStorage(fileName: fileName)
+            try fileCache?.saveToStorage(jsonFileName: fileName)
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+    }
+    
+    private func createSavedTestDataToCSV(_ item: TodoItem) {
+        fileCache?.addToCache(item)
+
+        do {
+            try fileCache?.saveToStorage(csvFileName: fileName)
         } catch {
             XCTFail(error.localizedDescription)
         }

@@ -120,34 +120,30 @@ extension TodoItem {
             return nil
         }
         
-        let id = String(csvValues[idIndex])
-        let text = String(csvValues[textIndex])
-        let importanceString = String(csvValues[importanceIndex])
+        let id = csvValues[idIndex]
+        let text = csvValues[textIndex].replacingOccurrences(of: "|", with: ",")
+        let importanceString = csvValues[importanceIndex]
         let importance = Importance(rawValue: importanceString) ?? .normal
         
-        let isDoneString = String(csvValues[isDoneIndex])
+        let isDoneString = csvValues[isDoneIndex]
         let isDone = isDoneString.lowercased() == "true"
         
-        let dateCreatedTimestampString = String(csvValues[dateCreatedIndex])
+        let dateCreatedTimestampString = csvValues[dateCreatedIndex]
         guard let dateCreatedTimestamp = TimeInterval(dateCreatedTimestampString) else {
             return nil
         }
         let dateCreated = Date(timeIntervalSince1970: dateCreatedTimestamp)
         
         var deadline: Date?
-        if csvValues[deadlineIndex] != "" {
-            let deadlineTimestampString = String(csvValues[deadlineIndex])
-            if let deadlineTimestamp = TimeInterval(deadlineTimestampString) {
-                deadline = Date(timeIntervalSince1970: deadlineTimestamp)
-            }
+        let deadlineTimestampString = csvValues[deadlineIndex]
+        if let deadlineTimestamp = TimeInterval(deadlineTimestampString) {
+            deadline = Date(timeIntervalSince1970: deadlineTimestamp)
         }
         
         var dateEdited: Date?
-        if csvValues[dateEditedIndex] != "" {
-            let dateEditedTimestampString = String(csvValues[dateEditedIndex])
-            if let dateEditedTimestamp = TimeInterval(dateEditedTimestampString) {
-                dateEdited = Date(timeIntervalSince1970: dateEditedTimestamp)
-            }
+        let dateEditedTimestampString = csvValues[dateEditedIndex]
+        if let dateEditedTimestamp = TimeInterval(dateEditedTimestampString) {
+            dateEdited = Date(timeIntervalSince1970: dateEditedTimestamp)
         }
         
         let item = TodoItem(
@@ -166,7 +162,14 @@ extension TodoItem {
     var csv: String {
         var csv = "\(JsonKey.id),\(JsonKey.text),\(JsonKey.importance),\(JsonKey.deadline),\(JsonKey.isDone),\(JsonKey.dateCreated),\(JsonKey.dateEdited)\n"
         
-        csv += "\(id),\(text),\(importance.rawValue),"
+        csv += "\(id),\(text.replacingOccurrences(of: ",", with: "|"))," // Меняем запятые на |, чтобы избежать проблем в случае если пользователь будет вводить в тексте запятые. Этот символ использоваться по идее не будет и его можно запретить к вводу.
+        
+        if importance != .normal {
+            csv += "\(importance.rawValue),"
+        } else {
+            csv += ","
+        }
+        
         if let deadline = deadline {
             csv += "\(Int(deadline.timeIntervalSince1970)),"
         } else {

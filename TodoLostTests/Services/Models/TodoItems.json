@@ -3,7 +3,7 @@
         {
             "id": "1",
             "text": "Купить хлеб",
-            "importance": "low",
+            "importance": "normal",
             "deadline": null,
             "isDone": false,
             "dateCreated": 1679041000,
