@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "81C5A17A-6F67-4D01-8CC7-C1D437FDA2BC",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TodoLost.xcodeproj",
+      "identifier" : "2C6C23DC2A34AEFB002B107C",
+      "name" : "TodoLost"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:TodoLost.xcodeproj",
+        "identifier" : "2C6C23F22A34AEFD002B107C",
+        "name" : "TodoLostTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:TodoLost.xcodeproj",
+        "identifier" : "2C6C23FC2A34AEFE002B107C",
+        "name" : "TodoLostUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

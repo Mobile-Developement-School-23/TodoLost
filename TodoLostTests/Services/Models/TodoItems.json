@@ -1,0 +1,31 @@
+{
+    "todoItems": [
+        {
+            "id": "1",
+            "text": "Купить хлеб",
+            "importance": "normal",
+            "deadline": null,
+            "isDone": false,
+            "dateCreated": 1679041000,
+            "dateEdited": null
+        },
+        {
+            "id": "2",
+            "text": "Сделать ДЗ в Яндекс",
+            "importance": "important",
+            "deadline": 1679040000,
+            "isDone": false,
+            "dateCreated": 1678977600,
+            "dateEdited": null
+        },
+        {
+            "id": "3",
+            "text": "Погладить кота",
+            "importance": "important",
+            "deadline": 1679145600,
+            "isDone": true,
+            "dateCreated": 1678893300,
+            "dateEdited": 1678979400
+        }
+    ]
+}
