@@ -6,7 +6,9 @@
 //
 
 final class PresentationAssembly {
+    private var service = ServiceAssembly()
+    
     lazy var taskDetail: TaskDetailConfigurator = {
-        return TaskDetailConfigurator()
+        return TaskDetailConfigurator(fileCacheStorage: service.fileCacheStorage)
     }()
 }

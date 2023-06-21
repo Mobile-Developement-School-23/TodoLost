@@ -27,6 +27,9 @@
 		2C740FDC2A40B7DC00884C79 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C740FDB2A40B7DC00884C79 /* Fonts.swift */; };
 		2C9B8B252A37295000CC591A /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B8B242A37295000CC591A /* FileCache.swift */; };
 		2C9B8B282A37336400CC591A /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B8B272A37336400CC591A /* FileCacheTests.swift */; };
+		2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */; };
+		2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */; };
+		2CD382E02A432B6400C82343 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -73,6 +76,8 @@
 		2C9B8B242A37295000CC591A /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		2C9B8B272A37336400CC591A /* FileCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheTests.swift; sourceTree = "<group>"; };
 		2CB15C912A36515E0060584F /* TodoLost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoLost.xctestplan; sourceTree = "<group>"; };
+		2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceAssembly.swift; sourceTree = "<group>"; };
+		2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -152,6 +157,7 @@
 				2C633F5D2A3F59DD00BD2F29 /* TaskDetailViewController.swift */,
 				2C633F5F2A3F5A2700BD2F29 /* TaskDetailPresenter.swift */,
 				2C633F612A3F5A8000BD2F29 /* TaskDetailConfigurator.swift */,
+				2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */,
 			);
 			path = TaskDetail;
 			sourceTree = "<group>";
@@ -238,6 +244,7 @@
 		2C6C24102A34AF4A002B107C /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */,
 				2C6C24142A34AFFC002B107C /* Models */,
 				2C9B8B232A37292900CC591A /* Storages */,
 			);
@@ -374,6 +381,7 @@
 			files = (
 				2C6C23ED2A34AEFD002B107C /* LaunchScreen.storyboard in Resources */,
 				2C6C23EA2A34AEFD002B107C /* Assets.xcassets in Resources */,
+				2CD382E02A432B6400C82343 /* TodoItems.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -401,8 +409,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
+				2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */,
 				2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */,
 				2C633F5E2A3F59DD00BD2F29 /* TaskDetailViewController.swift in Sources */,
+				2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */,
 				2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */,
 				2C740FDC2A40B7DC00884C79 /* Fonts.swift in Sources */,
 				2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */,

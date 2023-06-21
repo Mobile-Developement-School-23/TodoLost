@@ -45,13 +45,11 @@ extension TodoItem {
         guard
             let id = json[JsonKey.id] as? String,
             let text = json[JsonKey.text] as? String,
-            let importanceString = json[JsonKey.importance] as? String,
             let isDone = json[JsonKey.isDone] as? Bool,
             let dateCreatedTimestamp = json[JsonKey.dateCreated] as? TimeInterval
-            
         else { return nil}
         
-        let importance = Importance(rawValue: importanceString) ?? .normal
+        let importance = (json[JsonKey.importance] as? String).flatMap(Importance.init(rawValue:)) ?? .normal
         
         var deadline: Date?
         if let deadlineTimestamp = json[JsonKey.deadline] as? TimeInterval {

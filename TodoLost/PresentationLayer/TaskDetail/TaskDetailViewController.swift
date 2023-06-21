@@ -9,7 +9,7 @@ import UIKit
 
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskDetailView: AnyObject {
-    
+    func update(viewModel: TaskDetailViewModel?)
 }
 
 final class TaskDetailViewController: UIViewController {
@@ -20,7 +20,15 @@ final class TaskDetailViewController: UIViewController {
     
     // MARK: - Private property
     
-    private var deadlineDay: String? = "error choice data"
+    private var currentId = ""
+    private var currentText: String?
+    private var currentImportance: Importance = .normal
+    private var currentDeadline: Date?
+    /// Используется для временного хранения даты при переключении свича
+    /// - свич очищает текущий дедлайн, чтобы при сохранении данные не записались. И чтобы вернуть
+    /// значение обратно, используется это свойство, если пользователь передумал отключать дедлайн
+    private var tempDeadline: Date?
+    
     private var isCalendarHidden = true
     /// Время выполнения анимаций на экране
     private let duration = 0.3
@@ -30,14 +38,14 @@ final class TaskDetailViewController: UIViewController {
         return tapGesture
     }()
     
-    private var scrollView: UIScrollView = {
+    private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = Colors.backPrimary
         return scrollView
     }()
     
-    private var stackView: UIStackView = {
+    private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -48,7 +56,7 @@ final class TaskDetailViewController: UIViewController {
         return stackView
     }()
     
-    private var textEditorTextView: UITextView = {
+    private let textEditorTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isScrollEnabled = false
@@ -59,7 +67,7 @@ final class TaskDetailViewController: UIViewController {
         return textView
     }()
     
-    private var taskSettingsStackView: UIStackView = {
+    private let taskSettingsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -72,13 +80,13 @@ final class TaskDetailViewController: UIViewController {
         return stackView
     }()
     
-    private var importanceSettingView: UIView = {
+    private let importanceSettingView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private var importanceLabel: UILabel = {
+    private let importanceLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Важность"
@@ -106,20 +114,20 @@ final class TaskDetailViewController: UIViewController {
         return segmentedControl
     }()
     
-    private var separator1: UIView = {
+    private let separator1: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = Colors.supportOverlay
         return view
     }()
     
-    private var deadlineSettingView: UIView = {
+    private let deadlineSettingView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private var deadlineStackView: UIStackView = {
+    private let deadlineStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
@@ -128,7 +136,7 @@ final class TaskDetailViewController: UIViewController {
         return stackView
     }()
     
-    private var deadlineLabel: UILabel = {
+    private let deadlineLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Сделать до"
@@ -140,7 +148,7 @@ final class TaskDetailViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
-        label.text = deadlineDay
+        label.text = "error choice data"
         label.font = Fonts.footnote
         label.textColor = Colors.blue
         
@@ -159,7 +167,7 @@ final class TaskDetailViewController: UIViewController {
         return uiSwitch
     }()
     
-    private var separator2: UIView = {
+    private let separator2: UIView = {
         let view = UIView()
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -167,11 +175,10 @@ final class TaskDetailViewController: UIViewController {
         return view
     }()
     
-    private var calendarView: UICalendarView = {
+    private let calendarView: UICalendarView = {
         let calendarView = UICalendarView()
         calendarView.translatesAutoresizingMaskIntoConstraints = false
         calendarView.isHidden = true
-        calendarView.availableDateRange = DateInterval(start: .now, end: .distantFuture)
         return calendarView
     }()
     
@@ -192,26 +199,34 @@ final class TaskDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        presenter?.fetchTask()
         textEditorTextView.delegate = self // сделать делегатом презентер
         setup()
         
     }
     
     // MARK: - Private methods
-    private func setChoiceDateDefault() {
+    
+    /// Метод установки выбранной даты дедлайна в календарь
+    /// - Parameter date: принимает дату, которая будет установлена как выбранная. Если даты нет
+    /// будет установлен следующий день от текущего.
+    private func setChoiceDateDeadline(date: Date?) {
         let dateSelection = UICalendarSelectionSingleDate(delegate: self)
-        
-        let currentDate = Date()
+
+        let currentDate = date ?? Date()
         let calendar = Calendar.current
         let components = calendar.dateComponents([.year, .month, .day], from: currentDate)
         
         let year = components.year
         let month = components.month
-        let day = (components.day ?? 0) + 1
+        let day = date != nil ? components.day : (components.day ?? 0) + 1
         
         dateSelection.selectedDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: year, month: month, day: day)
+        
         calendarView.selectionBehavior = dateSelection
-        deadlineDay = dateSelection.selectedDate?.date?.toString(format: "dd MMMM yyyy")
+        deadlineDateLabel.text = dateSelection.selectedDate?.date?.toString()
+        currentDeadline = dateSelection.selectedDate?.date
+        tempDeadline = currentDeadline
     }
     
     // MARK: - Actions
@@ -223,6 +238,7 @@ final class TaskDetailViewController: UIViewController {
     @objc private func deadlineSwitchValueChanged(_ sender: UISwitch) {
         if sender.isOn {
             self.deadlineDateLabel.alpha = 0
+            self.currentDeadline = self.tempDeadline
             
             UIView.animate(withDuration: 0.3) {
                 self.deadlineDateLabel.isHidden = false
@@ -234,14 +250,17 @@ final class TaskDetailViewController: UIViewController {
         } else {
             UIView.animate(withDuration: 0.3) {
                 self.deadlineDateLabel.isHidden = true
+            } completion: { _ in
+                self.currentDeadline = nil
             }
             
             hideCalendarAnimate(duration: duration)
         }
+        
+        navigationItem.rightBarButtonItem?.isEnabled = true
     }
     
     @objc private func deadlineDateTapped() {
-        
         if isCalendarHidden {
             showCalendarAnimate(duration: duration)
         } else {
@@ -277,23 +296,57 @@ final class TaskDetailViewController: UIViewController {
     
     @objc private func segmentedControlValueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
-        case 0: print("Выбран сегмент 0")
-        case 1: print("Выбран сегмент 1")
-        case 2: print("Выбран сегмент 2")
+        case 0: currentImportance = .low
+        case 1: currentImportance = .normal
+        case 2: currentImportance = .important
         default:
             break
         }
+        navigationItem.rightBarButtonItem?.isEnabled = true
+    }
+    
+    @objc private func saveButtonPressed() {
+        let todoItem = TodoItem(
+            id: currentId,
+            text: textEditorTextView.text,
+            importance: currentImportance,
+            deadline: currentDeadline,
+            isDone: false
+        )
+        
+        presenter?.saveTask(item: todoItem)
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     @objc private func deleteButtonPressed() {
-        print("Нажата кнопка удаления")
+        presenter?.deleteTask(id: currentId)
     }
 }
 
 // MARK: - Логика обновления данных View
 
 extension TaskDetailViewController: TaskDetailView {
-    
+    func update(viewModel: TaskDetailViewModel?) {
+        currentId = viewModel?.id ?? UUID().uuidString
+        currentText = viewModel?.text
+        textEditorTextView.text = currentText
+        setChoiceDateDeadline(date: viewModel?.deadline)
+        
+        currentImportance = viewModel?.importance ?? .normal
+        switch currentImportance {
+        case .low:
+            importanceSegmentedControl.selectedSegmentIndex = 0
+        case .normal:
+            importanceSegmentedControl.selectedSegmentIndex = 1
+        case .important:
+            importanceSegmentedControl.selectedSegmentIndex = 2
+        }
+        
+        if viewModel?.deadline != nil {
+            deadlineSwitch.setOn(true, animated: false)
+            deadlineSwitchValueChanged(deadlineSwitch)
+        }
+    }
 }
 
 // MARK: - Конфигурирование ViewController
@@ -303,17 +356,21 @@ private extension TaskDetailViewController {
     func setup() {
         title = "Дело"
         
-        setChoiceDateDefault()
         setupNavBar()
         setupConstraints()
+        setupUI()
         
         view.addGestureRecognizer(endEditingGesture)
-        
+    }
+    
+    func setupUI() {
         if textEditorTextView.text.isEmpty {
             textEditorTextView.text = "Что надо сделать?"
             textEditorTextView.textColor = Colors.labelTertiary
         } else {
             textEditorTextView.textColor = Colors.labelPrimary
+            deleteButton.setTitleColor(Colors.red, for: .normal)
+            deleteButton.isEnabled = true
         }
     }
     
@@ -344,8 +401,10 @@ private extension TaskDetailViewController {
             title: "Сохранить",
             style: .done,
             target: self,
-            action: nil
+            action: #selector(saveButtonPressed)
         )
+        
+        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     func setupConstraints() {
@@ -414,6 +473,14 @@ private extension TaskDetailViewController {
 
 // перенести в презентер
 extension TaskDetailViewController: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        if textEditorTextView.text == currentText {
+            navigationItem.rightBarButtonItem?.isEnabled = false
+        } else {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        }
+    }
+    
     func textViewDidBeginEditing(_ textView: UITextView) {
         if textView.textColor == Colors.labelTertiary {
             textView.text = nil
@@ -437,6 +504,8 @@ extension TaskDetailViewController: UITextViewDelegate {
             textView.text = "Что надо сделать?"
             textView.textColor = Colors.labelTertiary
             
+            navigationItem.rightBarButtonItem?.isEnabled = false
+            
             UIView.transition(
                 with: deleteButton,
                 duration: 0.2,
@@ -455,7 +524,10 @@ extension TaskDetailViewController: UITextViewDelegate {
 extension TaskDetailViewController: UICalendarSelectionSingleDateDelegate {
     func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
         
-        deadlineDateLabel.text = dateComponents?.date?.toString(format: "dd MMMM yyyy")
+        deadlineDateLabel.text = dateComponents?.date?.toString()
+        currentDeadline = dateComponents?.date
+        tempDeadline = currentDeadline
+        navigationItem.rightBarButtonItem?.isEnabled = true
         
     }
 }
