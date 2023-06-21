@@ -20,7 +20,7 @@ final class TaskDetailViewController: UIViewController {
     
     // MARK: - Private property
     
-    private var deadlineDay: String? = "234 345 345"
+    private var deadlineDay: String? = "error choice data"
     private var isCalendarHidden = true
     /// Время выполнения анимаций на экране
     private let duration = 0.3
@@ -37,15 +37,21 @@ final class TaskDetailViewController: UIViewController {
         return scrollView
     }()
     
-    private var containerView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        return view
+    private var stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.distribution = .fill
+        stackView.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        stackView.isLayoutMarginsRelativeArrangement = true
+        return stackView
     }()
     
     private var textEditorTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
+        textView.isScrollEnabled = false
         textView.backgroundColor = Colors.backSecondary
         textView.layer.cornerRadius = 16
         textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 17, right: 16)
@@ -53,12 +59,17 @@ final class TaskDetailViewController: UIViewController {
         return textView
     }()
     
-    private var taskSettingsView: UIView = {
-        let view = UIView()
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = Colors.backSecondary
-        view.layer.cornerRadius = 16
-        return view
+    private var taskSettingsStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 0
+        stackView.distribution = .fill
+        stackView.backgroundColor = Colors.backSecondary
+        stackView.layer.cornerRadius = 16
+        stackView.layoutMargins = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        stackView.isLayoutMarginsRelativeArrangement = true
+        return stackView
     }()
     
     private var importanceSettingView: UIView = {
@@ -154,14 +165,6 @@ final class TaskDetailViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = Colors.supportOverlay
         return view
-    }()
-    
-    private var calendarStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        return stackView
     }()
     
     private var calendarView: UICalendarView = {
@@ -298,12 +301,13 @@ extension TaskDetailViewController: TaskDetailView {
 private extension TaskDetailViewController {
     /// Метод инициализации VC
     func setup() {
+        title = "Дело"
+        
         setChoiceDateDefault()
+        setupNavBar()
         setupConstraints()
         
         view.addGestureRecognizer(endEditingGesture)
-        
-        title = "Дело"
         
         if textEditorTextView.text.isEmpty {
             textEditorTextView.text = "Что надо сделать?"
@@ -313,31 +317,59 @@ private extension TaskDetailViewController {
         }
     }
     
+    func setupNavBar() {
+        title = "Дело"
+        setupLeftNavBarButton()
+        setupNavBarRightButton()
+    }
+    
+    func setupLeftNavBarButton() {
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "Отменить",
+            style: .plain,
+            target: self,
+            action: nil
+        )
+    }
+    
+    func setupNavBarRightButton() {
+        let disabledColor = Colors.labelTertiary
+        let disabledTextAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: disabledColor ?? UIColor.red
+        ]
+        
+        navigationItem.rightBarButtonItem?.setTitleTextAttributes(disabledTextAttributes, for: .disabled)
+        
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Сохранить",
+            style: .done,
+            target: self,
+            action: nil
+        )
+    }
+    
     func setupConstraints() {
         view.addSubview(scrollView)
-        scrollView.addSubview(containerView)
+        scrollView.addSubview(stackView)
         
-        containerView.addSubview(textEditorTextView)
+        stackView.addArrangedSubview(textEditorTextView)
+        stackView.addArrangedSubview(taskSettingsStackView)
+        stackView.addArrangedSubview(deleteButton)
         
-        containerView.addSubview(taskSettingsView)
-        taskSettingsView.addSubview(importanceSettingView)
+        taskSettingsStackView.addArrangedSubview(importanceSettingView)
         importanceSettingView.addSubview(importanceLabel)
         importanceSettingView.addSubview(importanceSegmentedControl)
         
-        containerView.addSubview(separator1)
+        taskSettingsStackView.addArrangedSubview(separator1)
         
-        containerView.addSubview(deadlineStackView)
-        taskSettingsView.addSubview(deadlineSettingView)
+        taskSettingsStackView.addArrangedSubview(deadlineSettingView)
         deadlineSettingView.addSubview(deadlineStackView)
         deadlineStackView.addArrangedSubview(deadlineLabel)
         deadlineStackView.addArrangedSubview(deadlineDateLabel)
         deadlineSettingView.addSubview(deadlineSwitch)
         
-        taskSettingsView.addSubview(calendarStackView)
-        calendarStackView.addArrangedSubview(separator2)
-        calendarStackView.addArrangedSubview(calendarView)
-        
-        containerView.addSubview(deleteButton)
+        taskSettingsStackView.addArrangedSubview(separator2)
+        taskSettingsStackView.addArrangedSubview(calendarView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -345,71 +377,45 @@ private extension TaskDetailViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            containerView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
-            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            containerView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            containerView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
             
-            textEditorTextView.heightAnchor.constraint(equalToConstant: 120),
-            textEditorTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-            textEditorTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            textEditorTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            
-            taskSettingsView.topAnchor.constraint(equalTo: textEditorTextView.bottomAnchor, constant: 16),
-            taskSettingsView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            taskSettingsView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            textEditorTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
             
             importanceSettingView.heightAnchor.constraint(equalToConstant: 56),
-            importanceSettingView.topAnchor.constraint(equalTo: taskSettingsView.topAnchor),
-            importanceSettingView.leadingAnchor.constraint(equalTo: taskSettingsView.leadingAnchor),
-            importanceSettingView.trailingAnchor.constraint(equalTo: taskSettingsView.trailingAnchor),
             
             importanceLabel.centerYAnchor.constraint(equalTo: importanceSettingView.centerYAnchor),
-            importanceLabel.leadingAnchor.constraint(equalTo: importanceSettingView.leadingAnchor, constant: 16),
+            importanceLabel.leadingAnchor.constraint(equalTo: importanceSettingView.leadingAnchor),
             
             importanceSegmentedControl.heightAnchor.constraint(equalToConstant: 36),
             importanceSegmentedControl.widthAnchor.constraint(equalToConstant: 150),
             importanceSegmentedControl.centerYAnchor.constraint(equalTo: importanceSettingView.centerYAnchor),
-            importanceSegmentedControl.trailingAnchor.constraint(equalTo: importanceSettingView.trailingAnchor, constant: -16),
+            importanceSegmentedControl.trailingAnchor.constraint(equalTo: importanceSettingView.trailingAnchor),
             
             separator1.heightAnchor.constraint(equalToConstant: 1),
-            separator1.leadingAnchor.constraint(equalTo: importanceSettingView.leadingAnchor, constant: 16),
-            separator1.trailingAnchor.constraint(equalTo: importanceSettingView.trailingAnchor, constant: -16),
-            separator1.bottomAnchor.constraint(equalTo: importanceSettingView.bottomAnchor),
             
             deadlineSettingView.heightAnchor.constraint(equalToConstant: 56),
-            deadlineSettingView.topAnchor.constraint(equalTo: separator1.bottomAnchor),
-            deadlineSettingView.leadingAnchor.constraint(equalTo: taskSettingsView.leadingAnchor),
-            deadlineSettingView.trailingAnchor.constraint(equalTo: taskSettingsView.trailingAnchor),
-
+            
             deadlineStackView.centerYAnchor.constraint(equalTo: deadlineSettingView.centerYAnchor),
-            deadlineStackView.leadingAnchor.constraint(equalTo: deadlineSettingView.leadingAnchor, constant: 16),
-
+            deadlineStackView.leadingAnchor.constraint(equalTo: deadlineSettingView.leadingAnchor),
+            
             deadlineSwitch.centerYAnchor.constraint(equalTo: deadlineSettingView.centerYAnchor),
-            deadlineSwitch.trailingAnchor.constraint(equalTo: deadlineSettingView.trailingAnchor, constant: -16),
+            deadlineSwitch.trailingAnchor.constraint(equalTo: deadlineSettingView.trailingAnchor),
             
             separator2.heightAnchor.constraint(equalToConstant: 1),
             
-            calendarStackView.topAnchor.constraint(equalTo: deadlineSettingView.bottomAnchor),
-            calendarStackView.leadingAnchor.constraint(equalTo: deadlineSettingView.leadingAnchor, constant: 16),
-            calendarStackView.trailingAnchor.constraint(equalTo: deadlineSettingView.trailingAnchor, constant: -16),
-            calendarStackView.bottomAnchor.constraint(equalTo: taskSettingsView.bottomAnchor),
-
-            deleteButton.heightAnchor.constraint(equalToConstant: 56),
-            deleteButton.topAnchor.constraint(equalTo: taskSettingsView.bottomAnchor, constant: 16),
-            deleteButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-            deleteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
-            // ???: Что нужно сделать, чтобы это перестало ломать интерфейс.
-//            deleteButton.bottomAnchor.constraint(greaterThanOrEqualTo: containerView.bottomAnchor, constant: -67)
+            deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
-
     }
 }
 
 // перенести в презентер
 extension TaskDetailViewController: UITextViewDelegate {
     func textViewDidBeginEditing(_ textView: UITextView) {
-        if !textView.text.isEmpty {
+        if textView.textColor == Colors.labelTertiary {
             textView.text = nil
             textView.textColor = Colors.labelPrimary
             
