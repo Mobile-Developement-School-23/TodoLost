@@ -20,29 +20,32 @@ final class TaskDetailViewController: UIViewController {
     
     // MARK: - Private property
     
+    private var deadlineDay: String? = "234 345 345"
+    private var isCalendarHidden = true
+    /// Время выполнения анимаций на экране
+    private let duration = 0.3
+    
     private lazy var endEditingGesture: UIGestureRecognizer = {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
         return tapGesture
     }()
     
-    @UsesAutoLayout
     private var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.backgroundColor = Colors.backPrimary
         return scrollView
     }()
     
-    @UsesAutoLayout
-    private var stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 16
-        stackView.distribution = .fill
-        return stackView
+    private var containerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     }()
     
     private var textEditorTextView: UITextView = {
         let textView = UITextView()
+        textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = Colors.backSecondary
         textView.layer.cornerRadius = 16
         textView.textContainerInset = UIEdgeInsets(top: 17, left: 16, bottom: 17, right: 16)
@@ -50,26 +53,23 @@ final class TaskDetailViewController: UIViewController {
         return textView
     }()
     
-    @UsesAutoLayout
-    private var taskSettingsStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 0
-        stackView.distribution = .fill
-        stackView.backgroundColor = Colors.backSecondary
-        stackView.layer.cornerRadius = 16
-        return stackView
-    }()
-    
-    @UsesAutoLayout
-    private var importanceSettingView: UIView = {
+    private var taskSettingsView: UIView = {
         let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = Colors.backSecondary
+        view.layer.cornerRadius = 16
         return view
     }()
     
-    @UsesAutoLayout
+    private var importanceSettingView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     private var importanceLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Важность"
         label.font = Fonts.body
         return label
@@ -95,22 +95,22 @@ final class TaskDetailViewController: UIViewController {
         return segmentedControl
     }()
     
-    @UsesAutoLayout
-    private var separator: UIView = {
+    private var separator1: UIView = {
         let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = Colors.supportOverlay
         return view
     }()
     
-    @UsesAutoLayout
     private var deadlineSettingView: UIView = {
         let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    @UsesAutoLayout
     private var deadlineStackView: UIStackView = {
         let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.spacing = 0
         stackView.alignment = .leading
@@ -119,16 +119,25 @@ final class TaskDetailViewController: UIViewController {
     
     private var deadlineLabel: UILabel = {
         let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Сделать до"
         label.font = Fonts.body
         return label
     }()
     
-    private var deadlineDateLabel: UILabel = {
+    private lazy var deadlineDateLabel: UILabel = {
         let label = UILabel()
-        label.text = "2 июня 2021"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isHidden = true
+        label.text = deadlineDay
         label.font = Fonts.footnote
         label.textColor = Colors.blue
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(deadlineDateTapped))
+        
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(tapGesture)
+        
         return label
     }()
     
@@ -139,8 +148,33 @@ final class TaskDetailViewController: UIViewController {
         return uiSwitch
     }()
     
+    private var separator2: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = Colors.supportOverlay
+        return view
+    }()
+    
+    private var calendarStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 0
+        return stackView
+    }()
+    
+    private var calendarView: UICalendarView = {
+        let calendarView = UICalendarView()
+        calendarView.translatesAutoresizingMaskIntoConstraints = false
+        calendarView.isHidden = true
+        calendarView.availableDateRange = DateInterval(start: .now, end: .distantFuture)
+        return calendarView
+    }()
+    
     private lazy var deleteButton: UIButton = {
         let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle("Удалить", for: .normal)
         button.setTitleColor(Colors.labelTertiary, for: .normal)
         button.backgroundColor = Colors.backSecondary
@@ -156,8 +190,25 @@ final class TaskDetailViewController: UIViewController {
         super.viewDidLoad()
         
         textEditorTextView.delegate = self // сделать делегатом презентер
-        setupConstraints()
         setup()
+        
+    }
+    
+    // MARK: - Private methods
+    private func setChoiceDateDefault() {
+        let dateSelection = UICalendarSelectionSingleDate(delegate: self)
+        
+        let currentDate = Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: currentDate)
+        
+        let year = components.year
+        let month = components.month
+        let day = (components.day ?? 0) + 1
+        
+        dateSelection.selectedDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: year, month: month, day: day)
+        calendarView.selectionBehavior = dateSelection
+        deadlineDay = dateSelection.selectedDate?.date?.toString(format: "dd MMMM yyyy")
     }
     
     // MARK: - Actions
@@ -168,37 +219,56 @@ final class TaskDetailViewController: UIViewController {
     
     @objc private func deadlineSwitchValueChanged(_ sender: UISwitch) {
         if sender.isOn {
-            print("Дедлайн активирован")
-            
             self.deadlineDateLabel.alpha = 0
-            self.deadlineDateLabel.isHidden = false
             
-            self.deadlineStackView.addArrangedSubview(self.deadlineDateLabel)
-            
-            UIView.animate(withDuration: 0.3, animations: {
-                self.deadlineDateLabel.alpha = 1
-                self.stackView.layoutIfNeeded()
-            })
+            UIView.animate(withDuration: 0.3) {
+                self.deadlineDateLabel.isHidden = false
+            } completion: { _ in
+                UIView.animate(withDuration: 0.3) {
+                    self.deadlineDateLabel.alpha = 1
+                }
+            }
         } else {
-            print("Дедлайн деактивирован")
-            
-            // Плейсхолдер используется для предотвращения резкой анимации при удалении
-            let placeholderView = UIView()
-            guard let dataLabelIndex = deadlineStackView.arrangedSubviews.firstIndex(of: deadlineDateLabel) else {
-                debugPrint("Нет такого индекса для dataLabelIndex")
-                return
-            }
-            
-            self.deadlineStackView.insertArrangedSubview(placeholderView, at: dataLabelIndex)
-            
-            UIView.animate(withDuration: 0.3, animations: {
+            UIView.animate(withDuration: 0.3) {
                 self.deadlineDateLabel.isHidden = true
-                self.stackView.layoutIfNeeded()
-            }) { _ in
-                self.deadlineStackView.removeArrangedSubview(self.deadlineDateLabel)
-                self.deadlineDateLabel.removeFromSuperview()
-                placeholderView.removeFromSuperview()
             }
+            
+            hideCalendarAnimate(duration: duration)
+        }
+    }
+    
+    @objc private func deadlineDateTapped() {
+        
+        if isCalendarHidden {
+            showCalendarAnimate(duration: duration)
+        } else {
+            hideCalendarAnimate(duration: duration)
+        }
+    }
+    
+    private func showCalendarAnimate(duration: CGFloat) {
+        UIView.animate(withDuration: duration) {
+            self.calendarView.isHidden = false
+            self.separator2.isHidden = false
+        } completion: { _ in
+            UIView.animate(withDuration: duration) {
+                self.calendarView.alpha = 1
+            }
+            
+            self.isCalendarHidden = false
+        }
+    }
+    
+    private func hideCalendarAnimate(duration: CGFloat) {
+        UIView.animate(withDuration: duration) {
+            self.calendarView.alpha = 0
+        } completion: { _ in
+            UIView.animate(withDuration: duration) {
+                self.calendarView.isHidden = true
+                self.separator2.isHidden = true
+            }
+            
+            self.isCalendarHidden = true
         }
     }
     
@@ -228,6 +298,9 @@ extension TaskDetailViewController: TaskDetailView {
 private extension TaskDetailViewController {
     /// Метод инициализации VC
     func setup() {
+        setChoiceDateDefault()
+        setupConstraints()
+        
         view.addGestureRecognizer(endEditingGesture)
         
         title = "Дело"
@@ -242,22 +315,29 @@ private extension TaskDetailViewController {
     
     func setupConstraints() {
         view.addSubview(scrollView)
-        scrollView.addSubview(stackView)
+        scrollView.addSubview(containerView)
         
-        stackView.addArrangedSubview(textEditorTextView)
-        stackView.addArrangedSubview(taskSettingsStackView)
-        stackView.addArrangedSubview(deleteButton)
+        containerView.addSubview(textEditorTextView)
         
-        taskSettingsStackView.addArrangedSubview(importanceSettingView)
+        containerView.addSubview(taskSettingsView)
+        taskSettingsView.addSubview(importanceSettingView)
         importanceSettingView.addSubview(importanceLabel)
         importanceSettingView.addSubview(importanceSegmentedControl)
-        importanceSettingView.addSubview(separator)
         
+        containerView.addSubview(separator1)
         
-        taskSettingsStackView.addArrangedSubview(deadlineSettingView)
+        containerView.addSubview(deadlineStackView)
+        taskSettingsView.addSubview(deadlineSettingView)
         deadlineSettingView.addSubview(deadlineStackView)
         deadlineStackView.addArrangedSubview(deadlineLabel)
+        deadlineStackView.addArrangedSubview(deadlineDateLabel)
         deadlineSettingView.addSubview(deadlineSwitch)
+        
+        taskSettingsView.addSubview(calendarStackView)
+        calendarStackView.addArrangedSubview(separator2)
+        calendarStackView.addArrangedSubview(calendarView)
+        
+        containerView.addSubview(deleteButton)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -265,15 +345,24 @@ private extension TaskDetailViewController {
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
-            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor, constant: 16),
-            stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
-            stackView.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor, constant: 16),
-            stackView.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor, constant: -16),
-            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            containerView.heightAnchor.constraint(equalTo: scrollView.heightAnchor),
+            containerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            containerView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),
+            containerView.centerYAnchor.constraint(equalTo: scrollView.centerYAnchor),
             
-            textEditorTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120),
+            textEditorTextView.heightAnchor.constraint(equalToConstant: 120),
+            textEditorTextView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
+            textEditorTextView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            textEditorTextView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            
+            taskSettingsView.topAnchor.constraint(equalTo: textEditorTextView.bottomAnchor, constant: 16),
+            taskSettingsView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            taskSettingsView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
             
             importanceSettingView.heightAnchor.constraint(equalToConstant: 56),
+            importanceSettingView.topAnchor.constraint(equalTo: taskSettingsView.topAnchor),
+            importanceSettingView.leadingAnchor.constraint(equalTo: taskSettingsView.leadingAnchor),
+            importanceSettingView.trailingAnchor.constraint(equalTo: taskSettingsView.trailingAnchor),
             
             importanceLabel.centerYAnchor.constraint(equalTo: importanceSettingView.centerYAnchor),
             importanceLabel.leadingAnchor.constraint(equalTo: importanceSettingView.leadingAnchor, constant: 16),
@@ -283,21 +372,37 @@ private extension TaskDetailViewController {
             importanceSegmentedControl.centerYAnchor.constraint(equalTo: importanceSettingView.centerYAnchor),
             importanceSegmentedControl.trailingAnchor.constraint(equalTo: importanceSettingView.trailingAnchor, constant: -16),
             
-            separator.heightAnchor.constraint(equalToConstant: 1),
-            separator.leadingAnchor.constraint(equalTo: importanceSettingView.leadingAnchor, constant: 16),
-            separator.trailingAnchor.constraint(equalTo: importanceSettingView.trailingAnchor, constant: -16),
-            separator.bottomAnchor.constraint(equalTo: importanceSettingView.bottomAnchor),
+            separator1.heightAnchor.constraint(equalToConstant: 1),
+            separator1.leadingAnchor.constraint(equalTo: importanceSettingView.leadingAnchor, constant: 16),
+            separator1.trailingAnchor.constraint(equalTo: importanceSettingView.trailingAnchor, constant: -16),
+            separator1.bottomAnchor.constraint(equalTo: importanceSettingView.bottomAnchor),
             
             deadlineSettingView.heightAnchor.constraint(equalToConstant: 56),
-            
+            deadlineSettingView.topAnchor.constraint(equalTo: separator1.bottomAnchor),
+            deadlineSettingView.leadingAnchor.constraint(equalTo: taskSettingsView.leadingAnchor),
+            deadlineSettingView.trailingAnchor.constraint(equalTo: taskSettingsView.trailingAnchor),
+
             deadlineStackView.centerYAnchor.constraint(equalTo: deadlineSettingView.centerYAnchor),
             deadlineStackView.leadingAnchor.constraint(equalTo: deadlineSettingView.leadingAnchor, constant: 16),
-            
+
             deadlineSwitch.centerYAnchor.constraint(equalTo: deadlineSettingView.centerYAnchor),
             deadlineSwitch.trailingAnchor.constraint(equalTo: deadlineSettingView.trailingAnchor, constant: -16),
             
-            deleteButton.heightAnchor.constraint(equalToConstant: 56)
+            separator2.heightAnchor.constraint(equalToConstant: 1),
+            
+            calendarStackView.topAnchor.constraint(equalTo: deadlineSettingView.bottomAnchor),
+            calendarStackView.leadingAnchor.constraint(equalTo: deadlineSettingView.leadingAnchor, constant: 16),
+            calendarStackView.trailingAnchor.constraint(equalTo: deadlineSettingView.trailingAnchor, constant: -16),
+            calendarStackView.bottomAnchor.constraint(equalTo: taskSettingsView.bottomAnchor),
+
+            deleteButton.heightAnchor.constraint(equalToConstant: 56),
+            deleteButton.topAnchor.constraint(equalTo: taskSettingsView.bottomAnchor, constant: 16),
+            deleteButton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
+            deleteButton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
+            // ???: Что нужно сделать, чтобы это перестало ломать интерфейс.
+//            deleteButton.bottomAnchor.constraint(greaterThanOrEqualTo: containerView.bottomAnchor, constant: -67)
         ])
+
     }
 }
 
@@ -337,5 +442,14 @@ extension TaskDetailViewController: UITextViewDelegate {
                 self.deleteButton.isEnabled = false
             }
         }
+    }
+}
+
+// MARK: CalendarView
+extension TaskDetailViewController: UICalendarSelectionSingleDateDelegate {
+    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
+        
+        deadlineDateLabel.text = dateComponents?.date?.toString(format: "dd MMMM yyyy")
+        
     }
 }
