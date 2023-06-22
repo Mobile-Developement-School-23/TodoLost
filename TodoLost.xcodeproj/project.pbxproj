@@ -11,6 +11,7 @@
 		2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2CFCA22A3F9DD400B80728 /* Color.swift */; };
 		2C31EDF12A3A17C000855D45 /* TodoItems.csv in Resources */ = {isa = PBXBuildFile; fileRef = 2C24B3FA2A378AA2004C5816 /* TodoItems.csv */; };
 		2C31EDF22A3A17C500855D45 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
+		2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */; };
 		2C451A532A35E03100135FF8 /* TodoItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C451A522A35E03100135FF8 /* TodoItemTests.swift */; };
 		2C633F5E2A3F59DD00BD2F29 /* TaskDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F5D2A3F59DD00BD2F29 /* TaskDetailViewController.swift */; };
 		2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F5F2A3F5A2700BD2F29 /* TaskDetailPresenter.swift */; };
@@ -54,6 +55,7 @@
 		2C24B3FA2A378AA2004C5816 /* TodoItems.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoItems.csv; sourceTree = "<group>"; };
 		2C2CFCA22A3F9DD400B80728 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		2C3458082A35A9DF00B5FA6A /* TodoItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TodoItems.json; sourceTree = "<group>"; };
+		2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationKeyboardObserver.swift; sourceTree = "<group>"; };
 		2C451A522A35E03100135FF8 /* TodoItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemTests.swift; sourceTree = "<group>"; };
 		2C5C7B9E2A3604A900B7DF19 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		2C633F5D2A3F59DD00BD2F29 /* TaskDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewController.swift; sourceTree = "<group>"; };
@@ -121,6 +123,14 @@
 				2C740FDB2A40B7DC00884C79 /* Fonts.swift */,
 			);
 			path = Constants;
+			sourceTree = "<group>";
+		};
+		2C3614AA2A4465C700C6C9BC /* Observers */ = {
+			isa = PBXGroup;
+			children = (
+				2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */,
+			);
+			path = Observers;
 			sourceTree = "<group>";
 		};
 		2C451A502A35E00400135FF8 /* Services */ = {
@@ -245,6 +255,7 @@
 			isa = PBXGroup;
 			children = (
 				2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */,
+				2C3614AA2A4465C700C6C9BC /* Observers */,
 				2C6C24142A34AFFC002B107C /* Models */,
 				2C9B8B232A37292900CC591A /* Storages */,
 			);
@@ -418,6 +429,7 @@
 				2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */,
 				2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */,
 				2C6C24132A34AFAC002B107C /* TodoItem.swift in Sources */,
+				2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */,
 				2C9B8B252A37295000CC591A /* FileCache.swift in Sources */,
 				2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */,
 				2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */,

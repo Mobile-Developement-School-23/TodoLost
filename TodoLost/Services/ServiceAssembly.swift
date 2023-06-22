@@ -11,5 +11,9 @@ final class ServiceAssembly {
     lazy var fileCacheStorage: IFileCache = {
         return FileCache()
     }()
+    
+    lazy var notificationKeyboardObserver: INotificationKeyboardObserver = {
+       return NotificationKeyboardObserver()
+    }()
 }
 

@@ -17,6 +17,7 @@ final class TaskDetailViewController: UIViewController {
     // MARK: - Public property
     
     var presenter: TaskDetailPresenter?
+    var observerKeyboard: INotificationKeyboardObserver?
     
     // MARK: - Private property
     
@@ -36,6 +37,13 @@ final class TaskDetailViewController: UIViewController {
     private lazy var endEditingGesture: UIGestureRecognizer = {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
         return tapGesture
+    }()
+    
+    /// Используется для возможности менять высоту при отображении и скрытии клавиатуры
+    private lazy var bottomScreenConstraint: NSLayoutConstraint = {
+        let constraint = scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        constraint.constant = .zero
+        return constraint
     }()
     
     private let scrollView: UIScrollView = {
@@ -358,6 +366,7 @@ private extension TaskDetailViewController {
         
         setupNavBar()
         setupConstraints()
+        setupKeyboardNotificationsObserver()
         setupUI()
         
         view.addGestureRecognizer(endEditingGesture)
@@ -407,6 +416,13 @@ private extension TaskDetailViewController {
         navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
+    func setupKeyboardNotificationsObserver() {
+        observerKeyboard?.addChangeHeightObserver(
+            for: view,
+            changeValueFor: bottomScreenConstraint
+        )
+    }
+    
     func setupConstraints() {
         view.addSubview(scrollView)
         scrollView.addSubview(stackView)
@@ -434,7 +450,7 @@ private extension TaskDetailViewController {
             scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomScreenConstraint,
             
             stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
             stackView.centerXAnchor.constraint(equalTo: scrollView.centerXAnchor),

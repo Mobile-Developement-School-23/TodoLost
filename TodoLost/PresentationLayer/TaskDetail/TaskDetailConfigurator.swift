@@ -10,9 +10,14 @@ import UIKit
 /// Конфигурация MVP модуля
 final class TaskDetailConfigurator {
     private let fileCacheStorage: IFileCache
+    private let notificationKeyboardObserver: INotificationKeyboardObserver
     
-    init(fileCacheStorage: IFileCache) {
+    init(
+        fileCacheStorage: IFileCache,
+        notificationKeyboardObserver: INotificationKeyboardObserver
+    ) {
         self.fileCacheStorage = fileCacheStorage
+        self.notificationKeyboardObserver = notificationKeyboardObserver
     }
     
     func config(
@@ -22,6 +27,7 @@ final class TaskDetailConfigurator {
         let presenter = TaskDetailPresenter(view: view)
         
         view.presenter = presenter
+        view.observerKeyboard = notificationKeyboardObserver
         presenter.view = view
         presenter.fileCacheStorage = fileCacheStorage
     }
