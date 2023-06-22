@@ -9,7 +9,7 @@ import UIKit
 
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskDetailView: AnyObject {
-    func update(viewModel: TaskDetailViewModel?)
+    func updateView(_ viewModel: TaskDetailViewModel?)
     
     func setPlaceholderToTextEditor()
     func removePlaceholderToTextEditor()
@@ -19,6 +19,8 @@ protocol TaskDetailView: AnyObject {
     
     func activateDeleteButton()
     func deactivateDeleteButton()
+    
+    func setDeadlineWith(_ dateSelection: UICalendarSelectionSingleDate)
 }
 
 final class TaskDetailViewController: UIViewController {
@@ -32,9 +34,12 @@ final class TaskDetailViewController: UIViewController {
     
     private var currentId = ""
     private var currentImportance: Importance = .normal
+    
+    // FIXME: Костыль. Нужно пересмотреть эти 2 свойства, и например делать свитчем сброс и установку именно в модели через презентер
+    /// Используется при переключении свитча, чтобы сбросить текущую дату при выключении дедлайна и сохранить nil
     private var currentDeadline: Date?
     /// Используется для временного хранения даты при переключении свича
-    /// - свич очищает текущий дедлайн, чтобы при сохранении данные не записались. И чтобы вернуть
+    /// - свич очищает текущий дедлайн, чтобы при сохранении записать nil. И чтобы вернуть
     /// значение обратно, используется это свойство, если пользователь передумал отключать дедлайн
     private var tempDeadline: Date?
     
@@ -247,30 +252,6 @@ final class TaskDetailViewController: UIViewController {
         }
     }
     
-    // MARK: - Private methods
-    
-    /// Метод установки выбранной даты дедлайна в календарь
-    /// - Parameter date: принимает дату, которая будет установлена как выбранная. Если даты нет
-    /// будет установлен следующий день от текущего.
-    private func setChoiceDateDeadline(date: Date?) {
-        let dateSelection = UICalendarSelectionSingleDate(delegate: self)
-
-        let currentDate = date ?? Date()
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.year, .month, .day], from: currentDate)
-        
-        let year = components.year
-        let month = components.month
-        let day = date != nil ? components.day : (components.day ?? 0) + 1
-        
-        dateSelection.selectedDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: year, month: month, day: day)
-        
-        calendarView.selectionBehavior = dateSelection
-        deadlineDateLabel.text = dateSelection.selectedDate?.date?.toString()
-        currentDeadline = dateSelection.selectedDate?.date
-        tempDeadline = currentDeadline
-    }
-    
     // MARK: - Actions
     
     @objc func endEditing() {
@@ -368,6 +349,11 @@ final class TaskDetailViewController: UIViewController {
 // MARK: - Логика обновления данных View
 
 extension TaskDetailViewController: TaskDetailView {
+    
+    func setDeadlineWith(_ dateSelection: UICalendarSelectionSingleDate) {
+        calendarView.selectionBehavior = dateSelection
+    }
+    
     func setPlaceholderToTextEditor() {
         textEditorTextView.text = "Что надо сделать?"
         textEditorTextView.textColor = Colors.labelTertiary
@@ -412,10 +398,13 @@ extension TaskDetailViewController: TaskDetailView {
         }
     }
     
-    func update(viewModel: TaskDetailViewModel?) {
+    func updateView(_ viewModel: TaskDetailViewModel?) {
         currentId = viewModel?.id ?? UUID().uuidString
         textEditorTextView.text = viewModel?.text
-        setChoiceDateDeadline(date: viewModel?.deadline)
+        
+        tempDeadline = viewModel?.tempDeadline
+        currentDeadline = viewModel?.deadline
+        deadlineDateLabel.text = currentDeadline?.toString() ?? tempDeadline?.toString()
         
         currentImportance = viewModel?.importance ?? .normal
         switch currentImportance {
@@ -431,25 +420,7 @@ extension TaskDetailViewController: TaskDetailView {
             deadlineSwitch.setOn(true, animated: false)
             deadlineSwitchValueChanged(deadlineSwitch)
         }
-    }
-}
-
-// MARK: - Конфигурирование ViewController
-
-private extension TaskDetailViewController {
-    /// Метод инициализации VC
-    func setup() {
-        title = "Дело"
         
-        setupNavBar()
-        setupConstraints()
-        setupKeyboardNotificationsObserver()
-        setupUI()
-        
-        view.addGestureRecognizer(endEditingGesture)
-    }
-    
-    func setupUI() {
         if textEditorTextView.text.isEmpty {
             textEditorTextView.text = "Что надо сделать?"
             textEditorTextView.textColor = Colors.labelTertiary
@@ -458,6 +429,18 @@ private extension TaskDetailViewController {
             deleteButton.setTitleColor(Colors.red, for: .normal)
             deleteButton.isEnabled = true
         }
+    }
+}
+
+// MARK: - Конфигурирование ViewController
+
+private extension TaskDetailViewController {
+    /// Метод инициализации VC
+    func setup() {
+        view.addGestureRecognizer(endEditingGesture)
+        setupNavBar()
+        setupConstraints()
+        setupKeyboardNotificationsObserver()
     }
     
     func setupNavBar() {
@@ -563,17 +546,5 @@ private extension TaskDetailViewController {
             
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
-    }
-}
-
-// MARK: CalendarView
-extension TaskDetailViewController: UICalendarSelectionSingleDateDelegate {
-    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
-        
-        deadlineDateLabel.text = dateComponents?.date?.toString()
-        currentDeadline = dateComponents?.date
-        tempDeadline = currentDeadline
-        navigationItem.rightBarButtonItem?.isEnabled = true
-        
     }
 }

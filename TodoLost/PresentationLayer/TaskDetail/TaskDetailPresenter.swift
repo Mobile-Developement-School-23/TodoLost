@@ -8,7 +8,9 @@
 import UIKit
 
 /// Протокол взаимодействия ViewController-a с презенетром
-protocol TaskDetailPresentationLogic: AnyObject, UITextViewDelegate {
+protocol TaskDetailPresentationLogic: AnyObject,
+                                      UITextViewDelegate,
+                                      UICalendarSelectionSingleDateDelegate {
     init(view: TaskDetailView)
     
     func fetchTask()
@@ -25,7 +27,7 @@ final class TaskDetailPresenter: NSObject {
     
     // MARK: - Private properties
     
-    private var currentText: String?
+    private var viewModel: TaskDetailViewModel?
     
     // MARK: - Initializer
     
@@ -45,16 +47,51 @@ final class TaskDetailPresenter: NSObject {
         }
         
         fileCacheStorage?.items.forEach({ (_, value) in
-            let viewModel = TaskDetailViewModel(
+            viewModel = TaskDetailViewModel(
                 id: value.id,
                 text: value.text,
                 importance: value.importance,
                 deadline: value.deadline
             )
+            guard let viewModel else {
+                debugPrint("Нет моделей")
+                return
+            }
             viewModels.append(viewModel)
         })
         
         return viewModels
+    }
+    
+    /// Метод установки выбранной даты дедлайна в календарь
+    /// - Parameter date: принимает дату, которая будет установлена как выбранная. Если даты нет
+    /// будет установлен следующий день от текущего.
+    private func setChoiceDateDeadline(date: Date?) {
+        let dateSelection = UICalendarSelectionSingleDate(delegate: self)
+
+        let currentDate = date ?? Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.year, .month, .day], from: currentDate)
+        
+        let year = components.year
+        let month = components.month
+        let day = date != nil ? components.day : (components.day ?? 0) + 1
+        
+        dateSelection.selectedDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: year, month: month, day: day)
+        
+        if viewModel == nil {
+            viewModel = TaskDetailViewModel(
+                id: UUID().uuidString,
+                text: "",
+                importance: .normal,
+                tempDeadline: dateSelection.selectedDate?.date
+            )
+        } else {
+            viewModel?.deadline = dateSelection.selectedDate?.date
+            viewModel?.tempDeadline = dateSelection.selectedDate?.date
+        }
+        
+        view?.setDeadlineWith(dateSelection)
     }
 }
 
@@ -63,7 +100,7 @@ final class TaskDetailPresenter: NSObject {
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
     func saveTask(item: TodoItem) {
         fileCacheStorage?.addToCache(item)
-        currentText = item.text
+        viewModel?.text = item.text
         
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
@@ -73,9 +110,11 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
     }
     
     func fetchTask() {
-        let viewModel = loadDataFromStorage().first
-        currentText = viewModel?.text
-        view?.update(viewModel: viewModel)
+        if let model = loadDataFromStorage().first {
+            viewModel = model
+        }
+        setChoiceDateDeadline(date: viewModel?.deadline)
+        view?.updateView(viewModel)
     }
     
     func deleteTask(id: String) {
@@ -92,7 +131,7 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
 
 extension TaskDetailPresenter: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        if textView.text != currentText {
+        if textView.text != viewModel?.text {
             view?.activateSaveButton()
         } else {
             view?.deactivateSaveButton()
@@ -111,5 +150,17 @@ extension TaskDetailPresenter: UITextViewDelegate {
             view?.setPlaceholderToTextEditor()
             view?.deactivateDeleteButton()
         }
+    }
+}
+
+// MARK: - UICalendarSelectionSingleDateDelegate
+
+extension TaskDetailPresenter: UICalendarSelectionSingleDateDelegate {
+    func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
+        
+        viewModel?.deadline = dateComponents?.date
+        viewModel?.tempDeadline = dateComponents?.date
+        view?.updateView(viewModel)
+        view?.activateSaveButton()
     }
 }

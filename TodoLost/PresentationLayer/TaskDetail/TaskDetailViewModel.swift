@@ -8,8 +8,11 @@
 import Foundation
 
 struct TaskDetailViewModel {
-    let id: String
-    let text: String
-    let importance: Importance
-    let deadline: Date?
+    var id: String
+    var text: String
+    var importance: Importance
+    var deadline: Date?
+    /// Используется при переключении свича, чтобы вернуть дату и не сохранить nil, если пользователь
+    /// решил в начале отключить а затем обратно включить дедлайн
+    var tempDeadline: Date?
 }
