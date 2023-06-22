@@ -19,7 +19,6 @@
 		2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F612A3F5A8000BD2F29 /* TaskDetailConfigurator.swift */; };
 		2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F822A3F7A2900BD2F29 /* PresentationAssembly.swift */; };
 		2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6C23E02A34AEFC002B107C /* AppDelegate.swift */; };
-		2C6C23E32A34AEFC002B107C /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6C23E22A34AEFC002B107C /* SceneDelegate.swift */; };
 		2C6C23EA2A34AEFD002B107C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2C6C23E92A34AEFD002B107C /* Assets.xcassets */; };
 		2C6C23ED2A34AEFD002B107C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2C6C23EB2A34AEFD002B107C /* LaunchScreen.storyboard */; };
 		2C6C24022A34AEFE002B107C /* TodoLostUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6C24012A34AEFE002B107C /* TodoLostUITests.swift */; };
@@ -65,7 +64,6 @@
 		2C633F822A3F7A2900BD2F29 /* PresentationAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentationAssembly.swift; sourceTree = "<group>"; };
 		2C6C23DD2A34AEFC002B107C /* TodoLost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoLost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C6C23E02A34AEFC002B107C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		2C6C23E22A34AEFC002B107C /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		2C6C23E92A34AEFD002B107C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		2C6C23EC2A34AEFD002B107C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		2C6C23EE2A34AEFD002B107C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -231,7 +229,6 @@
 				2C633F652A3F5BF900BD2F29 /* Common */,
 				2C6C24102A34AF4A002B107C /* Services */,
 				2C633F5B2A3F590A00BD2F29 /* PresentationLayer */,
-				2C6C23E22A34AEFC002B107C /* SceneDelegate.swift */,
 			);
 			path = TodoLost;
 			sourceTree = "<group>";
@@ -441,7 +438,6 @@
 				2C9B8B252A37295000CC591A /* FileCache.swift in Sources */,
 				2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */,
 				2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */,
-				2C6C23E32A34AEFC002B107C /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

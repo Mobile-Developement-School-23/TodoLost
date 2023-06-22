@@ -156,7 +156,6 @@ final class FileCache: IFileCache {
             for csvRow in valueRows {
                 // Проверка на случай пустой строки вместо данных
                 if csvRow == "" {
-                    // TODO: Добавить в будущий логгер
                     SystemLogger.warning("Попалась пустая строка")
                     continue
                 }
