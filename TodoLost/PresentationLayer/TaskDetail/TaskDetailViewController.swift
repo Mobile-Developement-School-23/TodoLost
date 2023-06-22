@@ -64,6 +64,15 @@ final class TaskDetailViewController: UIViewController {
         return stackView
     }()
     
+    private let floatingLayoutStack: UIStackView = {
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.distribution = .fill
+        return stackView
+    }()
+    
     private let textEditorTextView: UITextView = {
         let textView = UITextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
@@ -211,6 +220,23 @@ final class TaskDetailViewController: UIViewController {
         textEditorTextView.delegate = self // сделать делегатом презентер
         setup()
         
+    }
+    
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        let device = UIDevice.current
+        let orientation = device.orientation
+        
+        if orientation.isLandscape {
+            stackView.axis = .horizontal
+            stackView.distribution = .fillEqually
+            stackView.alignment = .top
+        } else {
+            stackView.axis = .vertical
+            stackView.distribution = .fill
+            stackView.alignment = .fill
+        }
     }
     
     // MARK: - Private methods
@@ -428,8 +454,10 @@ private extension TaskDetailViewController {
         scrollView.addSubview(stackView)
         
         stackView.addArrangedSubview(textEditorTextView)
-        stackView.addArrangedSubview(taskSettingsStackView)
-        stackView.addArrangedSubview(deleteButton)
+        
+        stackView.addArrangedSubview(floatingLayoutStack)
+        floatingLayoutStack.addArrangedSubview(taskSettingsStackView)
+        floatingLayoutStack.addArrangedSubview(deleteButton)
         
         taskSettingsStackView.addArrangedSubview(importanceSettingView)
         importanceSettingView.addSubview(importanceLabel)
