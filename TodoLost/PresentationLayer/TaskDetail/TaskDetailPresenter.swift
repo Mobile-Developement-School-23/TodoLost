@@ -53,10 +53,7 @@ final class TaskDetailPresenter: NSObject {
                 importance: value.importance,
                 deadline: value.deadline
             )
-            guard let viewModel else {
-                debugPrint("Нет моделей")
-                return
-            }
+            guard let viewModel else { return }
             viewModels.append(viewModel)
         })
         
@@ -83,13 +80,13 @@ final class TaskDetailPresenter: NSObject {
             viewModel = TaskDetailViewModel(
                 id: UUID().uuidString,
                 text: "",
-                importance: .normal,
-                tempDeadline: dateSelection.selectedDate?.date
+                importance: .normal
             )
-        } else {
+        } else if viewModel?.deadline != nil {
             viewModel?.deadline = dateSelection.selectedDate?.date
-            viewModel?.tempDeadline = dateSelection.selectedDate?.date
         }
+        
+        viewModel?.tempDeadline = dateSelection.selectedDate?.date
         
         view?.setDeadlineWith(dateSelection)
     }
@@ -131,11 +128,13 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
 
 extension TaskDetailPresenter: UITextViewDelegate {
     func textViewDidChange(_ textView: UITextView) {
-        if textView.text != viewModel?.text {
+        if textView.text != viewModel?.text && textView.text != "" {
             view?.activateSaveButton()
         } else {
             view?.deactivateSaveButton()
         }
+        
+        viewModel?.text = textView.text
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
@@ -149,6 +148,7 @@ extension TaskDetailPresenter: UITextViewDelegate {
         if textView.text.isEmpty {
             view?.setPlaceholderToTextEditor()
             view?.deactivateDeleteButton()
+            view?.deactivateSaveButton()
         }
     }
 }

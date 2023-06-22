@@ -47,6 +47,29 @@ final class TaskDetailViewController: UIViewController {
     /// Время выполнения анимаций на экране
     private let duration = 0.3
     
+    // MARK: - UIElements
+    
+    private lazy var cancelBarButton: UIBarButtonItem = {
+        UIBarButtonItem(
+            title: "Отменить",
+            style: .plain,
+            target: self,
+            action: nil
+        )
+    }()
+    
+    private lazy var saveBarButton: UIBarButtonItem = {
+        let button = UIBarButtonItem(
+            title: "Сохранить",
+            style: .done,
+            target: self,
+            action: #selector(saveButtonPressed)
+        )
+        
+        button.isEnabled = false
+        return button
+    }()
+    
     private lazy var endEditingGesture: UIGestureRecognizer = {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
         return tapGesture
@@ -205,6 +228,7 @@ final class TaskDetailViewController: UIViewController {
         return view
     }()
     
+    // FIXME: ПО каким то причинам выбор даты происходит только при долгом нажатии
     private let calendarView: UICalendarView = {
         let calendarView = UICalendarView()
         calendarView.translatesAutoresizingMaskIntoConstraints = false
@@ -254,7 +278,7 @@ final class TaskDetailViewController: UIViewController {
     
     // MARK: - Actions
     
-    @objc func endEditing() {
+    @objc private func endEditing() {
         view.endEditing(true)
     }
     
@@ -280,7 +304,7 @@ final class TaskDetailViewController: UIViewController {
             hideCalendarAnimate(duration: duration)
         }
         
-        navigationItem.rightBarButtonItem?.isEnabled = true
+        activateSaveButton()
     }
     
     @objc private func deadlineDateTapped() {
@@ -325,7 +349,7 @@ final class TaskDetailViewController: UIViewController {
         default:
             break
         }
-        navigationItem.rightBarButtonItem?.isEnabled = true
+        activateSaveButton()
     }
     
     @objc private func saveButtonPressed() {
@@ -338,7 +362,7 @@ final class TaskDetailViewController: UIViewController {
         )
         
         presenter?.saveTask(item: todoItem)
-        navigationItem.rightBarButtonItem?.isEnabled = false
+        deactivateSaveButton()
     }
     
     @objc private func deleteButtonPressed() {
@@ -445,35 +469,18 @@ private extension TaskDetailViewController {
     
     func setupNavBar() {
         title = "Дело"
-        setupLeftNavBarButton()
-        setupNavBarRightButton()
-    }
-    
-    func setupLeftNavBarButton() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            title: "Отменить",
-            style: .plain,
-            target: self,
-            action: nil
-        )
-    }
-    
-    func setupNavBarRightButton() {
+        navigationItem.leftBarButtonItem = cancelBarButton
+        navigationItem.rightBarButtonItem = saveBarButton
+        
         let disabledColor = Colors.labelTertiary
         let disabledTextAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: disabledColor ?? UIColor.red
         ]
         
-        navigationItem.rightBarButtonItem?.setTitleTextAttributes(disabledTextAttributes, for: .disabled)
-        
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "Сохранить",
-            style: .done,
-            target: self,
-            action: #selector(saveButtonPressed)
+        navigationItem.rightBarButtonItem?.setTitleTextAttributes(
+            disabledTextAttributes,
+            for: .disabled
         )
-        
-        navigationItem.rightBarButtonItem?.isEnabled = false
     }
     
     func setupKeyboardNotificationsObserver() {
