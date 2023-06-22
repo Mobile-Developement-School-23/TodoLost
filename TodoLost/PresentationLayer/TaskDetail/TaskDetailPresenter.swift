@@ -14,8 +14,12 @@ protocol TaskDetailPresentationLogic: AnyObject,
     init(view: TaskDetailView)
     
     func fetchTask()
-    func saveTask(item: TodoItem)
-    func deleteTask(id: String)
+    func saveTask()
+    func deleteTask()
+    
+    func updateViewModel(_ importance: Importance)
+    func setDeadlineForViewModel()
+    func clearDeadlineFromViewModel()
 }
 
 final class TaskDetailPresenter: NSObject {
@@ -95,9 +99,34 @@ final class TaskDetailPresenter: NSObject {
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
-    func saveTask(item: TodoItem) {
-        fileCacheStorage?.addToCache(item)
-        viewModel?.text = item.text
+    /// Метод переводит временную дату дедлайна в постоянную
+    /// - Используется в том случае, когда пользователь переключает свич установки дедлайна.
+    /// Это необходимо для того, чтобы дедлайн правильно сохранился, если ранее он был nil
+    func setDeadlineForViewModel() {
+        let tempDeadline = viewModel?.tempDeadline
+        viewModel?.deadline = tempDeadline
+    }
+    
+    func clearDeadlineFromViewModel() {
+        viewModel?.deadline = nil
+    }
+    
+    func updateViewModel(_ importance: Importance) {
+        viewModel?.importance = importance
+    }
+    
+    func saveTask() {
+        guard let viewModel else { return }
+        
+        let todoItem = TodoItem(
+            id: viewModel.id,
+            text: viewModel.text,
+            importance: viewModel.importance,
+            deadline: viewModel.deadline,
+            isDone: false
+        )
+        
+        fileCacheStorage?.addToCache(todoItem)
         
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
@@ -114,7 +143,11 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         view?.updateView(viewModel)
     }
     
-    func deleteTask(id: String) {
+    func deleteTask() {
+        guard let id = viewModel?.id else {
+            debugPrint("Модель не обновлена, ID нет")
+            return
+        }
         fileCacheStorage?.deleteFromCache(id)
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")

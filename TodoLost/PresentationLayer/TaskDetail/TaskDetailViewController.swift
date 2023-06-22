@@ -32,17 +32,6 @@ final class TaskDetailViewController: UIViewController {
     
     // MARK: - Private property
     
-    private var currentId = ""
-    private var currentImportance: Importance = .normal
-    
-    // FIXME: Костыль. Нужно пересмотреть эти 2 свойства, и например делать свитчем сброс и установку именно в модели через презентер
-    /// Используется при переключении свитча, чтобы сбросить текущую дату при выключении дедлайна и сохранить nil
-    private var currentDeadline: Date?
-    /// Используется для временного хранения даты при переключении свича
-    /// - свич очищает текущий дедлайн, чтобы при сохранении записать nil. И чтобы вернуть
-    /// значение обратно, используется это свойство, если пользователь передумал отключать дедлайн
-    private var tempDeadline: Date?
-    
     private var isCalendarHidden = true
     /// Время выполнения анимаций на экране
     private let duration = 0.3
@@ -285,7 +274,7 @@ final class TaskDetailViewController: UIViewController {
     @objc private func deadlineSwitchValueChanged(_ sender: UISwitch) {
         if sender.isOn {
             self.deadlineDateLabel.alpha = 0
-            self.currentDeadline = self.tempDeadline
+            self.presenter?.setDeadlineForViewModel()
             
             UIView.animate(withDuration: 0.3) {
                 self.deadlineDateLabel.isHidden = false
@@ -298,7 +287,7 @@ final class TaskDetailViewController: UIViewController {
             UIView.animate(withDuration: 0.3) {
                 self.deadlineDateLabel.isHidden = true
             } completion: { _ in
-                self.currentDeadline = nil
+                self.presenter?.clearDeadlineFromViewModel()
             }
             
             hideCalendarAnimate(duration: duration)
@@ -343,9 +332,9 @@ final class TaskDetailViewController: UIViewController {
     
     @objc private func segmentedControlValueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
-        case 0: currentImportance = .low
-        case 1: currentImportance = .normal
-        case 2: currentImportance = .important
+        case 0: presenter?.updateViewModel(.low)
+        case 1: presenter?.updateViewModel(.normal)
+        case 2: presenter?.updateViewModel(.important)
         default:
             break
         }
@@ -353,20 +342,12 @@ final class TaskDetailViewController: UIViewController {
     }
     
     @objc private func saveButtonPressed() {
-        let todoItem = TodoItem(
-            id: currentId,
-            text: textEditorTextView.text,
-            importance: currentImportance,
-            deadline: currentDeadline,
-            isDone: false
-        )
-        
-        presenter?.saveTask(item: todoItem)
+        presenter?.saveTask()
         deactivateSaveButton()
     }
     
     @objc private func deleteButtonPressed() {
-        presenter?.deleteTask(id: currentId)
+        presenter?.deleteTask()
     }
 }
 
@@ -389,7 +370,9 @@ extension TaskDetailViewController: TaskDetailView {
     }
     
     func activateSaveButton() {
-        navigationItem.rightBarButtonItem?.isEnabled = true
+        if textEditorTextView.textColor != Colors.labelTertiary {
+            navigationItem.rightBarButtonItem?.isEnabled = true
+        }
     }
     
     func deactivateSaveButton() {
@@ -423,21 +406,19 @@ extension TaskDetailViewController: TaskDetailView {
     }
     
     func updateView(_ viewModel: TaskDetailViewModel?) {
-        currentId = viewModel?.id ?? UUID().uuidString
         textEditorTextView.text = viewModel?.text
         
-        tempDeadline = viewModel?.tempDeadline
-        currentDeadline = viewModel?.deadline
-        deadlineDateLabel.text = currentDeadline?.toString() ?? tempDeadline?.toString()
+        deadlineDateLabel.text = viewModel?.deadline?.toString() ?? viewModel?.tempDeadline?.toString()
         
-        currentImportance = viewModel?.importance ?? .normal
-        switch currentImportance {
+        switch viewModel?.importance {
         case .low:
             importanceSegmentedControl.selectedSegmentIndex = 0
         case .normal:
             importanceSegmentedControl.selectedSegmentIndex = 1
         case .important:
             importanceSegmentedControl.selectedSegmentIndex = 2
+        case .none:
+            debugPrint("Нет такой важности")
         }
         
         if viewModel?.deadline != nil {
