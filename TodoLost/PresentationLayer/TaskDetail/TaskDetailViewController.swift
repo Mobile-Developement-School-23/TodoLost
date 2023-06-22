@@ -10,6 +10,15 @@ import UIKit
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskDetailView: AnyObject {
     func update(viewModel: TaskDetailViewModel?)
+    
+    func setPlaceholderToTextEditor()
+    func removePlaceholderToTextEditor()
+    
+    func activateSaveButton()
+    func deactivateSaveButton()
+    
+    func activateDeleteButton()
+    func deactivateDeleteButton()
 }
 
 final class TaskDetailViewController: UIViewController {
@@ -22,7 +31,6 @@ final class TaskDetailViewController: UIViewController {
     // MARK: - Private property
     
     private var currentId = ""
-    private var currentText: String?
     private var currentImportance: Importance = .normal
     private var currentDeadline: Date?
     /// Используется для временного хранения даты при переключении свича
@@ -217,7 +225,7 @@ final class TaskDetailViewController: UIViewController {
         super.viewDidLoad()
         
         presenter?.fetchTask()
-        textEditorTextView.delegate = self // сделать делегатом презентер
+        textEditorTextView.delegate = presenter
         setup()
         
     }
@@ -360,10 +368,53 @@ final class TaskDetailViewController: UIViewController {
 // MARK: - Логика обновления данных View
 
 extension TaskDetailViewController: TaskDetailView {
+    func setPlaceholderToTextEditor() {
+        textEditorTextView.text = "Что надо сделать?"
+        textEditorTextView.textColor = Colors.labelTertiary
+    }
+    
+    func removePlaceholderToTextEditor() {
+        textEditorTextView.text = nil
+        textEditorTextView.textColor = Colors.labelPrimary
+    }
+    
+    func activateSaveButton() {
+        navigationItem.rightBarButtonItem?.isEnabled = true
+    }
+    
+    func deactivateSaveButton() {
+        navigationItem.rightBarButtonItem?.isEnabled = false
+    }
+    
+    func activateDeleteButton() {
+        UIView.transition(
+            with: deleteButton,
+            duration: 0.2,
+            options: .transitionCrossDissolve,
+            animations: {
+                self.deleteButton.setTitleColor(Colors.red, for: .normal)
+            }
+        ) { _ in
+            self.deleteButton.isEnabled = true
+        }
+    }
+    
+    func deactivateDeleteButton() {
+        UIView.transition(
+            with: deleteButton,
+            duration: 0.2,
+            options: .transitionCrossDissolve,
+            animations: {
+                self.deleteButton.setTitleColor(Colors.labelTertiary, for: .normal)
+            }
+        ) { _ in
+            self.deleteButton.isEnabled = false
+        }
+    }
+    
     func update(viewModel: TaskDetailViewModel?) {
         currentId = viewModel?.id ?? UUID().uuidString
-        currentText = viewModel?.text
-        textEditorTextView.text = currentText
+        textEditorTextView.text = viewModel?.text
         setChoiceDateDeadline(date: viewModel?.deadline)
         
         currentImportance = viewModel?.importance ?? .normal
@@ -512,55 +563,6 @@ private extension TaskDetailViewController {
             
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])
-    }
-}
-
-// перенести в презентер
-extension TaskDetailViewController: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        if textEditorTextView.text == currentText {
-            navigationItem.rightBarButtonItem?.isEnabled = false
-        } else {
-            navigationItem.rightBarButtonItem?.isEnabled = true
-        }
-    }
-    
-    func textViewDidBeginEditing(_ textView: UITextView) {
-        if textView.textColor == Colors.labelTertiary {
-            textView.text = nil
-            textView.textColor = Colors.labelPrimary
-            
-            UIView.transition(
-                with: deleteButton,
-                duration: 0.2,
-                options: .transitionCrossDissolve,
-                animations: {
-                    self.deleteButton.setTitleColor(Colors.red, for: .normal)
-                }
-            ) { _ in
-                self.deleteButton.isEnabled = true
-            }
-        }
-    }
-    
-    func textViewDidEndEditing(_ textView: UITextView) {
-        if textView.text.isEmpty {
-            textView.text = "Что надо сделать?"
-            textView.textColor = Colors.labelTertiary
-            
-            navigationItem.rightBarButtonItem?.isEnabled = false
-            
-            UIView.transition(
-                with: deleteButton,
-                duration: 0.2,
-                options: .transitionCrossDissolve,
-                animations: {
-                    self.deleteButton.setTitleColor(Colors.labelTertiary, for: .normal)
-                }
-            ) { _ in
-                self.deleteButton.isEnabled = false
-            }
-        }
     }
 }
 

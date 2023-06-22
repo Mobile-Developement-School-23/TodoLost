@@ -5,10 +5,10 @@
 //  Created by Дмитрий Данилин on 18.06.2023.
 //
 
-import Foundation
+import UIKit
 
 /// Протокол взаимодействия ViewController-a с презенетром
-protocol TaskDetailPresentationLogic: AnyObject {
+protocol TaskDetailPresentationLogic: AnyObject, UITextViewDelegate {
     init(view: TaskDetailView)
     
     func fetchTask()
@@ -16,7 +16,7 @@ protocol TaskDetailPresentationLogic: AnyObject {
     func deleteTask(id: String)
 }
 
-final class TaskDetailPresenter {
+final class TaskDetailPresenter: NSObject {
     // MARK: - Public Properties
     
     weak var view: TaskDetailView?
@@ -24,6 +24,8 @@ final class TaskDetailPresenter {
     var fileCacheStorage: IFileCache?
     
     // MARK: - Private properties
+    
+    private var currentText: String?
     
     // MARK: - Initializer
     
@@ -49,7 +51,6 @@ final class TaskDetailPresenter {
                 importance: value.importance,
                 deadline: value.deadline
             )
-            
             viewModels.append(viewModel)
         })
         
@@ -62,18 +63,19 @@ final class TaskDetailPresenter {
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
     func saveTask(item: TodoItem) {
         fileCacheStorage?.addToCache(item)
+        currentText = item.text
         
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
         } catch {
             // TODO: Вывести алерт
         }
-        
     }
     
     func fetchTask() {
-        let viewModels = loadDataFromStorage()
-        view?.update(viewModel: viewModels.first)
+        let viewModel = loadDataFromStorage().first
+        currentText = viewModel?.text
+        view?.update(viewModel: viewModel)
     }
     
     func deleteTask(id: String) {
@@ -82,6 +84,32 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
         } catch {
             // TODO: Вывести алерт
+        }
+    }
+}
+
+// MARK: - UITextViewDelegate
+
+extension TaskDetailPresenter: UITextViewDelegate {
+    func textViewDidChange(_ textView: UITextView) {
+        if textView.text != currentText {
+            view?.activateSaveButton()
+        } else {
+            view?.deactivateSaveButton()
+        }
+    }
+    
+    func textViewDidBeginEditing(_ textView: UITextView) {
+        if textView.textColor == Colors.labelTertiary {
+            view?.removePlaceholderToTextEditor()
+            view?.activateDeleteButton()
+        }
+    }
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        if textView.text.isEmpty {
+            view?.setPlaceholderToTextEditor()
+            view?.deactivateDeleteButton()
         }
     }
 }
