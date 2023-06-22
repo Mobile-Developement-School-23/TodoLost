@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DTLogger
 
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskDetailView: AnyObject {
@@ -418,7 +419,7 @@ extension TaskDetailViewController: TaskDetailView {
         case .important:
             importanceSegmentedControl.selectedSegmentIndex = 2
         case .none:
-            debugPrint("Нет такой важности")
+            SystemLogger.warning("Нет такой важности")
         }
         
         if viewModel?.deadline != nil {

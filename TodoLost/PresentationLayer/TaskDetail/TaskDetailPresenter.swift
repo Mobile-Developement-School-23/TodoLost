@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DTLogger
 
 /// Протокол взаимодействия ViewController-a с презенетром
 protocol TaskDetailPresentationLogic: AnyObject,
@@ -47,7 +48,7 @@ final class TaskDetailPresenter: NSObject {
         do {
             try fileCacheStorage?.loadFromStorage(jsonFileName: "TodoList")
         } catch {
-            print(error.localizedDescription)
+            SystemLogger.error(error.localizedDescription)
         }
         
         fileCacheStorage?.items.forEach({ (_, value) in
@@ -145,7 +146,7 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
     
     func deleteTask() {
         guard let id = viewModel?.id else {
-            debugPrint("Модель не обновлена, ID нет")
+            SystemLogger.warning("Модель не обновлена, ID нет")
             return
         }
         fileCacheStorage?.deleteFromCache(id)

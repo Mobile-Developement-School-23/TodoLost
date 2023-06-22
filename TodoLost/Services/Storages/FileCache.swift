@@ -1,4 +1,5 @@
 import Foundation
+import DTLogger
 
 protocol IFileCache {
     var items: [String: TodoItem] { get }
@@ -34,7 +35,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        debugPrint(fileURL)
+        SystemLogger.info(fileURL.description)
         
         let serializedItems = items.map({ $0.value.json })
         
@@ -77,7 +78,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        debugPrint(fileURL)
+        SystemLogger.info(fileURL.description)
         
         var csvString = ""
         
@@ -156,7 +157,7 @@ final class FileCache: IFileCache {
                 // Проверка на случай пустой строки вместо данных
                 if csvRow == "" {
                     // TODO: Добавить в будущий логгер
-                    debugPrint("Попалась пустая строка")
+                    SystemLogger.warning("Попалась пустая строка")
                     continue
                 }
                 
