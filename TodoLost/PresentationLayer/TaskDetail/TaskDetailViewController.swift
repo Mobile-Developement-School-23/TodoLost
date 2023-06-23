@@ -340,8 +340,12 @@ final class TaskDetailViewController: UIViewController {
             self.calendarView.alpha = 0
         } completion: { _ in
             UIView.animate(withDuration: duration) {
-                self.calendarView.isHidden = true
-                self.separator3.isHidden = true
+                // Исправляет странный баг, при котором если дергать свитч быстро несколько
+                // раз подряд, календарь перестаёт появляться, а сепаратор висит постоянно
+                while self.calendarView.isHidden == false {
+                    self.calendarView.isHidden = true
+                    self.separator3.isHidden = true
+                }
             }
             
             self.isCalendarHidden = true
