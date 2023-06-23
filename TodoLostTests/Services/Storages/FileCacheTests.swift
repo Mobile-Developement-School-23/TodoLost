@@ -6,6 +6,7 @@
 //
 
 import XCTest
+import DTLogger
 @testable import TodoLost
 
 final class FileCacheTests: XCTestCase {
@@ -180,7 +181,7 @@ final class FileCacheTests: XCTestCase {
         
         items = fileCache?.items ?? [:]
         
-        print(items)
+        SystemLogger.info(items.description)
         
         // Then
         XCTAssertFalse(items.isEmpty)
