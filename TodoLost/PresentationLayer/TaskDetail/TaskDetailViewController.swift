@@ -62,6 +62,7 @@ final class TaskDetailViewController: UIViewController {
     
     private lazy var endEditingGesture: UIGestureRecognizer = {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(endEditing))
+        tapGesture.cancelsTouchesInView = false
         return tapGesture
     }()
     
@@ -164,6 +165,23 @@ final class TaskDetailViewController: UIViewController {
         return view
     }()
     
+    private lazy var colorPickerButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Выбрать цвет текста", for: .normal)
+        button.setTitleColor(Colors.blue, for: .normal)
+        button.backgroundColor = Colors.backSecondary
+        button.addTarget(self, action: #selector(openColorVC), for: .touchUpInside)
+        return button
+    }()
+    
+    private let separator2: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = Colors.supportOverlay
+        return view
+    }()
+    
     private let deadlineSettingView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -210,7 +228,7 @@ final class TaskDetailViewController: UIViewController {
         return uiSwitch
     }()
     
-    private let separator2: UIView = {
+    private let separator3: UIView = {
         let view = UIView()
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -218,7 +236,6 @@ final class TaskDetailViewController: UIViewController {
         return view
     }()
     
-    // FIXME: ПО каким то причинам выбор даты происходит только при долгом нажатии
     private let calendarView: UICalendarView = {
         let calendarView = UICalendarView()
         calendarView.translatesAutoresizingMaskIntoConstraints = false
@@ -308,7 +325,7 @@ final class TaskDetailViewController: UIViewController {
     private func showCalendarAnimate(duration: CGFloat) {
         UIView.animate(withDuration: duration) {
             self.calendarView.isHidden = false
-            self.separator2.isHidden = false
+            self.separator3.isHidden = false
         } completion: { _ in
             UIView.animate(withDuration: duration) {
                 self.calendarView.alpha = 1
@@ -324,7 +341,7 @@ final class TaskDetailViewController: UIViewController {
         } completion: { _ in
             UIView.animate(withDuration: duration) {
                 self.calendarView.isHidden = true
-                self.separator2.isHidden = true
+                self.separator3.isHidden = true
             }
             
             self.isCalendarHidden = true
@@ -349,6 +366,10 @@ final class TaskDetailViewController: UIViewController {
     
     @objc private func deleteButtonPressed() {
         presenter?.deleteTask()
+    }
+    
+    @objc private func openColorVC() {
+        presenter?.openColorPickerVC()
     }
 }
 
@@ -431,7 +452,7 @@ extension TaskDetailViewController: TaskDetailView {
             textEditorTextView.text = "Что надо сделать?"
             textEditorTextView.textColor = Colors.labelTertiary
         } else {
-            textEditorTextView.textColor = Colors.labelPrimary
+            textEditorTextView.textColor = viewModel?.textColor
             deleteButton.setTitleColor(Colors.red, for: .normal)
             deleteButton.isEnabled = true
         }
@@ -488,13 +509,18 @@ private extension TaskDetailViewController {
         
         taskSettingsStackView.addArrangedSubview(separator1)
         
+        taskSettingsStackView.addArrangedSubview(colorPickerButton)
+        
+        taskSettingsStackView.addArrangedSubview(separator2)
+        
         taskSettingsStackView.addArrangedSubview(deadlineSettingView)
         deadlineSettingView.addSubview(deadlineStackView)
         deadlineStackView.addArrangedSubview(deadlineLabel)
         deadlineStackView.addArrangedSubview(deadlineDateLabel)
         deadlineSettingView.addSubview(deadlineSwitch)
         
-        taskSettingsStackView.addArrangedSubview(separator2)
+        taskSettingsStackView.addArrangedSubview(separator3)
+        
         taskSettingsStackView.addArrangedSubview(calendarView)
         
         NSLayoutConstraint.activate([
@@ -532,6 +558,10 @@ private extension TaskDetailViewController {
             deadlineSwitch.trailingAnchor.constraint(equalTo: deadlineSettingView.trailingAnchor),
             
             separator2.heightAnchor.constraint(equalToConstant: 1),
+            
+            colorPickerButton.heightAnchor.constraint(equalToConstant: 56),
+            
+            separator3.heightAnchor.constraint(equalToConstant: 1),
             
             deleteButton.heightAnchor.constraint(equalToConstant: 56)
         ])

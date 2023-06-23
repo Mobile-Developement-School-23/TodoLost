@@ -14,6 +14,7 @@ struct TodoItem {
     let isDone: Bool
     let dateCreated: Date
     let dateEdited: Date?
+    let hexColor: String?
     
     init(
         id: String = UUID().uuidString,
@@ -22,7 +23,8 @@ struct TodoItem {
         deadline: Date? = nil,
         isDone: Bool,
         dateCreated: Date = Date(),
-        dateEdited: Date? = nil
+        dateEdited: Date? = nil,
+        hexColor: String? = nil
     ) {
         self.id = id
         self.text = text
@@ -31,6 +33,7 @@ struct TodoItem {
         self.isDone = isDone
         self.dateCreated = dateCreated
         self.dateEdited = dateEdited
+        self.hexColor = hexColor
     }
 }
 
@@ -61,6 +64,11 @@ extension TodoItem {
             dateEdited = Date(timeIntervalSince1970: dateEditedTimestamp)
         }
         
+        var hexColor: String?
+        if let color = json[JsonKey.hexColor] as? String {
+            hexColor = color
+        }
+        
         let item = TodoItem(
             id: id,
             text: text,
@@ -68,7 +76,8 @@ extension TodoItem {
             deadline: deadline,
             isDone: isDone,
             dateCreated: Date(timeIntervalSince1970: dateCreatedTimestamp),
-            dateEdited: dateEdited
+            dateEdited: dateEdited,
+            hexColor: hexColor
         )
         
         return item
@@ -88,6 +97,10 @@ extension TodoItem {
         json[JsonKey.dateCreated] = Int(dateCreated.timeIntervalSince1970)
         if let dateEdited {
             json[JsonKey.dateEdited] = Int(dateEdited.timeIntervalSince1970)
+        }
+        
+        if let hexColor {
+            json[JsonKey.hexColor] = hexColor
         }
         
         return json
@@ -193,5 +206,6 @@ extension TodoItem {
         static let isDone = "isDone"
         static let dateCreated = "dateCreated"
         static let dateEdited = "dateEdited"
+        static let hexColor = "hexColor"
     }
 }

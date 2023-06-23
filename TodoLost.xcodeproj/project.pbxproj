@@ -28,6 +28,13 @@
 		2C740FDC2A40B7DC00884C79 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C740FDB2A40B7DC00884C79 /* Fonts.swift */; };
 		2C9B8B252A37295000CC591A /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B8B242A37295000CC591A /* FileCache.swift */; };
 		2C9B8B282A37336400CC591A /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B8B272A37336400CC591A /* FileCacheTests.swift */; };
+		2C9F840D2A459B7A00A2F1FD /* ColorPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F840C2A459B7A00A2F1FD /* ColorPickerViewController.swift */; };
+		2C9F840F2A459BB900A2F1FD /* ColorPickerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F840E2A459BB900A2F1FD /* ColorPickerPresenter.swift */; };
+		2C9F84112A459BD600A2F1FD /* ColorPickerConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84102A459BD600A2F1FD /* ColorPickerConfigurator.swift */; };
+		2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */; };
+		2C9F84152A45A88D00A2F1FD /* ColorWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84142A45A88D00A2F1FD /* ColorWheel.swift */; };
+		2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */; };
+		2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */; };
 		2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */; };
 		2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */; };
 		2CD382E02A432B6400C82343 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
@@ -76,6 +83,13 @@
 		2C740FDB2A40B7DC00884C79 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		2C9B8B242A37295000CC591A /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		2C9B8B272A37336400CC591A /* FileCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheTests.swift; sourceTree = "<group>"; };
+		2C9F840C2A459B7A00A2F1FD /* ColorPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerViewController.swift; sourceTree = "<group>"; };
+		2C9F840E2A459BB900A2F1FD /* ColorPickerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerPresenter.swift; sourceTree = "<group>"; };
+		2C9F84102A459BD600A2F1FD /* ColorPickerConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerConfigurator.swift; sourceTree = "<group>"; };
+		2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailRouter.swift; sourceTree = "<group>"; };
+		2C9F84142A45A88D00A2F1FD /* ColorWheel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorWheel.swift; sourceTree = "<group>"; };
+		2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexFormatter.swift"; sourceTree = "<group>"; };
+		2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		2CB15C912A36515E0060584F /* TodoLost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoLost.xctestplan; sourceTree = "<group>"; };
 		2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceAssembly.swift; sourceTree = "<group>"; };
 		2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
@@ -111,6 +125,8 @@
 			isa = PBXGroup;
 			children = (
 				2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */,
+				2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */,
+				2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -157,6 +173,7 @@
 			children = (
 				2C633F822A3F7A2900BD2F29 /* PresentationAssembly.swift */,
 				2C633F5C2A3F59A200BD2F29 /* TaskDetail */,
+				2C9F840B2A459B4E00A2F1FD /* ColorPicker */,
 			);
 			path = PresentationLayer;
 			sourceTree = "<group>";
@@ -168,6 +185,7 @@
 				2C633F5F2A3F5A2700BD2F29 /* TaskDetailPresenter.swift */,
 				2C633F612A3F5A8000BD2F29 /* TaskDetailConfigurator.swift */,
 				2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */,
+				2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */,
 			);
 			path = TaskDetail;
 			sourceTree = "<group>";
@@ -283,6 +301,17 @@
 				2C9B8B272A37336400CC591A /* FileCacheTests.swift */,
 			);
 			path = Storages;
+			sourceTree = "<group>";
+		};
+		2C9F840B2A459B4E00A2F1FD /* ColorPicker */ = {
+			isa = PBXGroup;
+			children = (
+				2C9F84142A45A88D00A2F1FD /* ColorWheel.swift */,
+				2C9F840C2A459B7A00A2F1FD /* ColorPickerViewController.swift */,
+				2C9F840E2A459BB900A2F1FD /* ColorPickerPresenter.swift */,
+				2C9F84102A459BD600A2F1FD /* ColorPickerConfigurator.swift */,
+			);
+			path = ColorPicker;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -424,20 +453,27 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */,
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */,
+				2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */,
 				2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */,
 				2C633F5E2A3F59DD00BD2F29 /* TaskDetailViewController.swift in Sources */,
 				2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */,
+				2C9F840D2A459B7A00A2F1FD /* ColorPickerViewController.swift in Sources */,
 				2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */,
 				2C740FDC2A40B7DC00884C79 /* Fonts.swift in Sources */,
 				2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */,
 				2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */,
+				2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */,
+				2C9F840F2A459BB900A2F1FD /* ColorPickerPresenter.swift in Sources */,
 				2C6C24132A34AFAC002B107C /* TodoItem.swift in Sources */,
 				2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */,
 				2C9B8B252A37295000CC591A /* FileCache.swift in Sources */,
 				2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */,
 				2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */,
+				2C9F84112A459BD600A2F1FD /* ColorPickerConfigurator.swift in Sources */,
+				2C9F84152A45A88D00A2F1FD /* ColorWheel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -21,12 +21,15 @@ protocol TaskDetailPresentationLogic: AnyObject,
     func updateViewModel(_ importance: Importance)
     func setDeadlineForViewModel()
     func clearDeadlineFromViewModel()
+    
+    func openColorPickerVC()
 }
 
 final class TaskDetailPresenter: NSObject {
     // MARK: - Public Properties
     
     weak var view: TaskDetailView?
+    var router: TaskDetailRoutingLogic?
     
     var fileCacheStorage: IFileCache?
     
@@ -58,6 +61,11 @@ final class TaskDetailPresenter: NSObject {
                 importance: value.importance,
                 deadline: value.deadline
             )
+            
+            if let hexColor = value.hexColor {
+                viewModel?.textColor = UIColor(hex: hexColor)
+            }
+            
             guard let viewModel else { return }
             viewModels.append(viewModel)
         })
@@ -95,11 +103,22 @@ final class TaskDetailPresenter: NSObject {
         
         view?.setDeadlineWith(dateSelection)
     }
+    
+    private func handleColorSelection(hexColor: String) {
+        viewModel?.textColor = UIColor(hex: hexColor)
+        view?.updateView(viewModel)
+    }
 }
 
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
+    func openColorPickerVC() {
+        router?.routeTo(target: .colorPicker) { [weak self] color in
+            self?.handleColorSelection(hexColor: color)
+        }
+    }
+    
     /// Метод переводит временную дату дедлайна в постоянную
     /// - Используется в том случае, когда пользователь переключает свич установки дедлайна.
     /// Это необходимо для того, чтобы дедлайн правильно сохранился, если ранее он был nil
@@ -124,7 +143,8 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             text: viewModel.text,
             importance: viewModel.importance,
             deadline: viewModel.deadline,
-            isDone: false
+            isDone: false,
+            hexColor: viewModel.textColor?.toHexString()
         )
         
         fileCacheStorage?.addToCache(todoItem)

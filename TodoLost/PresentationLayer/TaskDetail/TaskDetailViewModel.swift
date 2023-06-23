@@ -5,7 +5,7 @@
 //  Created by Дмитрий Данилин on 21.06.2023.
 //
 
-import Foundation
+import UIKit
 
 struct TaskDetailViewModel {
     var id: String
@@ -15,4 +15,5 @@ struct TaskDetailViewModel {
     /// Используется при переключении свича, чтобы вернуть дату и не сохранить nil, если пользователь
     /// решил в начале отключить а затем обратно включить дедлайн
     var tempDeadline: Date?
+    var textColor: UIColor? = Colors.labelPrimary
 }

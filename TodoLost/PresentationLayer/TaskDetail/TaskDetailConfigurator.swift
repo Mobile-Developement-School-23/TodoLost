@@ -21,14 +21,17 @@ final class TaskDetailConfigurator {
     }
     
     func config(
-        view: UIViewController
+        view: UIViewController,
+        navigationController: UINavigationController
     ) {
         guard let view = view as? TaskDetailViewController else { return }
         let presenter = TaskDetailPresenter(view: view)
+        let router = TaskDetailRouter(withNavigationController: navigationController)
         
         view.presenter = presenter
         view.observerKeyboard = notificationKeyboardObserver
         presenter.view = view
+        presenter.router = router
         presenter.fileCacheStorage = fileCacheStorage
     }
 }

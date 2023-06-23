@@ -22,10 +22,12 @@ private extension AppDelegate {
     /// Создание и отображение стартового ViewController
     func createAndShowStartVC() {
         let mainVC = TaskDetailViewController()
-        
-        PresentationAssembly().taskDetail.config(view: mainVC)
-        
         let navigationController = UINavigationController(rootViewController: mainVC)
+        
+        PresentationAssembly().taskDetail.config(
+            view: mainVC,
+            navigationController: navigationController
+        )
 
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController

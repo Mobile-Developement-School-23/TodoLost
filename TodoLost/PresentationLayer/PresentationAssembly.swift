@@ -14,4 +14,8 @@ final class PresentationAssembly {
             notificationKeyboardObserver: service.notificationKeyboardObserver
         )
     }()
+    
+    lazy var colorPicker: ColorPickerConfigurator = {
+       return ColorPickerConfigurator()
+    }()
 }
