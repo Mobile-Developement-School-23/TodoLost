@@ -14,6 +14,10 @@
 		2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */; };
 		2C3614AD2A44E85D00C6C9BC /* DTLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3614AC2A44E85D00C6C9BC /* DTLogger */; };
 		2C451A532A35E03100135FF8 /* TodoItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C451A522A35E03100135FF8 /* TodoItemTests.swift */; };
+		2C507E9C2A48A4BB005F8B4A /* TaskListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C507E9B2A48A4BB005F8B4A /* TaskListViewController.swift */; };
+		2C507E9F2A48A4F0005F8B4A /* TaskListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C507E9E2A48A4F0005F8B4A /* TaskListPresenter.swift */; };
+		2C507EA12A48A511005F8B4A /* TaskListConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C507EA02A48A511005F8B4A /* TaskListConfigurator.swift */; };
+		2C507EA32A48A532005F8B4A /* TaskListRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C507EA22A48A532005F8B4A /* TaskListRouter.swift */; };
 		2C633F5E2A3F59DD00BD2F29 /* TaskDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F5D2A3F59DD00BD2F29 /* TaskDetailViewController.swift */; };
 		2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F5F2A3F5A2700BD2F29 /* TaskDetailPresenter.swift */; };
 		2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C633F612A3F5A8000BD2F29 /* TaskDetailConfigurator.swift */; };
@@ -64,6 +68,10 @@
 		2C3458082A35A9DF00B5FA6A /* TodoItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TodoItems.json; sourceTree = "<group>"; };
 		2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationKeyboardObserver.swift; sourceTree = "<group>"; };
 		2C451A522A35E03100135FF8 /* TodoItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemTests.swift; sourceTree = "<group>"; };
+		2C507E9B2A48A4BB005F8B4A /* TaskListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListViewController.swift; sourceTree = "<group>"; };
+		2C507E9E2A48A4F0005F8B4A /* TaskListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListPresenter.swift; sourceTree = "<group>"; };
+		2C507EA02A48A511005F8B4A /* TaskListConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListConfigurator.swift; sourceTree = "<group>"; };
+		2C507EA22A48A532005F8B4A /* TaskListRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListRouter.swift; sourceTree = "<group>"; };
 		2C5C7B9E2A3604A900B7DF19 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		2C633F5D2A3F59DD00BD2F29 /* TaskDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewController.swift; sourceTree = "<group>"; };
 		2C633F5F2A3F5A2700BD2F29 /* TaskDetailPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailPresenter.swift; sourceTree = "<group>"; };
@@ -168,10 +176,22 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		2C507E9A2A48A49B005F8B4A /* TaskList */ = {
+			isa = PBXGroup;
+			children = (
+				2C507E9B2A48A4BB005F8B4A /* TaskListViewController.swift */,
+				2C507E9E2A48A4F0005F8B4A /* TaskListPresenter.swift */,
+				2C507EA02A48A511005F8B4A /* TaskListConfigurator.swift */,
+				2C507EA22A48A532005F8B4A /* TaskListRouter.swift */,
+			);
+			path = TaskList;
+			sourceTree = "<group>";
+		};
 		2C633F5B2A3F590A00BD2F29 /* PresentationLayer */ = {
 			isa = PBXGroup;
 			children = (
 				2C633F822A3F7A2900BD2F29 /* PresentationAssembly.swift */,
+				2C507E9A2A48A49B005F8B4A /* TaskList */,
 				2C633F5C2A3F59A200BD2F29 /* TaskDetail */,
 				2C9F840B2A459B4E00A2F1FD /* ColorPicker */,
 			);
@@ -454,9 +474,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */,
+				2C507E9C2A48A4BB005F8B4A /* TaskListViewController.swift in Sources */,
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */,
 				2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */,
+				2C507E9F2A48A4F0005F8B4A /* TaskListPresenter.swift in Sources */,
 				2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */,
 				2C633F5E2A3F59DD00BD2F29 /* TaskDetailViewController.swift in Sources */,
 				2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */,
@@ -466,6 +488,8 @@
 				2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */,
 				2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */,
 				2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */,
+				2C507EA32A48A532005F8B4A /* TaskListRouter.swift in Sources */,
+				2C507EA12A48A511005F8B4A /* TaskListConfigurator.swift in Sources */,
 				2C9F840F2A459BB900A2F1FD /* ColorPickerPresenter.swift in Sources */,
 				2C6C24132A34AFAC002B107C /* TodoItem.swift in Sources */,
 				2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */,

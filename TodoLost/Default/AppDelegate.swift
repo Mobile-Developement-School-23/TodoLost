@@ -21,7 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 private extension AppDelegate {
     /// Создание и отображение стартового ViewController
     func createAndShowStartVC() {
-        let mainVC = TaskDetailViewController()
+        let mainVC = TaskListViewController()
         let navigationController = UINavigationController(rootViewController: mainVC)
         
         PresentationAssembly().taskDetail.config(
