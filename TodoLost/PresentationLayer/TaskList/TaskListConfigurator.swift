@@ -15,9 +15,11 @@ final class TaskListConfigurator {
     ) {
         guard let view = view as? TaskListViewController else { return }
         let presenter = TaskListPresenter(view: view)
+        let dataSourceProvider: ITaskListDataSourceProvider = TaskListDataSourceProvider(presenter: presenter)
         let router = TaskListRouter(withNavigationController: navigationController)
         
         view.presenter = presenter
+        view.dataSourceProvider = dataSourceProvider
         presenter.view = view
         presenter.router = router
     }

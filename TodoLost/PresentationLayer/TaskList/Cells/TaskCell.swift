@@ -11,6 +11,32 @@ final class TaskCell: UITableViewCell, IdentifiableCell {
     
     // MARK: - Private properties
     
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = Colors.labelPrimary
+        return label
+    }()
+    
+    private let calendarImageView: UIImageView = {
+        let view = UIImageView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = Colors.labelTertiary
+        return label
+    }()
+    
+    private let statusImageView: UIImageView = {
+        let view = UIImageView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     // MARK: - Initializer
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -39,8 +65,8 @@ final class TaskCell: UITableViewCell, IdentifiableCell {
 // MARK: - Public methods
 
 extension TaskCell {
-    func config() {
-        
+    func config(title: String) {
+        titleLabel.text = title
     }
 }
 
@@ -52,16 +78,32 @@ private extension TaskCell {
     }
     
     func setupUI() {
-        backgroundColor = .clear
+        backgroundColor = Colors.backSecondary
+        accessoryType = .disclosureIndicator
     }
     
     func addViews() {
-        
+        contentView.addSubview(titleLabel)
     }
     
     func setupConstraints() {
         NSLayoutConstraint.activate([
-            
+            titleLabel.topAnchor.constraint(
+                equalTo: contentView.topAnchor,
+                constant: Constants.paddingContent
+            ),
+            titleLabel.leadingAnchor.constraint(
+                equalTo: contentView.leadingAnchor,
+                constant: Constants.paddingContent
+            ),
+            titleLabel.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -Constants.paddingContent
+            ),
+            titleLabel.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -Constants.paddingContent
+            ),
         ])
     }
 }
@@ -69,7 +111,7 @@ private extension TaskCell {
 // MARK: - Constants
 private extension TaskCell {
     struct Constants {
-        
+        static let paddingContent: CGFloat = 16
     }
 }
 

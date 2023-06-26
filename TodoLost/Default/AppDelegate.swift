@@ -24,7 +24,7 @@ private extension AppDelegate {
         let mainVC = TaskListViewController()
         let navigationController = UINavigationController(rootViewController: mainVC)
         
-        PresentationAssembly().taskDetail.config(
+        PresentationAssembly().taskList.config(
             view: mainVC,
             navigationController: navigationController
         )

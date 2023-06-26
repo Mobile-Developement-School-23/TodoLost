@@ -8,25 +8,21 @@
 import UIKit
 
 protocol ITaskListDataSourceProvider: UITableViewDelegate {
-    associatedtype ViewModel
-    
-    var viewModels: [ViewModel] { get set}
+    var viewModels: [TaskViewModel] { get set}
     func makeDataSource(with tableView: UITableView)
     func updateDataSource()
 }
 
 final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
-    typealias ViewModel = TaskViewModel
-    
     
     // MARK: - Public properties
     
-    var viewModels: [ViewModel] = []
+    var viewModels: [TaskViewModel] = []
     
     // MARK: - Private properties
     
     private let presenter: TaskListPresenter?
-    private var dataSource: UITableViewDiffableDataSource<Section, ViewModel>?
+    private var dataSource: UITableViewDiffableDataSource<Section, TaskViewModel>?
     // TODO: Будет использовано для пагинации как только появится работа с сервером
     /// Свойство для предотвращения попыток загрузки новых данных, если ничего нового загружено не было
 //    private var loadedCount = 0
@@ -58,7 +54,7 @@ extension TaskListDataSourceProvider {
     func makeDataSource(with cardsTableView: UITableView) {
         dataSource = UITableViewDiffableDataSource(
             tableView: cardsTableView,
-            cellProvider: { [weak self] tableView, indexPath, model -> UITableViewCell? in
+            cellProvider: { tableView, indexPath, model -> UITableViewCell? in
                 guard let cell = tableView.dequeueReusableCell(
                     withIdentifier: TaskCell.identifier,
                     for: indexPath
@@ -66,7 +62,7 @@ extension TaskListDataSourceProvider {
                     return UITableViewCell()
                 }
                 
-                cell.config()
+                cell.config(title: model.id)
                 
                 return cell
             }
@@ -74,7 +70,7 @@ extension TaskListDataSourceProvider {
     }
     
     func updateDataSource() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, ViewModel>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, TaskViewModel>()
         snapshot.appendSections([.main])
         snapshot.appendItems(viewModels, toSection: .main)
         
@@ -85,6 +81,10 @@ extension TaskListDataSourceProvider {
 // MARK: - Table view delegate
 
 extension TaskListDataSourceProvider {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
     func tableView(
         _ tableView: UITableView,
         willDisplay cell: UITableViewCell,
