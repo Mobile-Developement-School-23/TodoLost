@@ -62,7 +62,11 @@ extension TaskListDataSourceProvider {
                     return UITableViewCell()
                 }
                 
-                cell.config(title: model.id)
+                cell.config(
+                    status: model.status,
+                    title: model.title,
+                    subtitle: model.subtitle
+                )
                 
                 return cell
             }
@@ -83,6 +87,8 @@ extension TaskListDataSourceProvider {
 extension TaskListDataSourceProvider {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        presenter?.openDetailTaskVC()
     }
     
     func tableView(

@@ -44,7 +44,7 @@ final class TaskDetailViewController: UIViewController {
             title: "Отменить",
             style: .plain,
             target: self,
-            action: nil
+            action: #selector(cancelButtonPressed)
         )
     }()
     
@@ -363,9 +363,14 @@ final class TaskDetailViewController: UIViewController {
         activateSaveButton()
     }
     
+    @objc private func cancelButtonPressed() {
+        dismiss(animated: true)
+    }
+    
     @objc private func saveButtonPressed() {
         presenter?.saveTask()
         deactivateSaveButton()
+        dismiss(animated: true)
     }
     
     @objc private func deleteButtonPressed() {

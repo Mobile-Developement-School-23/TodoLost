@@ -41,17 +41,16 @@ final class TaskListRouter: TaskListRoutingLogic {
             // TODO: На будущее, чтобы колбеком вернуть обновленную модель и вызвать обновление
 //            taskDetailVC.completion = completion
             
-            PresentationAssembly().colorPicker.config(view: taskDetailVC)
-            
+            PresentationAssembly().taskDetail.config(
+                view: taskDetailVC,
+                navigationController: navigationController
+            )
             taskDetailVC.modalPresentationStyle = .formSheet
+            let nextNavigationController = UINavigationController(
+                rootViewController: taskDetailVC
+            )
             
-            // Получаем текущий контроллер
-            guard let currentViewController = navigationController.visibleViewController else {
-                SystemLogger.error("Не удалось получить текущий VC")
-                return
-            }
-            
-            currentViewController.present(taskDetailVC, animated: true, completion: nil)
+            navigationController.present(nextNavigationController, animated: true, completion: nil)
         }
     }
 }

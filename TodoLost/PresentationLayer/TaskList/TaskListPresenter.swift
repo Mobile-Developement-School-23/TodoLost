@@ -10,7 +10,9 @@ import Foundation
 /// Протокол взаимодействия ViewController-a с презенетром
 protocol TaskListPresentationLogic: AnyObject {
     init(view: TaskListView)
+    
     func getModels()
+    func openDetailTaskVC()
 }
 
 final class TaskListPresenter {
@@ -31,12 +33,26 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    func openDetailTaskVC() {
+        router?.routeTo(target: .taskDetail, completion: nil)
+    }
+    
     func getModels() {
         var models: [TaskViewModel] = []
         
-        for id in 0...15 {
-            models.append(TaskViewModel(id: "ID: \(id)"))
-        }
+        models.append(contentsOf: TaskViewModel.demoTasks())
+        
+        // TODO: МНого ячеек для теста скролла
+//        for id in 0...15 {
+//            models.append(
+//                TaskViewModel(
+//                    id: "ID: \(id)",
+//                    status: .statusDone,
+//                    title: "Погладить кота",
+//                    subtitle: Date().toString(format: "dd MMMM")
+//                )
+//            )
+//        }
         
         view?.display(models: models)
     }

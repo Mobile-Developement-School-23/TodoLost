@@ -107,6 +107,7 @@ final class TaskDetailPresenter: NSObject {
     private func handleColorSelection(hexColor: String) {
         viewModel?.textColor = UIColor(hex: hexColor)
         view?.updateView(viewModel)
+        view?.activateSaveButton()
     }
 }
 
