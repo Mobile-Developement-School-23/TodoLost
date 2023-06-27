@@ -104,6 +104,12 @@ final class TaskCell: UITableViewCell, IdentifiableCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         
+        statusImageView.image = nil
+        titleLabel.attributedText = NSAttributedString("")
+        subtitleLabel.text = ""
+        priorityImageView.isHidden = true
+        subtitleLabel.isHidden = true
+        calendarImageView.isHidden = true
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -231,6 +237,7 @@ private extension TaskCell {
 }
 
 // MARK: - Constants
+
 private extension TaskCell {
     struct Constants {
         static let paddingContent: CGFloat = 16

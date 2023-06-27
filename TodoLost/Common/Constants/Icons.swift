@@ -20,6 +20,10 @@ enum Icons: String {
     case statusLow
     case statusDone
     case calendar
+    
+    // MARK: Buttons
+    
+    case addPlusButton
 }
 
 // MARK: - Image render

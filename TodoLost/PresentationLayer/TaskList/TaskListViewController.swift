@@ -10,6 +10,7 @@ import UIKit
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskListView: AnyObject {
     func display(models: [TaskViewModel])
+    func display(doneTaskCount: String)
 }
 
 final class TaskListViewController: UIViewController {
@@ -21,11 +22,26 @@ final class TaskListViewController: UIViewController {
     
     // MARK: - Private property
     
+    private lazy var headerView = TaskListSectionHeaderTableView()
+    
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = Colors.backPrimary
         return tableView
+    }()
+    
+    private lazy var addButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        
+        let image = Icons.addPlusButton.image
+        button.setImage(image, for: .normal)
+        
+        button.clipsToBounds = true
+        button.addTarget(self, action: #selector(addButtonPressed), for: .touchUpInside)
+        
+        return button
     }()
     
     // MARK: - Life Cycle
@@ -34,12 +50,20 @@ final class TaskListViewController: UIViewController {
         super.viewDidLoad()
         
         setup()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
+        setupHeaderTableView()
         presenter?.getModels()
     }
     
     // MARK: - Actions
     
+    @objc func addButtonPressed() {
+        presenter?.openDetailTaskVC()
+    }
 }
 
 // MARK: - Логика обновления данных View
@@ -48,6 +72,12 @@ extension TaskListViewController: TaskListView {
     func display(models: [TaskViewModel]) {
         dataSourceProvider?.viewModels = models
         dataSourceProvider?.updateDataSource()
+    }
+    
+    func display(doneTaskCount: String) {
+        headerView.doneTaskCount = doneTaskCount
+        headerView.setNeedsDisplay()
+        tableView.reloadData()
     }
 }
 
@@ -65,6 +95,13 @@ private extension TaskListViewController {
     func setupNavigationController() {
         title = "Мои дела"
         navigationController?.navigationBar.prefersLargeTitles = true
+        
+        navigationController?.navigationBar.layoutMargins = UIEdgeInsets(
+            top: 0,
+            left: 32,
+            bottom: 0,
+            right: 0
+        )
     }
     
     func setupTableView() {
@@ -72,6 +109,19 @@ private extension TaskListViewController {
         
         dataSourceProvider?.makeDataSource(with: tableView)
         tableView.delegate = dataSourceProvider
+    }
+    
+    func setupHeaderTableView() {
+        headerView = TaskListSectionHeaderTableView(
+            frame: CGRect(
+                x: 0,
+                y: 0,
+                width: UIScreen.main.bounds.width,
+                height: 32
+            )
+        )
+        headerView.sizeToFit()
+        tableView.tableHeaderView = headerView
     }
     
     func registerElements() {
@@ -83,12 +133,26 @@ private extension TaskListViewController {
     
     func setupConstraints() {
         view.addSubview(tableView)
+        view.addSubview(addButton)
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            addButton.heightAnchor.constraint(equalToConstant: Constants.buttonRectangle),
+            addButton.widthAnchor.constraint(equalToConstant: Constants.buttonRectangle),
+            addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
         ])
+    }
+}
+
+// MARK: - Constants
+
+private extension TaskListViewController {
+    struct Constants {
+        static let buttonRectangle: CGFloat = 84
     }
 }

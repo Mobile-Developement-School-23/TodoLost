@@ -13,6 +13,7 @@ protocol TaskListPresentationLogic: AnyObject {
     
     func getModels()
     func openDetailTaskVC()
+    func updateHeaderView(_ doneTaskCount: Int)
 }
 
 final class TaskListPresenter {
@@ -33,6 +34,10 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    func updateHeaderView(_ doneTaskCount: Int) {
+        view?.display(doneTaskCount: "Выполнено — \(doneTaskCount)")
+    }
+    
     func openDetailTaskVC() {
         router?.routeTo(target: .taskDetail, completion: nil)
     }

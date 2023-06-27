@@ -23,9 +23,8 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
     
     private let presenter: TaskListPresenter?
     private var dataSource: UITableViewDiffableDataSource<Section, TaskViewModel>?
-    // TODO: Будет использовано для пагинации как только появится работа с сервером
-    /// Свойство для предотвращения попыток загрузки новых данных, если ничего нового загружено не было
-//    private var loadedCount = 0
+    
+//    private let headerView = TaskListSectionHeaderTableView()
     
     // MARK: - Initializer
     
@@ -35,13 +34,6 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
     
     // MARK: - Private methods
     
-    // TODO: Будет использовано для пагинации как только появится работа с сервером
-//    private func getNewModels() {
-//        if viewModel.count != loadedCount {
-//            presenter?.getServerData(offset: viewModel.count)
-//            loadedCount += viewModel.count
-//        }
-//    }
 }
 
 // MARK: - Table view data source
@@ -79,6 +71,9 @@ extension TaskListDataSourceProvider {
         snapshot.appendItems(viewModels, toSection: .main)
         
         dataSource?.apply(snapshot, animatingDifferences: true, completion: nil)
+        
+        // TODO: Тут будет считаться массив, отфильтрованный по выполненным
+        presenter?.updateHeaderView(viewModels.count)
     }
 }
 
@@ -91,14 +86,11 @@ extension TaskListDataSourceProvider {
         presenter?.openDetailTaskVC()
     }
     
-    func tableView(
-        _ tableView: UITableView,
-        willDisplay cell: UITableViewCell,
-        forRowAt indexPath: IndexPath
-    ) {
-        // TODO: Будет использовано для будущей логики пагинации
-//        if indexPath.row == viewModels.count - 1 {
-//            getNewModels()
-//        }
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
+        // TODO: написать код для скрытия кнопки
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        // TODO: написать код для отображения кнопки
     }
 }
