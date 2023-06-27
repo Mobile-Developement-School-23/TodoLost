@@ -12,47 +12,6 @@ struct TaskViewModel: Hashable {
     let status: StatusTask
     let title: String
     let subtitle: String?
-    
-    static func demoTasks() -> [TaskViewModel] {
-        [
-            TaskViewModel(
-                id: UUID().uuidString,
-                status: .statusDefault,
-                title: "Купить хлеб",
-                subtitle: Date().toString(format: "dd MMMM")
-            ),
-            TaskViewModel(
-                id: UUID().uuidString,
-                status: .statusDone,
-                title: "Купить хлеб",
-                subtitle: Date().toString(format: "dd MMMM")
-            ),
-            TaskViewModel(
-                id: UUID().uuidString,
-                status: .statusHigh,
-                title: "Погладить кода",
-                subtitle: Date().toString(format: "dd MMMM")
-            ),
-            TaskViewModel(
-                id: UUID().uuidString,
-                status: .statusDefault,
-                title: "Задачу у которой будет очень много рандомного текста дл]орпав вплыаывп ыдупк вап ывоарпфудкрп лоавпыва ывдалорфпз гп аволпыдрла пыдлваоп ",
-                subtitle: Date().toString(format: "dd MMMM")
-            ),
-            TaskViewModel(
-                id: UUID().uuidString,
-                status: .statusDefault,
-                title: "Купить хлеб",
-                subtitle: nil
-            ),
-            TaskViewModel(
-                id: UUID().uuidString,
-                status: .statusLow,
-                title: "Купить хлеб",
-                subtitle: nil
-            )
-        ]
-    }
 }
 
 enum StatusTask {

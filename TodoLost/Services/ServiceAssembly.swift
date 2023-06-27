@@ -9,7 +9,7 @@ import Foundation
 
 final class ServiceAssembly {
     lazy var fileCacheStorage: IFileCache = {
-        return FileCache()
+        return FileCache.shared
     }()
     
     lazy var notificationKeyboardObserver: INotificationKeyboardObserver = {

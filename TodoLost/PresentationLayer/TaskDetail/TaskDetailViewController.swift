@@ -375,6 +375,7 @@ final class TaskDetailViewController: UIViewController {
     
     @objc private func deleteButtonPressed() {
         presenter?.deleteTask()
+        dismiss(animated: true)
     }
     
     @objc private func openColorVC() {

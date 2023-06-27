@@ -9,6 +9,14 @@ import UIKit
 
 /// Конфигурация MVP модуля
 final class TaskListConfigurator {
+    private let fileCacheStorage: IFileCache
+    
+    init(
+        fileCacheStorage: IFileCache
+    ) {
+        self.fileCacheStorage = fileCacheStorage
+    }
+    
     func config(
         view: UIViewController,
         navigationController: UINavigationController
@@ -22,5 +30,6 @@ final class TaskListConfigurator {
         view.dataSourceProvider = dataSourceProvider
         presenter.view = view
         presenter.router = router
+        presenter.fileCacheStorage = fileCacheStorage
     }
 }

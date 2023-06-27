@@ -83,7 +83,7 @@ extension TaskListDataSourceProvider {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        presenter?.openDetailTaskVC()
+        presenter?.openDetailTaskVC(id: viewModels[indexPath.row].id)
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

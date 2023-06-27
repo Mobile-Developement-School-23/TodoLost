@@ -9,6 +9,9 @@ import UIKit
 
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskListView: AnyObject {
+    func presentPlaceholder()
+    func hidePlaceholder()
+    
     func display(models: [TaskViewModel])
     func display(doneTaskCount: String)
 }
@@ -44,6 +47,16 @@ final class TaskListViewController: UIViewController {
         return button
     }()
     
+    private let placeholderLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = Colors.labelTertiary
+        label.font = Fonts.body
+        label.text = "У вас нет созданных заметок"
+        label.isHidden = true
+        return label
+    }()
+    
     // MARK: - Life Cycle
     
     override func viewDidLoad() {
@@ -62,13 +75,21 @@ final class TaskListViewController: UIViewController {
     // MARK: - Actions
     
     @objc func addButtonPressed() {
-        presenter?.openDetailTaskVC()
+        presenter?.openDetailTaskVC(id: nil)
     }
 }
 
 // MARK: - Логика обновления данных View
 
 extension TaskListViewController: TaskListView {
+    func presentPlaceholder() {
+        placeholderLabel.isHidden = false
+    }
+    
+    func hidePlaceholder() {
+        placeholderLabel.isHidden = true
+    }
+    
     func display(models: [TaskViewModel]) {
         dataSourceProvider?.viewModels = models
         dataSourceProvider?.updateDataSource()
@@ -133,6 +154,7 @@ private extension TaskListViewController {
     
     func setupConstraints() {
         view.addSubview(tableView)
+        view.addSubview(placeholderLabel)
         view.addSubview(addButton)
         
         NSLayoutConstraint.activate([
@@ -140,6 +162,9 @@ private extension TaskListViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            
+            placeholderLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            placeholderLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
             
             addButton.heightAnchor.constraint(equalToConstant: Constants.buttonRectangle),
             addButton.widthAnchor.constraint(equalToConstant: Constants.buttonRectangle),

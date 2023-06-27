@@ -14,6 +14,14 @@ protocol TaskDetailPresentationLogic: AnyObject,
                                       UICalendarSelectionSingleDateDelegate {
     init(view: TaskDetailView)
     
+    /// Используется для уведомления предыдущего контроллера, о том что сохранение или удаление
+    /// прошло успешно.
+    /// - После подтверждения, вызывает обновление модели на экране
+    var completion: (() -> Void)? { get set }
+    /// Используется для передачи ID итема и отображения его на экране.
+    /// Если id равен пустой строке, то создаётся новая заметка.
+    var itemID: String? { get set}
+    
     func fetchTask()
     func saveTask()
     func deleteTask()
@@ -31,6 +39,9 @@ final class TaskDetailPresenter: NSObject {
     weak var view: TaskDetailView?
     var router: TaskDetailRoutingLogic?
     
+    var completion: (() -> Void)?
+    var itemID: String?
+    
     var fileCacheStorage: IFileCache?
     
     // MARK: - Private properties
@@ -45,37 +56,30 @@ final class TaskDetailPresenter: NSObject {
     
     // MARK: - Private methods
     
-    private func loadDataFromStorage() -> [TaskDetailViewModel] {
-        var viewModels: [TaskDetailViewModel] = []
+    /// Метод для получения кеша по ID
+    /// - Returns: возвращает вью модель, если такая была найдена по ключу и ключ
+    /// не был nil
+    private func fetchTodoItemFromCache() -> TaskDetailViewModel? {
+        let todoItem = fileCacheStorage?.items[itemID ?? ""]
+        guard let todoItem else { return nil }
+        var viewModel = TaskDetailViewModel(
+            id: todoItem.id,
+            text: todoItem.text,
+            importance: todoItem.importance,
+            deadline: todoItem.deadline
+        )
         
-        do {
-            try fileCacheStorage?.loadFromStorage(jsonFileName: "TodoList")
-        } catch {
-            SystemLogger.error(error.localizedDescription)
+        if let hexColor = todoItem.hexColor {
+            viewModel.textColor = UIColor(hex: hexColor)
         }
-        
-        fileCacheStorage?.items.forEach({ (_, value) in
-            viewModel = TaskDetailViewModel(
-                id: value.id,
-                text: value.text,
-                importance: value.importance,
-                deadline: value.deadline
-            )
-            
-            if let hexColor = value.hexColor {
-                viewModel?.textColor = UIColor(hex: hexColor)
-            }
-            
-            guard let viewModel else { return }
-            viewModels.append(viewModel)
-        })
-        
-        return viewModels
+    
+        return viewModel
     }
     
     /// Метод установки выбранной даты дедлайна в календарь
     /// - Parameter date: принимает дату, которая будет установлена как выбранная. Если даты нет
     /// будет установлен следующий день от текущего.
+    /// - Так же создаёт модель
     private func setChoiceDateDeadline(date: Date?) {
         let dateSelection = UICalendarSelectionSingleDate(delegate: self)
 
@@ -89,19 +93,21 @@ final class TaskDetailPresenter: NSObject {
         
         dateSelection.selectedDate = DateComponents(calendar: Calendar(identifier: .gregorian), year: year, month: month, day: day)
         
-        if viewModel == nil {
-            viewModel = TaskDetailViewModel(
-                id: UUID().uuidString,
-                text: "",
-                importance: .normal
-            )
-        } else if viewModel?.deadline != nil {
+        if viewModel?.deadline != nil {
             viewModel?.deadline = dateSelection.selectedDate?.date
         }
         
         viewModel?.tempDeadline = dateSelection.selectedDate?.date
         
         view?.setDeadlineWith(dateSelection)
+    }
+    
+    private func createNewTask() {
+        return viewModel = TaskDetailViewModel(
+            id: UUID().uuidString,
+            text: "",
+            importance: .normal
+        )
     }
     
     private func handleColorSelection(hexColor: String) {
@@ -114,6 +120,7 @@ final class TaskDetailPresenter: NSObject {
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
+    
     func openColorPickerVC() {
         router?.routeTo(target: .colorPicker) { [weak self] color in
             self?.handleColorSelection(hexColor: color)
@@ -152,14 +159,16 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
+            completion?()
         } catch {
             // TODO: Вывести алерт
         }
     }
     
     func fetchTask() {
-        if let model = loadDataFromStorage().first {
-            viewModel = model
+        viewModel = fetchTodoItemFromCache()
+        if viewModel == nil {
+            createNewTask()
         }
         setChoiceDateDeadline(date: viewModel?.deadline)
         view?.updateView(viewModel)
@@ -173,6 +182,7 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         fileCacheStorage?.deleteFromCache(id)
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
+            completion?()
         } catch {
             // TODO: Вывести алерт
         }
