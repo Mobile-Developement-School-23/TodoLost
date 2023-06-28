@@ -130,7 +130,9 @@ extension TaskListDataSourceProvider {
             title: ""
         ) { [weak self] _, _, isDone in
             
-            self?.presenter?.delete(viewModel)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self?.presenter?.delete(viewModel)
+            }
             
             isDone(true)
         }
@@ -180,7 +182,10 @@ extension TaskListDataSourceProvider {
             title: ""
         ) { [weak self] _, _, isDone in
             
-            self?.presenter?.setIsDone(viewModel)
+            // ???: Это костыль или нормальный подход для того чтобы не вызвать раньше времени обновление таблицы и дать анимации плавно закончится?
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self?.presenter?.setIsDone(viewModel)
+            }
             
             isDone(true)
         }
