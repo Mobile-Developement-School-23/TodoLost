@@ -19,6 +19,9 @@ protocol TaskListPresentationLogic: AnyObject {
     func updateHeaderView(_ doneTaskCount: Int, buttonTitle: String)
     
     func toggleVisibleTask()
+    
+    func delete(_ task: TaskViewModel)
+    func setIsDone(_ task: TaskViewModel)
 }
 
 final class TaskListPresenter {
@@ -49,6 +52,14 @@ final class TaskListPresenter {
     private func loadDataFromStorage() {
         do {
             try fileCacheStorage?.loadFromStorage(jsonFileName: "TodoList")
+        } catch {
+            SystemLogger.error(error.localizedDescription)
+        }
+    }
+    
+    private func saveDataToStorage() {
+        do {
+            try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
         } catch {
             SystemLogger.error(error.localizedDescription)
         }
@@ -88,7 +99,12 @@ final class TaskListPresenter {
                 dateCreated: value.dateCreated,
                 status: statusTask,
                 title: value.text,
-                subtitle: value.deadline?.toString(format: "dd MMMM")
+                subtitle: value.deadline?.toString(format: "dd MMMM"),
+                importance: value.importance,
+                deadline: value.deadline,
+                isDone: value.isDone,
+                dateEdited: value.dateEdited,
+                hexColor: value.hexColor
             )
 
             viewModels.append(viewModel)
@@ -101,6 +117,34 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    func setIsDone(_ task: TaskViewModel) {
+        var isDone = task.isDone
+        isDone.toggle()
+        
+        let todoItem = TodoItem(
+            id: task.id,
+            text: task.title,
+            importance: task.importance,
+            deadline: task.deadline,
+            isDone: isDone,
+            dateCreated: task.dateCreated,
+            dateEdited: task.dateEdited,
+            hexColor: task.hexColor
+        )
+        
+        fileCacheStorage?.addToCache(todoItem)
+        saveDataToStorage()
+        // обновляем данные после сохранения
+        getModels()
+    }
+    
+    func delete(_ task: TaskViewModel) {
+        fileCacheStorage?.deleteFromCache(task.id)
+        saveDataToStorage()
+        // обновляем данные после удаления
+        getModels()
+    }
+    
     func toggleVisibleTask() {
         isShowComplete.toggle()
         view?.display(models: viewModels, isShowComplete: isShowComplete)

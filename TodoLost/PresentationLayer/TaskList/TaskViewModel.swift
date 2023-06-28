@@ -13,6 +13,12 @@ struct TaskViewModel: Hashable {
     let status: StatusTask
     let title: String
     let subtitle: String?
+    
+    let importance: Importance
+    let deadline: Date?
+    let isDone: Bool
+    let dateEdited: Date?
+    let hexColor: String?
 }
 
 enum StatusTask {

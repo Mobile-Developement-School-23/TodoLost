@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DTLogger
 
 protocol ITaskListDataSourceProvider: UITableViewDelegate {
     var viewModels: [TaskViewModel] { get set}
@@ -104,6 +105,95 @@ extension TaskListDataSourceProvider {
         }
         
         presenter?.openDetailTaskVC(id: viewModel?.id)
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        
+        var viewModel: TaskViewModel?
+        
+        if isShowComplete {
+            viewModel = viewModels[indexPath.row]
+        } else {
+            viewModel = notCompletedTaskModels[indexPath.row]
+        }
+        
+        guard let viewModel else {
+            SystemLogger.error("Не удалось получить модель")
+            return nil
+        }
+        
+        let deleteAction = UIContextualAction(
+            style: .normal,
+            title: ""
+        ) { [weak self] _, _, isDone in
+            
+            self?.presenter?.delete(viewModel)
+            
+            isDone(true)
+        }
+        
+        let infoAction = UIContextualAction(
+            style: .normal,
+            title: ""
+        ) { _, _, isDone in
+            // TODO: добавить действие для кнопки info. Например вывести дату создания заметки
+            SystemLogger.info(viewModel.dateCreated.description)
+            isDone(true)
+        }
+        
+        deleteAction.backgroundColor = Colors.red
+        deleteAction.image = Icons.trash.image
+        
+        infoAction.backgroundColor = Colors.grayLight
+        infoAction.image = Icons.info.image
+        
+        let configuration = UISwipeActionsConfiguration(
+            actions: [deleteAction, infoAction]
+        )
+        
+        return configuration
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        
+        var viewModel: TaskViewModel?
+        
+        if isShowComplete {
+            viewModel = viewModels[indexPath.row]
+        } else {
+            viewModel = notCompletedTaskModels[indexPath.row]
+        }
+        
+        guard let viewModel else {
+            SystemLogger.error("Не удалось получить модель")
+            return nil
+        }
+        
+        let completeAction = UIContextualAction(
+            style: .normal,
+            title: ""
+        ) { [weak self] _, _, isDone in
+            
+            self?.presenter?.setIsDone(viewModel)
+            
+            isDone(true)
+        }
+        
+        completeAction.backgroundColor = Colors.green
+        completeAction.image = Icons.completion.image
+        
+        let configuration = UISwipeActionsConfiguration(
+            actions: [completeAction]
+        )
+        
+        return configuration
+        
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

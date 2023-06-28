@@ -21,6 +21,12 @@ enum Icons: String {
     case statusDone
     case calendar
     
+    // MARK: Swipe Actions
+    
+    case trash
+    case info
+    case completion
+    
     // MARK: Buttons
     
     case addPlusButton

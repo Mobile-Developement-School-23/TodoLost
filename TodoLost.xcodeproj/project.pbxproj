@@ -9,10 +9,10 @@
 /* Begin PBXBuildFile section */
 		2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */; };
 		2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2CFCA22A3F9DD400B80728 /* Color.swift */; };
+		2C3055782A4C742F001C3E5D /* DTLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3055772A4C742F001C3E5D /* DTLogger */; };
 		2C31EDF12A3A17C000855D45 /* TodoItems.csv in Resources */ = {isa = PBXBuildFile; fileRef = 2C24B3FA2A378AA2004C5816 /* TodoItems.csv */; };
 		2C31EDF22A3A17C500855D45 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
 		2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */; };
-		2C3614AD2A44E85D00C6C9BC /* DTLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3614AC2A44E85D00C6C9BC /* DTLogger */; };
 		2C451A532A35E03100135FF8 /* TodoItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C451A522A35E03100135FF8 /* TodoItemTests.swift */; };
 		2C507E9C2A48A4BB005F8B4A /* TaskListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C507E9B2A48A4BB005F8B4A /* TaskListViewController.swift */; };
 		2C507E9F2A48A4F0005F8B4A /* TaskListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C507E9E2A48A4F0005F8B4A /* TaskListPresenter.swift */; };
@@ -118,7 +118,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C3614AD2A44E85D00C6C9BC /* DTLogger in Frameworks */,
+				2C3055782A4C742F001C3E5D /* DTLogger in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -398,7 +398,7 @@
 			);
 			name = TodoLost;
 			packageProductDependencies = (
-				2C3614AC2A44E85D00C6C9BC /* DTLogger */,
+				2C3055772A4C742F001C3E5D /* DTLogger */,
 			);
 			productName = TodoLost;
 			productReference = 2C6C23DD2A34AEFC002B107C /* TodoLost.app */;
@@ -473,7 +473,7 @@
 			);
 			mainGroup = 2C6C23D42A34AEFB002B107C;
 			packageReferences = (
-				2C3614AB2A44E85D00C6C9BC /* XCRemoteSwiftPackageReference "DTLogger" */,
+				2C3055762A4C742F001C3E5D /* XCRemoteSwiftPackageReference "DTLogger" */,
 			);
 			productRefGroup = 2C6C23DE2A34AEFC002B107C /* Products */;
 			projectDirPath = "";
@@ -886,20 +886,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		2C3614AB2A44E85D00C6C9BC /* XCRemoteSwiftPackageReference "DTLogger" */ = {
+		2C3055762A4C742F001C3E5D /* XCRemoteSwiftPackageReference "DTLogger" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ZyFun/DTLogger.git";
 			requirement = {
-				kind = exactVersion;
-				version = 1.0.0;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2C3614AC2A44E85D00C6C9BC /* DTLogger */ = {
+		2C3055772A4C742F001C3E5D /* DTLogger */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 2C3614AB2A44E85D00C6C9BC /* XCRemoteSwiftPackageReference "DTLogger" */;
+			package = 2C3055762A4C742F001C3E5D /* XCRemoteSwiftPackageReference "DTLogger" */;
 			productName = DTLogger;
 		};
 /* End XCSwiftPackageProductDependency section */
