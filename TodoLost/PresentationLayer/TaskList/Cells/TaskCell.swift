@@ -106,6 +106,7 @@ final class TaskCell: UITableViewCell, IdentifiableCell {
         
         statusImageView.image = nil
         titleLabel.attributedText = NSAttributedString("")
+        titleLabel.textColor = Colors.labelPrimary
         subtitleLabel.text = ""
         priorityImageView.isHidden = true
         subtitleLabel.isHidden = true

@@ -9,6 +9,7 @@ import UIKit
 
 struct TaskViewModel: Hashable {
     let id: String
+    let dateCreated: Date
     let status: StatusTask
     let title: String
     let subtitle: String?

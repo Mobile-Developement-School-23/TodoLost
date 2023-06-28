@@ -1,5 +1,5 @@
 //
-//  TaskListSectionHeaderTableView.swift
+//  TaskListHeaderTableView.swift
 //  TodoLost
 //
 //  Created by Дмитрий Данилин on 27.06.2023.
@@ -7,11 +7,18 @@
 
 import UIKit
 
-final class TaskListSectionHeaderTableView: UIView {
+final class TaskListHeaderTableView: UIView {
+    weak var delegate: TaskListHeaderDelegate?
     
     var doneTaskCount = "0" {
         didSet {
             countLabel.text = doneTaskCount
+        }
+    }
+    
+    var buttonTitle = "Показать" {
+        didSet {
+            toggleButton.setTitle(buttonTitle, for: .normal)
         }
     }
     
@@ -29,7 +36,8 @@ final class TaskListSectionHeaderTableView: UIView {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitleColor(Colors.blue, for: .normal)
         button.titleLabel?.font = Fonts.footnote
-        button.setTitle("Скрыть", for: .normal)
+        button.setTitle(buttonTitle, for: .normal)
+        button.addTarget(self, action: #selector(toggleButtonPressed), for: .touchUpInside)
         return button
     }()
     
@@ -47,6 +55,10 @@ final class TaskListSectionHeaderTableView: UIView {
     private func addViews() {
         addSubview(countLabel)
         addSubview(toggleButton)
+    }
+    
+    @objc func toggleButtonPressed() {
+        delegate?.toggleButtonTapped()
     }
     
     private func setupConstraints() {

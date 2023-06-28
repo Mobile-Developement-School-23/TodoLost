@@ -16,7 +16,9 @@ protocol TaskListPresentationLogic: AnyObject {
     /// Открывает новый контроллер с текущей заметкой
     /// - Parameter id: если ID nil, откроется экран для создания новой заметки
     func openDetailTaskVC(id: String?)
-    func updateHeaderView(_ doneTaskCount: Int)
+    func updateHeaderView(_ doneTaskCount: Int, buttonTitle: String)
+    
+    func toggleVisibleTask()
 }
 
 final class TaskListPresenter {
@@ -27,8 +29,14 @@ final class TaskListPresenter {
     var router: TaskListRoutingLogic?
     
     var fileCacheStorage: IFileCache?
+    /// СОбирается в конфигураторе и используется для делегирования нажатия на кнопку
+    var taskListHeader: TaskListHeaderTableView?
     
     // MARK: - Private properties
+    
+    private var viewModels: [TaskViewModel] = []
+    /// Свойство для хранения состояния, отображать скрытые задачи или нет
+    private var isShowComplete = false
     
     // MARK: - Initializer
     
@@ -77,6 +85,7 @@ final class TaskListPresenter {
             
             let viewModel = TaskViewModel(
                 id: value.id,
+                dateCreated: value.dateCreated,
                 status: statusTask,
                 title: value.text,
                 subtitle: value.deadline?.toString(format: "dd MMMM")
@@ -92,8 +101,13 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
-    func updateHeaderView(_ doneTaskCount: Int) {
-        view?.display(doneTaskCount: "Выполнено — \(doneTaskCount)")
+    func toggleVisibleTask() {
+        isShowComplete.toggle()
+        view?.display(models: viewModels, isShowComplete: isShowComplete)
+    }
+    
+    func updateHeaderView(_ doneTaskCount: Int, buttonTitle: String) {
+        view?.display(doneTaskCount: "Выполнено — \(doneTaskCount)", buttonTitle: buttonTitle)
     }
     
     func openDetailTaskVC(id: String?) {
@@ -103,14 +117,14 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func getModels() {
-        let models = fetchModelsFromCache()
+        viewModels = fetchModelsFromCache().sorted { $0.dateCreated > $1.dateCreated }
         
-        if models.isEmpty {
+        if viewModels.isEmpty {
             view?.presentPlaceholder()
         } else {
             view?.hidePlaceholder()
         }
         
-        view?.display(models: models)
+        view?.display(models: viewModels, isShowComplete: isShowComplete)
     }
 }

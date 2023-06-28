@@ -66,7 +66,9 @@ final class TaskDetailPresenter: NSObject {
             id: todoItem.id,
             text: todoItem.text,
             importance: todoItem.importance,
-            deadline: todoItem.deadline
+            deadline: todoItem.deadline,
+            dateCreated: todoItem.dateCreated,
+            isDone: todoItem.isDone
         )
         
         if let hexColor = todoItem.hexColor {
@@ -106,7 +108,9 @@ final class TaskDetailPresenter: NSObject {
         return viewModel = TaskDetailViewModel(
             id: UUID().uuidString,
             text: "",
-            importance: .normal
+            importance: .normal,
+            dateCreated: Date(),
+            isDone: false
         )
     }
     
@@ -151,7 +155,8 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             text: viewModel.text,
             importance: viewModel.importance,
             deadline: viewModel.deadline,
-            isDone: false,
+            isDone: viewModel.isDone,
+            dateCreated: viewModel.dateCreated,
             hexColor: viewModel.textColor?.toHexString()
         )
         

@@ -10,7 +10,7 @@ import UIKit
 protocol ITaskListDataSourceProvider: UITableViewDelegate {
     var viewModels: [TaskViewModel] { get set}
     func makeDataSource(with tableView: UITableView)
-    func updateDataSource()
+    func updateDataSource(_ showComplete: Bool)
 }
 
 final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
@@ -24,8 +24,6 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
     private let presenter: TaskListPresenter?
     private var dataSource: UITableViewDiffableDataSource<Section, TaskViewModel>?
     
-//    private let headerView = TaskListSectionHeaderTableView()
-    
     // MARK: - Initializer
     
     init(presenter: TaskListPresenter) {
@@ -34,6 +32,8 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
     
     // MARK: - Private methods
     
+    private var isShowComplete = false
+    private var completedTaskModels: [TaskViewModel] = []
 }
 
 // MARK: - Table view data source
@@ -65,15 +65,27 @@ extension TaskListDataSourceProvider {
         )
     }
     
-    func updateDataSource() {
+    func updateDataSource(_ showComplete: Bool) {
+        var buttonTitle = "Показать"
+        
         var snapshot = NSDiffableDataSourceSnapshot<Section, TaskViewModel>()
         snapshot.appendSections([.main])
-        snapshot.appendItems(viewModels, toSection: .main)
         
+        if showComplete {
+            isShowComplete = true
+            snapshot.appendItems(viewModels, toSection: .main)
+            buttonTitle = "Скрыть"
+        } else {
+            isShowComplete = false
+            completedTaskModels = viewModels.filter({ $0.status != .statusDone })
+            snapshot.appendItems(completedTaskModels, toSection: .main)
+        }
+        
+        dataSource?.defaultRowAnimation = .fade
         dataSource?.apply(snapshot, animatingDifferences: true, completion: nil)
         
-        // TODO: Тут будет считаться массив, отфильтрованный по выполненным
-        presenter?.updateHeaderView(viewModels.count)
+        let completeCount = completedTaskModels.count
+        presenter?.updateHeaderView(completeCount, buttonTitle: buttonTitle)
     }
 }
 
@@ -83,7 +95,15 @@ extension TaskListDataSourceProvider {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        presenter?.openDetailTaskVC(id: viewModels[indexPath.row].id)
+        var viewModel: TaskViewModel?
+        
+        if isShowComplete {
+            viewModel = viewModels[indexPath.row]
+        } else {
+            viewModel = completedTaskModels[indexPath.row]
+        }
+        
+        presenter?.openDetailTaskVC(id: viewModel?.id)
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {

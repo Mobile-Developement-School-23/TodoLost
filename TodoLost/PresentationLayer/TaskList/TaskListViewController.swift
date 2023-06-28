@@ -7,13 +7,17 @@
 
 import UIKit
 
+protocol TaskListHeaderDelegate: AnyObject {
+    func toggleButtonTapped()
+}
+
 /// Протокол отображения данных ViewCintroller-a
 protocol TaskListView: AnyObject {
     func presentPlaceholder()
     func hidePlaceholder()
     
-    func display(models: [TaskViewModel])
-    func display(doneTaskCount: String)
+    func display(models: [TaskViewModel], isShowComplete: Bool)
+    func display(doneTaskCount: String, buttonTitle: String)
 }
 
 final class TaskListViewController: UIViewController {
@@ -25,7 +29,7 @@ final class TaskListViewController: UIViewController {
     
     // MARK: - Private property
     
-    private lazy var headerView = TaskListSectionHeaderTableView()
+    private var headerView: TaskListHeaderTableView?
     
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -90,14 +94,14 @@ extension TaskListViewController: TaskListView {
         placeholderLabel.isHidden = true
     }
     
-    func display(models: [TaskViewModel]) {
+    func display(models: [TaskViewModel], isShowComplete: Bool) {
         dataSourceProvider?.viewModels = models
-        dataSourceProvider?.updateDataSource()
+        dataSourceProvider?.updateDataSource(isShowComplete)
     }
     
-    func display(doneTaskCount: String) {
-        headerView.doneTaskCount = doneTaskCount
-        headerView.setNeedsDisplay()
+    func display(doneTaskCount: String, buttonTitle: String) {
+        headerView?.doneTaskCount = doneTaskCount
+        headerView?.buttonTitle = buttonTitle
         tableView.reloadData()
     }
 }
@@ -133,7 +137,7 @@ private extension TaskListViewController {
     }
     
     func setupHeaderTableView() {
-        headerView = TaskListSectionHeaderTableView(
+        headerView = TaskListHeaderTableView(
             frame: CGRect(
                 x: 0,
                 y: 0,
@@ -141,8 +145,10 @@ private extension TaskListViewController {
                 height: 32
             )
         )
-        headerView.sizeToFit()
+        headerView?.sizeToFit()
         tableView.tableHeaderView = headerView
+        
+        headerView?.delegate = self
     }
     
     func registerElements() {
@@ -179,5 +185,13 @@ private extension TaskListViewController {
 private extension TaskListViewController {
     struct Constants {
         static let buttonRectangle: CGFloat = 84
+    }
+}
+
+// MARK: - TaskListHeaderDelegate
+
+extension TaskListViewController: TaskListHeaderDelegate {
+    func toggleButtonTapped() {
+        presenter?.toggleVisibleTask()
     }
 }

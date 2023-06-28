@@ -15,5 +15,7 @@ struct TaskDetailViewModel {
     /// Используется при переключении свича, чтобы вернуть дату и не сохранить nil, если пользователь
     /// решил в начале отключить а затем обратно включить дедлайн
     var tempDeadline: Date?
+    var dateCreated: Date
     var textColor: UIColor? = Colors.labelPrimary
+    var isDone: Bool
 }
