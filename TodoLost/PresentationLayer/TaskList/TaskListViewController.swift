@@ -18,6 +18,8 @@ protocol TaskListView: AnyObject {
     
     func display(models: [TaskViewModel], isShowComplete: Bool)
     func display(doneTaskCount: String, buttonTitle: String)
+    
+    func dismissSplashScreen()
 }
 
 final class TaskListViewController: UIViewController {
@@ -26,6 +28,7 @@ final class TaskListViewController: UIViewController {
     
     var presenter: TaskListPresenter?
     var dataSourceProvider: ITaskListDataSourceProvider?
+    var splashScreenPresenter: ISplashScreenPresenter?
     
     // MARK: - Private property
     
@@ -66,6 +69,7 @@ final class TaskListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        splashScreenPresenter?.present()
         setup()
     }
     
@@ -86,6 +90,14 @@ final class TaskListViewController: UIViewController {
 // MARK: - Логика обновления данных View
 
 extension TaskListViewController: TaskListView {
+    func dismissSplashScreen() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.splashScreenPresenter?.dismiss { [weak self] in
+                self?.splashScreenPresenter = nil
+            }
+        }
+    }
+    
     func presentPlaceholder() {
         placeholderLabel.isHidden = false
     }

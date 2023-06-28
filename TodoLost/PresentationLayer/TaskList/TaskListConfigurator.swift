@@ -10,11 +10,14 @@ import UIKit
 /// Конфигурация MVP модуля
 final class TaskListConfigurator {
     private let fileCacheStorage: IFileCache
+    private let splashScreenPresenter: ISplashScreenPresenter
     
     init(
-        fileCacheStorage: IFileCache
+        fileCacheStorage: IFileCache,
+        splashScreenPresenter: ISplashScreenPresenter
     ) {
         self.fileCacheStorage = fileCacheStorage
+        self.splashScreenPresenter = splashScreenPresenter
     }
     
     func config(
@@ -28,6 +31,7 @@ final class TaskListConfigurator {
         
         view.presenter = presenter
         view.dataSourceProvider = dataSourceProvider
+        view.splashScreenPresenter = splashScreenPresenter
         presenter.view = view
         presenter.router = router
         presenter.fileCacheStorage = fileCacheStorage

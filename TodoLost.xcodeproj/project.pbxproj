@@ -10,6 +10,10 @@
 		2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */; };
 		2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2CFCA22A3F9DD400B80728 /* Color.swift */; };
 		2C3055782A4C742F001C3E5D /* DTLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 2C3055772A4C742F001C3E5D /* DTLogger */; };
+		2C30557E2A4C8646001C3E5D /* SplashScreenViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C30557A2A4C8646001C3E5D /* SplashScreenViewController.xib */; };
+		2C30557F2A4C8646001C3E5D /* SplashScreenAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C30557B2A4C8646001C3E5D /* SplashScreenAnimator.swift */; };
+		2C3055802A4C8646001C3E5D /* SplashScreenPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C30557C2A4C8646001C3E5D /* SplashScreenPresenter.swift */; };
+		2C3055812A4C8646001C3E5D /* SplashScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C30557D2A4C8646001C3E5D /* SplashScreenViewController.swift */; };
 		2C31EDF12A3A17C000855D45 /* TodoItems.csv in Resources */ = {isa = PBXBuildFile; fileRef = 2C24B3FA2A378AA2004C5816 /* TodoItems.csv */; };
 		2C31EDF22A3A17C500855D45 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
 		2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */; };
@@ -70,6 +74,10 @@
 		2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+DateFormatter.swift"; sourceTree = "<group>"; };
 		2C24B3FA2A378AA2004C5816 /* TodoItems.csv */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoItems.csv; sourceTree = "<group>"; };
 		2C2CFCA22A3F9DD400B80728 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
+		2C30557A2A4C8646001C3E5D /* SplashScreenViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SplashScreenViewController.xib; sourceTree = "<group>"; };
+		2C30557B2A4C8646001C3E5D /* SplashScreenAnimator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashScreenAnimator.swift; sourceTree = "<group>"; };
+		2C30557C2A4C8646001C3E5D /* SplashScreenPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashScreenPresenter.swift; sourceTree = "<group>"; };
+		2C30557D2A4C8646001C3E5D /* SplashScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SplashScreenViewController.swift; sourceTree = "<group>"; };
 		2C3458082A35A9DF00B5FA6A /* TodoItems.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TodoItems.json; sourceTree = "<group>"; };
 		2C3614A82A44600100C6C9BC /* NotificationKeyboardObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationKeyboardObserver.swift; sourceTree = "<group>"; };
 		2C451A522A35E03100135FF8 /* TodoItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemTests.swift; sourceTree = "<group>"; };
@@ -159,6 +167,17 @@
 			path = Constants;
 			sourceTree = "<group>";
 		};
+		2C3055792A4C8646001C3E5D /* SplashScreen */ = {
+			isa = PBXGroup;
+			children = (
+				2C30557A2A4C8646001C3E5D /* SplashScreenViewController.xib */,
+				2C30557B2A4C8646001C3E5D /* SplashScreenAnimator.swift */,
+				2C30557C2A4C8646001C3E5D /* SplashScreenPresenter.swift */,
+				2C30557D2A4C8646001C3E5D /* SplashScreenViewController.swift */,
+			);
+			path = SplashScreen;
+			sourceTree = "<group>";
+		};
 		2C3614AA2A4465C700C6C9BC /* Observers */ = {
 			isa = PBXGroup;
 			children = (
@@ -229,6 +248,7 @@
 			isa = PBXGroup;
 			children = (
 				2C633F822A3F7A2900BD2F29 /* PresentationAssembly.swift */,
+				2C3055792A4C8646001C3E5D /* SplashScreen */,
 				2C507E9A2A48A49B005F8B4A /* TaskList */,
 				2C633F5C2A3F59A200BD2F29 /* TaskDetail */,
 				2C9F840B2A459B4E00A2F1FD /* ColorPicker */,
@@ -492,6 +512,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C6C23ED2A34AEFD002B107C /* LaunchScreen.storyboard in Resources */,
+				2C30557E2A4C8646001C3E5D /* SplashScreenViewController.xib in Resources */,
 				2C6C23EA2A34AEFD002B107C /* Assets.xcassets in Resources */,
 				2CD382E02A432B6400C82343 /* TodoItems.json in Resources */,
 			);
@@ -522,8 +543,10 @@
 			files = (
 				2C507EAE2A48AE8E005F8B4A /* IdentifableCell.swift in Sources */,
 				2C507EA62A48AB4B005F8B4A /* TaskListDataSourceProvider.swift in Sources */,
+				2C30557F2A4C8646001C3E5D /* SplashScreenAnimator.swift in Sources */,
 				2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */,
 				2C507E9C2A48A4BB005F8B4A /* TaskListViewController.swift in Sources */,
+				2C3055812A4C8646001C3E5D /* SplashScreenViewController.swift in Sources */,
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */,
 				2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */,
@@ -544,6 +567,7 @@
 				2C9F840F2A459BB900A2F1FD /* ColorPickerPresenter.swift in Sources */,
 				2C6C24132A34AFAC002B107C /* TodoItem.swift in Sources */,
 				2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */,
+				2C3055802A4C8646001C3E5D /* SplashScreenPresenter.swift in Sources */,
 				2C507EA82A48ABF5005F8B4A /* TaskViewModel.swift in Sources */,
 				2C9B8B252A37295000CC591A /* FileCache.swift in Sources */,
 				2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */,

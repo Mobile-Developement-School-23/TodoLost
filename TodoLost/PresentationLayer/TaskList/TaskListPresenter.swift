@@ -171,5 +171,6 @@ extension TaskListPresenter: TaskListPresentationLogic {
         }
         
         view?.display(models: viewModels, isShowComplete: isShowComplete)
+        view?.dismissSplashScreen()
     }
 }

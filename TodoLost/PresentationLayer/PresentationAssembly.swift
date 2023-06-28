@@ -9,7 +9,10 @@ final class PresentationAssembly {
     private var service = ServiceAssembly()
     
     lazy var taskList: TaskListConfigurator = {
-        return TaskListConfigurator(fileCacheStorage: service.fileCacheStorage)
+        return TaskListConfigurator(
+            fileCacheStorage: service.fileCacheStorage,
+            splashScreenPresenter: SplashScreenPresenter()
+        )
     }()
     
     lazy var taskDetail: TaskDetailConfigurator = {
