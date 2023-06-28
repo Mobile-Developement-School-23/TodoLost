@@ -110,6 +110,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
         view?.display(doneTaskCount: "Выполнено — \(doneTaskCount)", buttonTitle: buttonTitle)
     }
     
+    // ???: Нормально ли использовать такой подход с комплишином который передаётся через роутер, чтобы я мог обработать завершение сохранения и обновить данные в таблице?
     func openDetailTaskVC(id: String?) {
         router?.routeTo(target: .taskDetail(id)) { [weak self] in
             self?.getModels()

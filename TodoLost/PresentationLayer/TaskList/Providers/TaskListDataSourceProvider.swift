@@ -33,7 +33,7 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
     // MARK: - Private methods
     
     private var isShowComplete = false
-    private var completedTaskModels: [TaskViewModel] = []
+    private var notCompletedTaskModels: [TaskViewModel] = []
 }
 
 // MARK: - Table view data source
@@ -77,15 +77,15 @@ extension TaskListDataSourceProvider {
             buttonTitle = "Скрыть"
         } else {
             isShowComplete = false
-            completedTaskModels = viewModels.filter({ $0.status != .statusDone })
-            snapshot.appendItems(completedTaskModels, toSection: .main)
+            notCompletedTaskModels = viewModels.filter({ $0.status != .statusDone })
+            snapshot.appendItems(notCompletedTaskModels, toSection: .main)
         }
         
-        dataSource?.defaultRowAnimation = .fade
-        dataSource?.apply(snapshot, animatingDifferences: true, completion: nil)
-        
-        let completeCount = completedTaskModels.count
-        presenter?.updateHeaderView(completeCount, buttonTitle: buttonTitle)
+        // ???: Может ли подобное вызвать цикл сильной ссылки или оно работает как и с анимацией и можно не использовать weak self?
+        dataSource?.apply(snapshot, animatingDifferences: true, completion: {
+            let completeCount = self.viewModels.filter({ $0.status == .statusDone }).count
+            self.presenter?.updateHeaderView(completeCount, buttonTitle: buttonTitle)
+        })
     }
 }
 
@@ -100,7 +100,7 @@ extension TaskListDataSourceProvider {
         if isShowComplete {
             viewModel = viewModels[indexPath.row]
         } else {
-            viewModel = completedTaskModels[indexPath.row]
+            viewModel = notCompletedTaskModels[indexPath.row]
         }
         
         presenter?.openDetailTaskVC(id: viewModel?.id)
