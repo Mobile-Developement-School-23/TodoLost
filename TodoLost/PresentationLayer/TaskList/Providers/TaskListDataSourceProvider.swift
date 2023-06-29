@@ -33,14 +33,28 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
     
     // MARK: - Private methods
     
-    private var isShowComplete = false
+    private var isShowCompleted = false
     private var notCompletedTaskModels: [TaskViewModel] = []
+    
+    // MARK: - Private method
+    
+    private func fetchViewModelWith(_ indexPath: IndexPath) -> TaskViewModel? {
+        var viewModel: TaskViewModel?
+        
+        if isShowCompleted {
+            viewModel = viewModels[indexPath.row]
+        } else {
+            viewModel = notCompletedTaskModels[indexPath.row]
+        }
+        
+        return viewModel
+    }
 }
 
 // MARK: - Table view data source
 
 extension TaskListDataSourceProvider {
-    enum Section {
+    enum Section: Int {
         case main
     }
     
@@ -73,22 +87,21 @@ extension TaskListDataSourceProvider {
         snapshot.appendSections([.main])
         
         if showComplete {
-            isShowComplete = true
+            isShowCompleted = true
             snapshot.appendItems(viewModels, toSection: .main)
             buttonTitle = "Скрыть"
         } else {
-            isShowComplete = false
+            isShowCompleted = false
             notCompletedTaskModels = viewModels.filter({ $0.status != .statusDone })
             snapshot.appendItems(notCompletedTaskModels, toSection: .main)
         }
         
-        dataSource?.defaultRowAnimation = .fade
         dataSource?.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
-            guard let completeCount = self?.viewModels.filter({ $0.status == .statusDone }).count else {
-                SystemLogger.error("Не удалось получить количество выполненных задач")
+            guard let completedCount = self?.viewModels.filter({ $0.status == .statusDone }).count else {
+                SystemLogger.error(Errors.errorCompletedTaskCount.localizedDescription)
                 return
             }
-            self?.presenter?.updateHeaderView(completeCount, buttonTitle: buttonTitle)
+            self?.presenter?.updateHeaderView(completedCount, buttonTitle: buttonTitle)
         })
     }
 }
@@ -101,7 +114,7 @@ extension TaskListDataSourceProvider {
         
         var viewModel: TaskViewModel?
         
-        if isShowComplete {
+        if isShowCompleted {
             viewModel = viewModels[indexPath.row]
         } else {
             viewModel = notCompletedTaskModels[indexPath.row]
@@ -116,16 +129,9 @@ extension TaskListDataSourceProvider {
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
         
-        var viewModel: TaskViewModel?
-        
-        if isShowComplete {
-            viewModel = viewModels[indexPath.row]
-        } else {
-            viewModel = notCompletedTaskModels[indexPath.row]
-        }
-        
+        let viewModel = fetchViewModelWith(indexPath)
         guard let viewModel else {
-            SystemLogger.error("Не удалось получить модель")
+            SystemLogger.error(Errors.fetchError.localizedDescription)
             return nil
         }
         
@@ -168,16 +174,9 @@ extension TaskListDataSourceProvider {
         leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
         
-        var viewModel: TaskViewModel?
-        
-        if isShowComplete {
-            viewModel = viewModels[indexPath.row]
-        } else {
-            viewModel = notCompletedTaskModels[indexPath.row]
-        }
-        
+        let viewModel = fetchViewModelWith(indexPath)
         guard let viewModel else {
-            SystemLogger.error("Не удалось получить модель")
+            SystemLogger.error(Errors.fetchError.localizedDescription)
             return nil
         }
         
@@ -206,6 +205,86 @@ extension TaskListDataSourceProvider {
         
     }
     
+    func tableView(
+        _ tableView: UITableView,
+        contextMenuConfigurationForRowAt indexPath: IndexPath,
+        point: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        
+        let viewModel = fetchViewModelWith(indexPath)
+        guard let viewModel else {
+            SystemLogger.error(Errors.fetchError.localizedDescription)
+            return nil
+        }
+        
+        let index = indexPath.row
+        let identifier = "\(index)" as NSString
+        
+        return UIContextMenuConfiguration(
+            identifier: identifier,
+            previewProvider: nil
+        ) { _ in
+            
+            var doneTitle: String?
+            var doneImage: UIImage?
+            
+            if viewModel.isDone {
+                doneTitle = "Не выполнено"
+                doneImage = Icons.completion.image?.withTintColor(Colors.labelTertiary ?? UIColor.white)
+            } else {
+                doneTitle = "Выполнено"
+                doneImage = Icons.completion.image?.withTintColor(Colors.green ?? UIColor.white)
+            }
+            
+            let completeAction = UIAction(
+                title: doneTitle ?? "",
+                image: doneImage
+            ) { [weak self] _ in
+                self?.presenter?.setIsDone(viewModel)
+            }
+            
+            let deleteAction = UIAction(
+                title: "Удалить",
+                image: Icons.trash.imageTemplate?.withTintColor(Colors.red ?? UIColor.white),
+                attributes: .destructive
+            ) { [weak self] _ in
+                self?.presenter?.delete(viewModel)
+            }
+            
+            return UIMenu(
+                title: "Выберите действие",
+                options: .displayInline,
+                preferredElementSize: .large,
+                children: [completeAction, deleteAction]
+            )
+        }
+    }
+    
+    func tableView(
+        _ tableView: UITableView,
+        willPerformPreviewActionForMenuWith configuration: UIContextMenuConfiguration,
+        animator: UIContextMenuInteractionCommitAnimating
+    ) {
+        guard
+            let identifier = configuration.identifier as? String,
+            let index = Int(identifier)
+        else {
+            return
+        }
+        
+        let indexPath = IndexPath(row: index, section: Section.main.rawValue)
+        
+        let viewModel = fetchViewModelWith(indexPath)
+        guard let viewModel else {
+            SystemLogger.error(Errors.fetchError.localizedDescription)
+            return
+        }
+        
+        animator.addCompletion { [weak self] in
+            self?.presenter?.openDetailTaskVC(id: viewModel.id)
+        }
+    }
+    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         // TODO: написать код для скрытия кнопки
     }
@@ -214,3 +293,22 @@ extension TaskListDataSourceProvider {
         // TODO: написать код для отображения кнопки
     }
 }
+
+// MARK: - Errors
+
+private extension TaskListDataSourceProvider {
+    enum Errors: LocalizedError {
+        case fetchError
+        case errorCompletedTaskCount
+        
+        var errorDescription: String? {
+            switch self {
+            case .fetchError:
+                return "Не удалось получить модель"
+            case .errorCompletedTaskCount:
+                return "Не удалось получить количество выполненных задач"
+            }
+        }
+    }
+}
+
