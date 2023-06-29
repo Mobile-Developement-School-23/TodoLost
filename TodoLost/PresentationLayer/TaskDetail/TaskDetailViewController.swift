@@ -44,7 +44,7 @@ final class TaskDetailViewController: UIViewController {
             title: "Отменить",
             style: .plain,
             target: self,
-            action: nil
+            action: #selector(cancelButtonPressed)
         )
     }()
     
@@ -269,18 +269,7 @@ final class TaskDetailViewController: UIViewController {
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
         super.viewWillTransition(to: size, with: coordinator)
         
-        let device = UIDevice.current
-        let orientation = device.orientation
-        
-        if orientation.isLandscape {
-            stackView.axis = .horizontal
-            stackView.distribution = .fillEqually
-            stackView.alignment = .top
-        } else {
-            stackView.axis = .vertical
-            stackView.distribution = .fill
-            stackView.alignment = .fill
-        }
+        determineOrientationPhone()
     }
     
     // MARK: - Actions
@@ -363,13 +352,19 @@ final class TaskDetailViewController: UIViewController {
         activateSaveButton()
     }
     
+    @objc private func cancelButtonPressed() {
+        dismiss(animated: true)
+    }
+    
     @objc private func saveButtonPressed() {
         presenter?.saveTask()
         deactivateSaveButton()
+        dismiss(animated: true)
     }
     
     @objc private func deleteButtonPressed() {
         presenter?.deleteTask()
+        dismiss(animated: true)
     }
     
     @objc private func openColorVC() {
@@ -468,6 +463,7 @@ extension TaskDetailViewController: TaskDetailView {
 private extension TaskDetailViewController {
     /// Метод инициализации VC
     func setup() {
+        determineOrientationPhone()
         view.addGestureRecognizer(endEditingGesture)
         setupNavBar()
         setupConstraints()
@@ -495,6 +491,36 @@ private extension TaskDetailViewController {
             for: view,
             changeValueFor: bottomScreenConstraint
         )
+    }
+    
+    func determineOrientationPhone() {
+        let device = UIDevice.current
+        let orientation = device.orientation
+        
+        if orientation.isLandscape {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.hideTools()
+            }
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                self?.showTools()
+            }
+        }
+    }
+    
+    func hideTools() {
+        UIView.animate(withDuration: 0.3) {
+            self.floatingLayoutStack.alpha = 0
+        } completion: { _ in
+            self.floatingLayoutStack.isHidden = true
+        }
+    }
+    
+    func showTools() {
+        UIView.animate(withDuration: 0.3) {
+            self.floatingLayoutStack.isHidden = false
+            self.floatingLayoutStack.alpha = 1
+        }
     }
     
     func setupConstraints() {

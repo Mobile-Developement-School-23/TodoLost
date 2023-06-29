@@ -15,9 +15,14 @@ protocol IFileCache {
 }
 
 final class FileCache: IFileCache {
+    
+    static let shared: IFileCache = FileCache()
+    
     private(set) var items: [String : TodoItem] = [:]
     
     private let fileManager = FileManager.default
+    
+    private init() {}
     
     func addToCache(_ item: TodoItem) {
         items[item.id] = item

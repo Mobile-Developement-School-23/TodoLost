@@ -93,7 +93,7 @@ final class ColorPickerViewController: UIViewController {
         }
         
         completion?(hexColor)
-        dismiss(animated: true)
+        navigationController?.popViewController(animated: true)
     }
 }
 
@@ -121,7 +121,7 @@ private extension ColorPickerViewController {
         view.addSubview(doneButton)
         
         NSLayoutConstraint.activate([
-            selectedColorView.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
+            selectedColorView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
             selectedColorView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             selectedColorView.heightAnchor.constraint(equalToConstant: 50),
             selectedColorView.widthAnchor.constraint(equalTo: selectedColorView.heightAnchor),
