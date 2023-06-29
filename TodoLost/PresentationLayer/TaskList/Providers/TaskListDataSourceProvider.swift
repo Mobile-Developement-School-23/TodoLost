@@ -56,26 +56,71 @@ final class TaskListDataSourceProvider: NSObject, ITaskListDataSourceProvider {
 extension TaskListDataSourceProvider {
     enum Section: Int {
         case main
+        case add
     }
     
     func makeDataSource(with cardsTableView: UITableView) {
         dataSource = UITableViewDiffableDataSource(
             tableView: cardsTableView,
             cellProvider: { tableView, indexPath, model -> UITableViewCell? in
-                guard let cell = tableView.dequeueReusableCell(
-                    withIdentifier: TaskCell.identifier,
-                    for: indexPath
-                ) as? TaskCell else {
+                guard let section = Section(rawValue: indexPath.section) else {
                     return UITableViewCell()
                 }
                 
-                cell.config(
-                    status: model.status,
-                    title: model.title,
-                    subtitle: model.subtitle
-                )
-                
-                return cell
+                switch section {
+                case .main:
+                    guard let cell = tableView.dequeueReusableCell(
+                        withIdentifier: TaskCell.identifier,
+                        for: indexPath
+                    ) as? TaskCell else {
+                        return UITableViewCell()
+                    }
+                    
+                    cell.config(
+                        status: model.status,
+                        title: model.title,
+                        subtitle: model.subtitle
+                    )
+                    
+                    // TODO: (FIX1) Подумать как решить проблему с ломающимися ячейками при добавлении и поворотах
+//                    if indexPath.row == 0 && indexPath.section == 0 {
+//                        let cornerRadius: CGFloat = 16
+//                        let maskPath = UIBezierPath(
+//                            roundedRect: cell.bounds,
+//                            byRoundingCorners: [.topLeft, .topRight],
+//                            cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)
+//                        )
+//                        let shapeLayer = CAShapeLayer()
+//                        shapeLayer.path = maskPath.cgPath
+//                        cell.layer.mask = shapeLayer
+//                    } else {
+//                        cell.layer.mask = nil
+//                    }
+                    
+                    return cell
+                case .add:
+                    guard let addCell = tableView.dequeueReusableCell(
+                        withIdentifier: AddCell.identifier,
+                        for: indexPath
+                    ) as? AddCell else {
+                        return UITableViewCell()
+                    }
+                    
+                    addCell.config()
+                    
+                    // TODO: (FIX1) Подумать как решить проблему с ломающимися ячейками при добавлении и поворотах
+//                    let cornerRadius: CGFloat = 16
+//                    let maskPath = UIBezierPath(
+//                        roundedRect: addCell.bounds,
+//                        byRoundingCorners: [.bottomLeft, .bottomRight],
+//                        cornerRadii: CGSize(width: cornerRadius, height: cornerRadius)
+//                    )
+//                    let shapeLayer = CAShapeLayer()
+//                    shapeLayer.path = maskPath.cgPath
+//                    addCell.layer.mask = shapeLayer
+                    
+                    return addCell
+                }
             }
         )
     }
@@ -84,7 +129,22 @@ extension TaskListDataSourceProvider {
         var buttonTitle = "Показать"
         
         var snapshot = NSDiffableDataSourceSnapshot<Section, TaskViewModel>()
-        snapshot.appendSections([.main])
+        snapshot.appendSections([.main, .add])
+        
+        let nullItem = TaskViewModel(
+            id: "",
+            dateCreated: Date.distantPast,
+            status: .statusDefault,
+            title: "",
+            subtitle: nil,
+            importance: .normal,
+            deadline: nil,
+            isDone: false,
+            dateEdited: nil,
+            hexColor: nil
+        )
+        
+        snapshot.appendItems([nullItem], toSection: .add)
         
         if showComplete {
             isShowCompleted = true
@@ -112,22 +172,33 @@ extension TaskListDataSourceProvider {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         
-        var viewModel: TaskViewModel?
-        
-        if isShowCompleted {
-            viewModel = viewModels[indexPath.row]
-        } else {
-            viewModel = notCompletedTaskModels[indexPath.row]
+        guard let section = Section(rawValue: indexPath.section) else {
+            return
         }
         
-        presenter?.setSelectedCell(indexPath: indexPath)
-        presenter?.openDetailTaskVC(id: viewModel?.id)
+        switch section {
+        case .main:
+            var viewModel: TaskViewModel?
+            
+            if isShowCompleted {
+                viewModel = viewModels[indexPath.row]
+            } else {
+                viewModel = notCompletedTaskModels[indexPath.row]
+            }
+            
+            presenter?.setSelectedCell(indexPath: indexPath)
+            presenter?.openDetailTaskVC(id: viewModel?.id)
+        case .add:
+            presenter?.openDetailTaskVC(id: "")
+        }
     }
     
     func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
+        
+        guard indexPath.section != Section.add.rawValue else { return nil }
         
         let viewModel = fetchViewModelWith(indexPath)
         guard let viewModel else {
@@ -174,6 +245,8 @@ extension TaskListDataSourceProvider {
         leadingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
         
+        guard indexPath.section != Section.add.rawValue else { return nil }
+        
         let viewModel = fetchViewModelWith(indexPath)
         guard let viewModel else {
             SystemLogger.error(Errors.fetchError.localizedDescription)
@@ -210,6 +283,8 @@ extension TaskListDataSourceProvider {
         contextMenuConfigurationForRowAt indexPath: IndexPath,
         point: CGPoint
     ) -> UIContextMenuConfiguration? {
+        
+        guard indexPath.section != Section.add.rawValue else { return nil }
         
         let viewModel = fetchViewModelWith(indexPath)
         guard let viewModel else {
@@ -285,6 +360,31 @@ extension TaskListDataSourceProvider {
         }
     }
     
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == Section.add.rawValue {
+            return .zero
+        } else {
+            return 12
+        }
+        
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = .clear
+        return headerView
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 5
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        let headerView = UIView()
+        headerView.backgroundColor = .clear
+        return headerView
+    }
+    
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         // TODO: написать код для скрытия кнопки
     }
@@ -311,4 +411,3 @@ private extension TaskListDataSourceProvider {
         }
     }
 }
-

@@ -20,6 +20,7 @@ enum Icons: String {
     case statusLow
     case statusDone
     case calendar
+    case add
     
     // MARK: Swipe Actions
     

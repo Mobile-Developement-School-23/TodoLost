@@ -41,6 +41,10 @@ final class TaskListViewController: UIViewController {
     /// Используется для расчета анимации, если была нажата кнопка, а не ячейка
     private var isAddButtonClicked = false
     
+    // TODO: (FIX1) Подумать как решить проблему с ломающимися ячейками при добавлении и поворотах
+    /// Используется для обновления отрисованных ячеек. Костыль для решения проблемы и борьба за дизайн  T_T
+//    private var shouldReloadOnLayoutSubviews = false
+    
     private var headerView: TaskListHeaderTableView?
     
     private let tableView: UITableView = {
@@ -88,6 +92,22 @@ final class TaskListViewController: UIViewController {
         setupHeaderTableView()
         presenter?.getModels()
     }
+    
+    // TODO: (FIX1) Подумать как решить проблему с ломающимися ячейками при добавлении и поворотах
+//    override func viewDidLayoutSubviews() {
+//        super.viewDidLayoutSubviews()
+//
+//        if shouldReloadOnLayoutSubviews {
+//            tableView.reloadData()
+//            shouldReloadOnLayoutSubviews = false
+//        }
+//    }
+//
+//    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+//        super.viewWillTransition(to: size, with: coordinator)
+//
+//        shouldReloadOnLayoutSubviews = true
+//    }
     
     // MARK: - Actions
     
@@ -181,6 +201,11 @@ private extension TaskListViewController {
         tableView.register(
             TaskCell.self,
             forCellReuseIdentifier: TaskCell.identifier
+        )
+        
+        tableView.register(
+            AddCell.self,
+            forCellReuseIdentifier: AddCell.identifier
         )
     }
     
