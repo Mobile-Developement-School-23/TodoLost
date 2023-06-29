@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import DTLogger
 
 protocol TaskListHeaderDelegate: AnyObject {
     func toggleButtonTapped()
@@ -19,6 +20,8 @@ protocol TaskListView: AnyObject {
     func display(models: [TaskViewModel], isShowComplete: Bool)
     func display(doneTaskCount: String, buttonTitle: String)
     
+    func setSelectedCell(indexPath: IndexPath)
+    
     func dismissSplashScreen()
 }
 
@@ -29,8 +32,14 @@ final class TaskListViewController: UIViewController {
     var presenter: TaskListPresenter?
     var dataSourceProvider: ITaskListDataSourceProvider?
     var splashScreenPresenter: ISplashScreenPresenter?
+    var transition: TransitionAnimationVC?
     
     // MARK: - Private property
+    
+    /// Используется для расчета анимации перехода, из какой ячейки её стартовать
+    private var selectedIndexPath: IndexPath?
+    /// Используется для расчета анимации, если была нажата кнопка, а не ячейка
+    private var isAddButtonClicked = false
     
     private var headerView: TaskListHeaderTableView?
     
@@ -83,6 +92,7 @@ final class TaskListViewController: UIViewController {
     // MARK: - Actions
     
     @objc func addButtonPressed() {
+        isAddButtonClicked = true
         presenter?.openDetailTaskVC(id: nil)
     }
 }
@@ -104,6 +114,10 @@ extension TaskListViewController: TaskListView {
     
     func hidePlaceholder() {
         placeholderLabel.isHidden = true
+    }
+    
+    func setSelectedCell(indexPath: IndexPath) {
+        selectedIndexPath = indexPath
     }
     
     func display(models: [TaskViewModel], isShowComplete: Bool) {
@@ -205,5 +219,60 @@ private extension TaskListViewController {
 extension TaskListViewController: TaskListHeaderDelegate {
     func toggleButtonTapped() {
         presenter?.toggleVisibleTask()
+    }
+}
+
+// MARK: - UIViewControllerTransitioningDelegate
+
+extension TaskListViewController: UIViewControllerTransitioningDelegate {
+    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        guard let transition else {
+            SystemLogger.error("Не удалось инициализировать transition")
+            return nil
+        }
+        
+        if isAddButtonClicked {
+            guard let buttonSuperview = addButton.superview else {
+                transition.originFrame = .zero
+                return nil
+            }
+            transition.originFrame = buttonSuperview.convert(addButton.frame, to: nil)
+        } else {
+            if let selectedIndexPath = selectedIndexPath,
+               let selectedCell = tableView.cellForRow(at: selectedIndexPath) {
+                transition.originFrame = selectedCell.convert(selectedCell.bounds, to: nil)
+            }
+        }
+        
+        transition.presenting = true
+        
+        return transition
+    }
+    
+    func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+        
+        // TODO: Отрефакторить, сейчас дублируется кроме сброса isAddButtonClicked
+        guard let transition else {
+            SystemLogger.error("Не удалось инициализировать transition")
+            return nil
+        }
+        
+        if isAddButtonClicked {
+            guard let buttonSuperview = addButton.superview else {
+                transition.originFrame = .zero
+                return nil
+            }
+            isAddButtonClicked = false
+            transition.originFrame = buttonSuperview.convert(addButton.frame, to: nil)
+        } else {
+            if let selectedIndexPath = selectedIndexPath,
+               let selectedCell = tableView.cellForRow(at: selectedIndexPath) {
+                transition.originFrame = selectedCell.convert(selectedCell.bounds, to: nil)
+            }
+        }
+        
+        transition.presenting = false
+        
+        return transition
     }
 }

@@ -141,9 +141,8 @@ extension TaskCell {
             priorityImageView.image = Icons.highImportance.image
             priorityImageView.isHidden = false
         case .statusDone:
-            let text = title
             let attributedString = NSAttributedString(
-                string: text,
+                string: title,
                 attributes: [
                     NSAttributedString.Key.strikethroughStyle: NSUnderlineStyle.single.rawValue
                 ]

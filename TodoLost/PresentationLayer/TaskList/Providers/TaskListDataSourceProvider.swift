@@ -82,10 +82,13 @@ extension TaskListDataSourceProvider {
             snapshot.appendItems(notCompletedTaskModels, toSection: .main)
         }
         
-        // ???: Может ли подобное вызвать цикл сильной ссылки или оно работает как и с анимацией и можно не использовать weak self?
-        dataSource?.apply(snapshot, animatingDifferences: true, completion: {
-            let completeCount = self.viewModels.filter({ $0.status == .statusDone }).count
-            self.presenter?.updateHeaderView(completeCount, buttonTitle: buttonTitle)
+        dataSource?.defaultRowAnimation = .fade
+        dataSource?.apply(snapshot, animatingDifferences: true, completion: { [weak self] in
+            guard let completeCount = self?.viewModels.filter({ $0.status == .statusDone }).count else {
+                SystemLogger.error("Не удалось получить количество выполненных задач")
+                return
+            }
+            self?.presenter?.updateHeaderView(completeCount, buttonTitle: buttonTitle)
         })
     }
 }
@@ -104,6 +107,7 @@ extension TaskListDataSourceProvider {
             viewModel = notCompletedTaskModels[indexPath.row]
         }
         
+        presenter?.setSelectedCell(indexPath: indexPath)
         presenter?.openDetailTaskVC(id: viewModel?.id)
     }
     
@@ -130,7 +134,7 @@ extension TaskListDataSourceProvider {
             title: ""
         ) { [weak self] _, _, isDone in
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                 self?.presenter?.delete(viewModel)
             }
             
@@ -182,8 +186,9 @@ extension TaskListDataSourceProvider {
             title: ""
         ) { [weak self] _, _, isDone in
             
-            // ???: Это костыль или нормальный подход для того чтобы не вызвать раньше времени обновление таблицы и дать анимации плавно закончится?
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            // TODO: Подумать как это сделать без asyncAfter
+            // Возможно DiffableDataSource не предполагает использование с UIContextualAction
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                 self?.presenter?.setIsDone(viewModel)
             }
             

@@ -13,6 +13,10 @@ protocol TaskListPresentationLogic: AnyObject {
     init(view: TaskListView)
     
     func getModels()
+    /// Метод для установки индекса на вью контроллере
+    /// - Используется для расчета старта анимации открытия экрана и размеров фрейма
+    /// - Parameter indexPath: <#indexPath description#>
+    func setSelectedCell(indexPath: IndexPath)
     /// Открывает новый контроллер с текущей заметкой
     /// - Parameter id: если ID nil, откроется экран для создания новой заметки
     func openDetailTaskVC(id: String?)
@@ -117,6 +121,10 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    func setSelectedCell(indexPath: IndexPath) {
+        view?.setSelectedCell(indexPath: indexPath)
+    }
+    
     func setIsDone(_ task: TaskViewModel) {
         var isDone = task.isDone
         isDone.toggle()
@@ -154,9 +162,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
         view?.display(doneTaskCount: "Выполнено — \(doneTaskCount)", buttonTitle: buttonTitle)
     }
     
-    // ???: Нормально ли использовать такой подход с комплишином который передаётся через роутер, чтобы я мог обработать завершение сохранения и обновить данные в таблице?
     func openDetailTaskVC(id: String?) {
         router?.routeTo(target: .taskDetail(id)) { [weak self] in
+            // TODO: Перенести логику по сохранению на главный экран, а экран редактирования оставить так, чтобы он ничего не делал с памятью и только брал данные из кеша.
+            // То есть по колбеку вызывать не обновление массива, а производить сохранение, удаление и т.д.
             self?.getModels()
         }
     }
