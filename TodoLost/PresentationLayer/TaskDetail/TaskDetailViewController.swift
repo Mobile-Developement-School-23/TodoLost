@@ -407,10 +407,11 @@ extension TaskDetailViewController: TaskDetailView {
             options: .transitionCrossDissolve,
             animations: {
                 self.deleteButton.setTitleColor(Colors.red, for: .normal)
+            },
+            completion: { _ in
+                self.deleteButton.isEnabled = true
             }
-        ) { _ in
-            self.deleteButton.isEnabled = true
-        }
+        )
     }
     
     func deactivateDeleteButton() {
@@ -420,10 +421,11 @@ extension TaskDetailViewController: TaskDetailView {
             options: .transitionCrossDissolve,
             animations: {
                 self.deleteButton.setTitleColor(Colors.labelTertiary, for: .normal)
+            },
+            completion: { _ in
+                self.deleteButton.isEnabled = false
             }
-        ) { _ in
-            self.deleteButton.isEnabled = false
-        }
+        )
     }
     
     func updateView(_ viewModel: TaskDetailViewModel?) {

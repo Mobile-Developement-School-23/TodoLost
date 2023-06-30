@@ -250,7 +250,11 @@ extension TaskListViewController: TaskListHeaderDelegate {
 // MARK: - UIViewControllerTransitioningDelegate
 
 extension TaskListViewController: UIViewControllerTransitioningDelegate {
-    func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
+    func animationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController,
+        source: UIViewController
+    ) -> UIViewControllerAnimatedTransitioning? {
         guard let transition else {
             SystemLogger.error("Не удалось инициализировать transition")
             return nil
@@ -276,7 +280,7 @@ extension TaskListViewController: UIViewControllerTransitioningDelegate {
     
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         
-        // TODO: Отрефакторить, сейчас дублируется кроме сброса isAddButtonClicked
+        // TODO: () Отрефакторить, сейчас дублируется кроме сброса isAddButtonClicked
         guard let transition else {
             SystemLogger.error("Не удалось инициализировать transition")
             return nil

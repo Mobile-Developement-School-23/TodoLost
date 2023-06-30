@@ -46,10 +46,9 @@ final class TaskListRouter: TaskListRoutingLogic {
                 navigationController: navigationController
             )
             
-            // TODO: Задать эту настройку в конфигураторе другого модуля
+            // TODO: () Задать эту настройку в конфигураторе другого модуля
             taskDetailVC.presenter?.completion = completion
             taskDetailVC.presenter?.itemID = itemID
-            
             
             guard let currentViewController = navigationController.visibleViewController else {
                 SystemLogger.error("Не удалось получить текущий VC")

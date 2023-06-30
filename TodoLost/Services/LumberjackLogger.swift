@@ -7,7 +7,7 @@
 
 import CocoaLumberjackSwift
 
-fileprivate enum LogLevel {
+private enum LogLevel {
     case info
     case warning
     case error

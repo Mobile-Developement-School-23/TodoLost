@@ -21,7 +21,7 @@ final class FileCache: IFileCache {
     static let shared: IFileCache = FileCache()
     var logger: LumberjackLogger?
     
-    private(set) var items: [String : TodoItem] = [:]
+    private(set) var items: [String: TodoItem] = [:]
     
     private let fileManager = FileManager.default
     
@@ -59,7 +59,7 @@ final class FileCache: IFileCache {
         guard let fileURL = fileManager.urls(
             for: .documentDirectory,
             in: .userDomainMask
-        ).first?.appending(path:"\(jsonFileName).json") else {
+        ).first?.appending(path: "\(jsonFileName).json") else {
             throw FileCacheErrors.failedFoundPath
         }
         
