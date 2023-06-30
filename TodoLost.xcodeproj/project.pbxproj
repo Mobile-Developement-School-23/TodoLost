@@ -48,13 +48,13 @@
 		2C9F840F2A459BB900A2F1FD /* ColorPickerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F840E2A459BB900A2F1FD /* ColorPickerPresenter.swift */; };
 		2C9F84112A459BD600A2F1FD /* ColorPickerConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84102A459BD600A2F1FD /* ColorPickerConfigurator.swift */; };
 		2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */; };
-		2C9F84152A45A88D00A2F1FD /* ColorWheel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84142A45A88D00A2F1FD /* ColorWheel.swift */; };
 		2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */; };
 		2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */; };
 		2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAC791D2A4AF8EB00A02382 /* TaskListHeaderTableView.swift */; };
 		2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */; };
 		2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */; };
 		2CD382E02A432B6400C82343 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
+		2CE2692D2A4F3620000F90A7 /* ColorWheel in Frameworks */ = {isa = PBXBuildFile; productRef = 2CE2692C2A4F3620000F90A7 /* ColorWheel */; };
 		2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF941A92A4D63A300555DB5 /* TransitionAnimationVC.swift */; };
 		2DE6A19C38A6190E438784C4 /* Pods_TodoLostTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35E1CEC2918624B4F8EEFB98 /* Pods_TodoLostTests.framework */; };
 		2F3A27C741EE878CCCCAD38D /* Pods_TodoLost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4225ABD829F27BF5A949EDA2 /* Pods_TodoLost.framework */; };
@@ -123,7 +123,6 @@
 		2C9F840E2A459BB900A2F1FD /* ColorPickerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerPresenter.swift; sourceTree = "<group>"; };
 		2C9F84102A459BD600A2F1FD /* ColorPickerConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerConfigurator.swift; sourceTree = "<group>"; };
 		2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailRouter.swift; sourceTree = "<group>"; };
-		2C9F84142A45A88D00A2F1FD /* ColorWheel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorWheel.swift; sourceTree = "<group>"; };
 		2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexFormatter.swift"; sourceTree = "<group>"; };
 		2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
 		2CAC791D2A4AF8EB00A02382 /* TaskListHeaderTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListHeaderTableView.swift; sourceTree = "<group>"; };
@@ -149,6 +148,7 @@
 				2C2016302A4EDC89004EB2A7 /* CocoaLumberjackSwift in Frameworks */,
 				2C2016322A4EDC89004EB2A7 /* CocoaLumberjackSwiftLogBackend in Frameworks */,
 				2C3055782A4C742F001C3E5D /* DTLogger in Frameworks */,
+				2CE2692D2A4F3620000F90A7 /* ColorWheel in Frameworks */,
 				2F3A27C741EE878CCCCAD38D /* Pods_TodoLost.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -238,6 +238,13 @@
 				2C451A522A35E03100135FF8 /* TodoItemTests.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		2C503E142A4F1FAF001690B0 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		2C507E9A2A48A49B005F8B4A /* TaskList */ = {
@@ -336,6 +343,7 @@
 		2C6C23D42A34AEFB002B107C = {
 			isa = PBXGroup;
 			children = (
+				2C503E142A4F1FAF001690B0 /* Packages */,
 				2CB15C912A36515E0060584F /* TodoLost.xctestplan */,
 				2C5C7B9E2A3604A900B7DF19 /* .gitignore */,
 				2C6C23DF2A34AEFC002B107C /* TodoLost */,
@@ -425,7 +433,6 @@
 		2C9F840B2A459B4E00A2F1FD /* ColorPicker */ = {
 			isa = PBXGroup;
 			children = (
-				2C9F84142A45A88D00A2F1FD /* ColorWheel.swift */,
 				2C9F840C2A459B7A00A2F1FD /* ColorPickerViewController.swift */,
 				2C9F840E2A459BB900A2F1FD /* ColorPickerPresenter.swift */,
 				2C9F84102A459BD600A2F1FD /* ColorPickerConfigurator.swift */,
@@ -484,6 +491,7 @@
 				2C3055772A4C742F001C3E5D /* DTLogger */,
 				2C20162F2A4EDC89004EB2A7 /* CocoaLumberjackSwift */,
 				2C2016312A4EDC89004EB2A7 /* CocoaLumberjackSwiftLogBackend */,
+				2CE2692C2A4F3620000F90A7 /* ColorWheel */,
 			);
 			productName = TodoLost;
 			productReference = 2C6C23DD2A34AEFC002B107C /* TodoLost.app */;
@@ -562,6 +570,7 @@
 			packageReferences = (
 				2C3055762A4C742F001C3E5D /* XCRemoteSwiftPackageReference "DTLogger" */,
 				2C20162E2A4EDC89004EB2A7 /* XCRemoteSwiftPackageReference "CocoaLumberjack" */,
+				2CE2692B2A4F3620000F90A7 /* XCRemoteSwiftPackageReference "ColorWheel" */,
 			);
 			productRefGroup = 2C6C23DE2A34AEFC002B107C /* Products */;
 			projectDirPath = "";
@@ -732,7 +741,6 @@
 				2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */,
 				2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */,
 				2C9F84112A459BD600A2F1FD /* ColorPickerConfigurator.swift in Sources */,
-				2C9F84152A45A88D00A2F1FD /* ColorWheel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1091,6 +1099,14 @@
 				minimumVersion = 1.0.1;
 			};
 		};
+		2CE2692B2A4F3620000F90A7 /* XCRemoteSwiftPackageReference "ColorWheel" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/ZyFun/ColorWheel";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1108,6 +1124,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 2C3055762A4C742F001C3E5D /* XCRemoteSwiftPackageReference "DTLogger" */;
 			productName = DTLogger;
+		};
+		2CE2692C2A4F3620000F90A7 /* ColorWheel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2CE2692B2A4F3620000F90A7 /* XCRemoteSwiftPackageReference "ColorWheel" */;
+			productName = ColorWheel;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
