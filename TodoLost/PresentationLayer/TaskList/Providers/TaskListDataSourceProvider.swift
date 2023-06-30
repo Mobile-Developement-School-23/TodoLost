@@ -171,6 +171,7 @@ extension TaskListDataSourceProvider {
 extension TaskListDataSourceProvider {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        presenter?.setSelectedCell(indexPath: indexPath)
         
         guard let section = Section(rawValue: indexPath.section) else {
             return
@@ -186,7 +187,6 @@ extension TaskListDataSourceProvider {
                 viewModel = notCompletedTaskModels[indexPath.row]
             }
             
-            presenter?.setSelectedCell(indexPath: indexPath)
             presenter?.openDetailTaskVC(id: viewModel?.id)
         case .add:
             presenter?.openDetailTaskVC(id: "")
