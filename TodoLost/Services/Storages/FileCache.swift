@@ -2,6 +2,8 @@ import Foundation
 import DTLogger
 
 protocol IFileCache {
+    var logger: LumberjackLogger? { get set }
+    
     var items: [String: TodoItem] { get }
     
     func addToCache(_ item: TodoItem)
@@ -17,6 +19,7 @@ protocol IFileCache {
 final class FileCache: IFileCache {
     
     static let shared: IFileCache = FileCache()
+    var logger: LumberjackLogger?
     
     private(set) var items: [String : TodoItem] = [:]
     
@@ -40,7 +43,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        SystemLogger.info(fileURL.description)
+        logger?.logInfoMessage(fileURL.description)
         
         let serializedItems = items.map({ $0.value.json })
         
@@ -83,7 +86,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        SystemLogger.info(fileURL.description)
+        logger?.logInfoMessage(fileURL.description)
         
         var csvString = ""
         
@@ -161,7 +164,7 @@ final class FileCache: IFileCache {
             for csvRow in valueRows {
                 // Проверка на случай пустой строки вместо данных
                 if csvRow == "" {
-                    SystemLogger.warning("Попалась пустая строка")
+                    logger?.logWarningMessage("Попалась пустая строка")
                     continue
                 }
                 
