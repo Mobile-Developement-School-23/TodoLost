@@ -50,7 +50,7 @@ extension TodoItem {
             let text = json[JsonKey.text] as? String,
             let isDone = json[JsonKey.isDone] as? Bool,
             let dateCreatedTimestamp = json[JsonKey.dateCreated] as? TimeInterval
-        else { return nil}
+        else { return nil }
         
         let importance = (json[JsonKey.importance] as? String).flatMap(Importance.init(rawValue:)) ?? .normal
         
@@ -173,7 +173,10 @@ extension TodoItem {
     var csv: String {
         var csv = "\(JsonKey.id),\(JsonKey.text),\(JsonKey.importance),\(JsonKey.deadline),\(JsonKey.isDone),\(JsonKey.dateCreated),\(JsonKey.dateEdited)\n"
         
-        csv += "\(id),\(text.replacingOccurrences(of: ",", with: "|"))," // Меняем запятые на |, чтобы избежать проблем в случае если пользователь будет вводить в тексте запятые. Этот символ использоваться по идее не будет и его можно запретить к вводу.
+        // Меняем запятые на |, чтобы избежать проблем в случае если пользователь
+        // будет вводить в тексте запятые. Этот символ использоваться по идее не
+        // будет и его можно запретить к вводу.
+        csv += "\(id),\(text.replacingOccurrences(of: ",", with: "|")),"
         
         if importance != .normal {
             csv += "\(importance.rawValue),"

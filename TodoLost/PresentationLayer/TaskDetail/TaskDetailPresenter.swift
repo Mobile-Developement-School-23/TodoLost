@@ -20,7 +20,7 @@ protocol TaskDetailPresentationLogic: AnyObject,
     var completion: (() -> Void)? { get set }
     /// Используется для передачи ID итема и отображения его на экране.
     /// Если id равен пустой строке, то создаётся новая заметка.
-    var itemID: String? { get set}
+    var itemID: String? { get set }
     
     func fetchTask()
     func saveTask()
@@ -166,7 +166,7 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
             completion?()
         } catch {
-            // TODO: Вывести алерт
+            // TODO: () Вывести алерт
         }
     }
     
@@ -189,7 +189,7 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
             completion?()
         } catch {
-            // TODO: Вывести алерт
+            // TODO: () Вывести алерт
         }
     }
 }

@@ -7,6 +7,7 @@
 
 import UIKit
 import DTLogger
+import ColorWheel
 
 /// Протокол отображения данных ViewCintroller-a
 protocol ColorPickerView: AnyObject {

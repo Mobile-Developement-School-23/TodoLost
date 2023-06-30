@@ -10,6 +10,15 @@
       }
     },
     {
+      "identity" : "colorwheel",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ZyFun/ColorWheel",
+      "state" : {
+        "revision" : "f811d76080d59422b6031777b14a2d7a14b98a58",
+        "version" : "1.0.0"
+      }
+    },
+    {
       "identity" : "dtlogger",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ZyFun/DTLogger.git",

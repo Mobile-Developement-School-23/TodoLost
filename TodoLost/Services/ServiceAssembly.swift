@@ -8,12 +8,17 @@
 import Foundation
 
 final class ServiceAssembly {
+    lazy var logger: LumberjackLogger = {
+        return LumberjackLogger.shared
+    }()
+    
     lazy var fileCacheStorage: IFileCache = {
-        return FileCache.shared
+        var fileCache = FileCache.shared
+        fileCache.logger = logger
+        return fileCache
     }()
     
     lazy var notificationKeyboardObserver: INotificationKeyboardObserver = {
        return NotificationKeyboardObserver()
     }()
 }
-

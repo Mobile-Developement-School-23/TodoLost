@@ -9,7 +9,7 @@ import UIKit
 import DTLogger
 
 protocol ITaskListDataSourceProvider: UITableViewDelegate {
-    var viewModels: [TaskViewModel] { get set}
+    var viewModels: [TaskViewModel] { get set }
     func makeDataSource(with tableView: UITableView)
     func updateDataSource(_ showComplete: Bool)
 }
@@ -171,6 +171,7 @@ extension TaskListDataSourceProvider {
 extension TaskListDataSourceProvider {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        presenter?.setSelectedCell(indexPath: indexPath)
         
         guard let section = Section(rawValue: indexPath.section) else {
             return
@@ -186,7 +187,6 @@ extension TaskListDataSourceProvider {
                 viewModel = notCompletedTaskModels[indexPath.row]
             }
             
-            presenter?.setSelectedCell(indexPath: indexPath)
             presenter?.openDetailTaskVC(id: viewModel?.id)
         case .add:
             presenter?.openDetailTaskVC(id: "")
@@ -222,7 +222,7 @@ extension TaskListDataSourceProvider {
             style: .normal,
             title: ""
         ) { _, _, isDone in
-            // TODO: добавить действие для кнопки info. Например вывести дату создания заметки
+            // TODO: () добавить действие для кнопки info. Например вывести дату создания заметки
             SystemLogger.info(viewModel.dateCreated.description)
             isDone(true)
         }
@@ -258,7 +258,7 @@ extension TaskListDataSourceProvider {
             title: ""
         ) { [weak self] _, _, isDone in
             
-            // TODO: Подумать как это сделать без asyncAfter
+            // TODO: () Подумать как это сделать без asyncAfter
             // Возможно DiffableDataSource не предполагает использование с UIContextualAction
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
                 self?.presenter?.setIsDone(viewModel)
@@ -386,11 +386,11 @@ extension TaskListDataSourceProvider {
     }
     
     func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
-        // TODO: написать код для скрытия кнопки
+        // TODO: () написать код для скрытия кнопки
     }
     
     func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-        // TODO: написать код для отображения кнопки
+        // TODO: () написать код для отображения кнопки
     }
 }
 

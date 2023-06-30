@@ -34,4 +34,3 @@ private extension AppDelegate {
         window?.makeKeyAndVisible()
     }
 }
-
