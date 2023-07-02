@@ -11,6 +11,7 @@ final class PresentationAssembly {
     lazy var taskList: TaskListConfigurator = {
         return TaskListConfigurator(
             fileCacheStorage: service.fileCacheStorage,
+            requestService: service.requestService,
             splashScreenPresenter: SplashScreenPresenter()
         )
     }()

@@ -13,7 +13,7 @@ analyzer_rules:
 disabled_rules:
   - trailing_whitespace
   - todo
-#  - cyclomatic_complexity
+  - cyclomatic_complexity
 #  - function_body_length
 
 opt_in_rules:
@@ -43,7 +43,7 @@ function_body_length:
   error: 100
   
 closure_body_length:
-  warning: 30
+  warning: 35
   error: 50
 
 file_length:

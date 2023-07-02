@@ -42,6 +42,13 @@
 		2C6C24132A34AFAC002B107C /* TodoItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C6C24122A34AFAC002B107C /* TodoItem.swift */; };
 		2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C740FD92A40B10E00884C79 /* Icons.swift */; };
 		2C740FDC2A40B7DC00884C79 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C740FDB2A40B7DC00884C79 /* Fonts.swift */; };
+		2C8049952A513EDA00F60FB0 /* URLProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8049942A513EDA00F60FB0 /* URLProvider.swift */; };
+		2C8049972A513F2F00F60FB0 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8049962A513F2F00F60FB0 /* NetworkError.swift */; };
+		2C80499A2A513F8200F60FB0 /* TodoListParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8049992A513F8200F60FB0 /* TodoListParser.swift */; };
+		2C80499C2A513FAE00F60FB0 /* RequestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C80499B2A513FAE00F60FB0 /* RequestService.swift */; };
+		2C80499E2A513FDC00F60FB0 /* RequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C80499D2A513FDC00F60FB0 /* RequestFactory.swift */; };
+		2C8049A02A51406700F60FB0 /* TodoListModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C80499F2A51406700F60FB0 /* TodoListModel.swift */; };
+		2C8049A32A516A4000F60FB0 /* ConfigurationEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C8049A22A516A4000F60FB0 /* ConfigurationEnvironment.swift */; };
 		2C9B8B252A37295000CC591A /* FileCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B8B242A37295000CC591A /* FileCache.swift */; };
 		2C9B8B282A37336400CC591A /* FileCacheTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9B8B272A37336400CC591A /* FileCacheTests.swift */; };
 		2C9F840D2A459B7A00A2F1FD /* ColorPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F840C2A459B7A00A2F1FD /* ColorPickerViewController.swift */; };
@@ -117,6 +124,14 @@
 		2C6C24122A34AFAC002B107C /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
 		2C740FD92A40B10E00884C79 /* Icons.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Icons.swift; sourceTree = "<group>"; };
 		2C740FDB2A40B7DC00884C79 /* Fonts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		2C8049942A513EDA00F60FB0 /* URLProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLProvider.swift; sourceTree = "<group>"; };
+		2C8049962A513F2F00F60FB0 /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
+		2C8049992A513F8200F60FB0 /* TodoListParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListParser.swift; sourceTree = "<group>"; };
+		2C80499B2A513FAE00F60FB0 /* RequestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestService.swift; sourceTree = "<group>"; };
+		2C80499D2A513FDC00F60FB0 /* RequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestFactory.swift; sourceTree = "<group>"; };
+		2C80499F2A51406700F60FB0 /* TodoListModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListModel.swift; sourceTree = "<group>"; };
+		2C8049A12A51695400F60FB0 /* TodoLostConfig.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = TodoLostConfig.xcconfig; sourceTree = "<group>"; };
+		2C8049A22A516A4000F60FB0 /* ConfigurationEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationEnvironment.swift; sourceTree = "<group>"; };
 		2C9B8B242A37295000CC591A /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		2C9B8B272A37336400CC591A /* FileCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCacheTests.swift; sourceTree = "<group>"; };
 		2C9F840C2A459B7A00A2F1FD /* ColorPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorPickerViewController.swift; sourceTree = "<group>"; };
@@ -240,13 +255,6 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		2C503E142A4F1FAF001690B0 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
 		2C507E9A2A48A49B005F8B4A /* TaskList */ = {
 			isa = PBXGroup;
 			children = (
@@ -318,6 +326,7 @@
 				2C507EAC2A48AE69005F8B4A /* Protocols */,
 				2C21E4822A41CFBB00DAE09A /* Extensions */,
 				2C2CFCA12A3F9DC100B80728 /* Constants */,
+				2C8049A22A516A4000F60FB0 /* ConfigurationEnvironment.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -343,7 +352,6 @@
 		2C6C23D42A34AEFB002B107C = {
 			isa = PBXGroup;
 			children = (
-				2C503E142A4F1FAF001690B0 /* Packages */,
 				2CB15C912A36515E0060584F /* TodoLost.xctestplan */,
 				2C5C7B9E2A3604A900B7DF19 /* .gitignore */,
 				2C6C23DF2A34AEFC002B107C /* TodoLost */,
@@ -368,6 +376,7 @@
 		2C6C23DF2A34AEFC002B107C /* TodoLost */ = {
 			isa = PBXGroup;
 			children = (
+				2C8049A12A51695400F60FB0 /* TodoLostConfig.xcconfig */,
 				2C6C23EE2A34AEFD002B107C /* Info.plist */,
 				2C633F772A3F680600BD2F29 /* Default */,
 				2C633F652A3F5BF900BD2F29 /* Common */,
@@ -399,6 +408,7 @@
 			children = (
 				2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */,
 				2C2016332A4EF00A004EB2A7 /* LumberjackLogger.swift */,
+				2C8049922A513E5200F60FB0 /* NetworkService */,
 				2C3614AA2A4465C700C6C9BC /* Observers */,
 				2C6C24142A34AFFC002B107C /* Models */,
 				2C9B8B232A37292900CC591A /* Storages */,
@@ -410,6 +420,27 @@
 			isa = PBXGroup;
 			children = (
 				2C6C24122A34AFAC002B107C /* TodoItem.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		2C8049922A513E5200F60FB0 /* NetworkService */ = {
+			isa = PBXGroup;
+			children = (
+				2C8049932A513E6C00F60FB0 /* Models */,
+				2C8049942A513EDA00F60FB0 /* URLProvider.swift */,
+				2C8049962A513F2F00F60FB0 /* NetworkError.swift */,
+				2C8049992A513F8200F60FB0 /* TodoListParser.swift */,
+				2C80499B2A513FAE00F60FB0 /* RequestService.swift */,
+				2C80499D2A513FDC00F60FB0 /* RequestFactory.swift */,
+			);
+			path = NetworkService;
+			sourceTree = "<group>";
+		};
+		2C8049932A513E6C00F60FB0 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				2C80499F2A51406700F60FB0 /* TodoListModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -476,8 +507,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C6C24072A34AEFE002B107C /* Build configuration list for PBXNativeTarget "TodoLost" */;
 			buildPhases = (
-				2C2016352A4F08C4004EB2A7 /* Run SwiftLint */,
 				3B2AB116C1E50E2AC36FC5F0 /* [CP] Check Pods Manifest.lock */,
+				2C2016352A4F08C4004EB2A7 /* Run SwiftLint */,
 				2C6C23D92A34AEFB002B107C /* Sources */,
 				2C6C23DA2A34AEFB002B107C /* Frameworks */,
 				2C6C23DB2A34AEFB002B107C /* Resources */,
@@ -716,25 +747,32 @@
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */,
 				2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */,
+				2C80499C2A513FAE00F60FB0 /* RequestService.swift in Sources */,
 				2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */,
 				2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */,
 				2C507E9F2A48A4F0005F8B4A /* TaskListPresenter.swift in Sources */,
 				2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */,
+				2C8049952A513EDA00F60FB0 /* URLProvider.swift in Sources */,
+				2C80499E2A513FDC00F60FB0 /* RequestFactory.swift in Sources */,
 				2C507EAB2A48AE3D005F8B4A /* TaskCell.swift in Sources */,
+				2C8049972A513F2F00F60FB0 /* NetworkError.swift in Sources */,
 				2C633F5E2A3F59DD00BD2F29 /* TaskDetailViewController.swift in Sources */,
 				2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */,
 				2C9F840D2A459B7A00A2F1FD /* ColorPickerViewController.swift in Sources */,
 				2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */,
 				2C740FDC2A40B7DC00884C79 /* Fonts.swift in Sources */,
 				2C64362B2A4E0F9600E08C4D /* AddCell.swift in Sources */,
+				2C8049A02A51406700F60FB0 /* TodoListModel.swift in Sources */,
 				2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */,
 				2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */,
 				2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */,
+				2C80499A2A513F8200F60FB0 /* TodoListParser.swift in Sources */,
 				2C507EA32A48A532005F8B4A /* TaskListRouter.swift in Sources */,
 				2C507EA12A48A511005F8B4A /* TaskListConfigurator.swift in Sources */,
 				2C9F840F2A459BB900A2F1FD /* ColorPickerPresenter.swift in Sources */,
 				2C6C24132A34AFAC002B107C /* TodoItem.swift in Sources */,
 				2C3614A92A44600100C6C9BC /* NotificationKeyboardObserver.swift in Sources */,
+				2C8049A32A516A4000F60FB0 /* ConfigurationEnvironment.swift in Sources */,
 				2C3055802A4C8646001C3E5D /* SplashScreenPresenter.swift in Sources */,
 				2C507EA82A48ABF5005F8B4A /* TaskViewModel.swift in Sources */,
 				2C9B8B252A37295000CC591A /* FileCache.swift in Sources */,
@@ -791,6 +829,7 @@
 /* Begin XCBuildConfiguration section */
 		2C6C24052A34AEFE002B107C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2C8049A12A51695400F60FB0 /* TodoLostConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;

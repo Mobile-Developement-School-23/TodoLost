@@ -84,6 +84,8 @@ final class TaskListViewController: UIViewController {
         
         splashScreenPresenter?.present()
         setup()
+        
+        presenter?.getTodoList()
     }
     
     override func viewDidAppear(_ animated: Bool) {

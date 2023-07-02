@@ -26,6 +26,9 @@ protocol TaskListPresentationLogic: AnyObject {
     
     func delete(_ task: TaskViewModel)
     func setIsDone(_ task: TaskViewModel)
+    
+    /// Метод для получения todo списка с сервера
+    func getTodoList()
 }
 
 final class TaskListPresenter {
@@ -36,6 +39,7 @@ final class TaskListPresenter {
     var router: TaskListRoutingLogic?
     
     var fileCacheStorage: IFileCache?
+    var requestService: IRequestSender?
     /// СОбирается в конфигураторе и используется для делегирования нажатия на кнопку
     var taskListHeader: TaskListHeaderTableView?
     
@@ -110,7 +114,7 @@ final class TaskListPresenter {
                 dateEdited: value.dateEdited,
                 hexColor: value.hexColor
             )
-
+            
             viewModels.append(viewModel)
         })
         
@@ -121,6 +125,22 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    // MARK: Server requests
+    
+    func getTodoList() {
+        let requestConfig = RequestFactory.TodoListRequest.getModelConfig()
+        requestService?.send(config: requestConfig) { [weak self] result in
+            switch result {
+            case .success(let(model, _, _)):
+                SystemLogger.info("Model: \(model)")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        }
+    }
+    
+    // MARK: Others
+    
     func setSelectedCell(indexPath: IndexPath) {
         view?.setSelectedCell(indexPath: indexPath)
     }

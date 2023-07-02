@@ -10,13 +10,16 @@ import UIKit
 /// Конфигурация MVP модуля
 final class TaskListConfigurator {
     private let fileCacheStorage: IFileCache
+    private let requestService: IRequestSender
     private let splashScreenPresenter: ISplashScreenPresenter
     
     init(
         fileCacheStorage: IFileCache,
+        requestService: IRequestSender,
         splashScreenPresenter: ISplashScreenPresenter
     ) {
         self.fileCacheStorage = fileCacheStorage
+        self.requestService = requestService
         self.splashScreenPresenter = splashScreenPresenter
     }
     
@@ -37,5 +40,6 @@ final class TaskListConfigurator {
         presenter.view = view
         presenter.router = router
         presenter.fileCacheStorage = fileCacheStorage
+        presenter.requestService = requestService
     }
 }
