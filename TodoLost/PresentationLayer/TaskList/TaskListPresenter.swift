@@ -29,6 +29,9 @@ protocol TaskListPresentationLogic: AnyObject {
     
     /// Метод для получения todo списка с сервера
     func getTodoList()
+    
+    /// Метод для отправки единичного элемента на сервер
+    func sendTodoItem(item: APIElementResponse)
 }
 
 final class TaskListPresenter {
@@ -133,6 +136,18 @@ extension TaskListPresenter: TaskListPresentationLogic {
             switch result {
             case .success(let(model, _, _)):
                 SystemLogger.info("Model: \(model)")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        }
+    }
+    
+    func sendTodoItem(item: APIElementResponse) {
+        let requestConfig = RequestFactory.TodoListRequest.postModelConfig(dataModel: item)
+        requestService?.send(config: requestConfig) { [weak self] result in
+            switch result {
+            case .success(let(_, _, _)):
+                SystemLogger.info("Сохранение удалось")
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }

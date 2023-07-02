@@ -12,11 +12,6 @@ protocol IRequest {
     var urlRequest: URLRequest? { get }
 }
 
-protocol IParser {
-    associatedtype Model
-    func parse(data: Data) -> Model?
-}
-
 protocol IRequestSender {
     func send<Parser>(
         config: RequestConfig<Parser>,
@@ -74,6 +69,12 @@ final class RequestSender: IRequestSender {
             // Для отладки и сверки данных
             if let data = data, let jsonString = String(data: data, encoding: .utf8) {
                 SystemLogger.info("Response JSON: \(jsonString)")
+                // TODO: в вответе приходит следующая ревизия, и статус ok,
+                // если эти данные будут после отправки на сохранение
+                // (сравнивать с текущей ревизией) и если она выше, значит
+                // подтверждать что сохранение удалось. В ошибку оно не падает и приходит ответ 400
+                // всё это будет нужно обработать. Если ID совпадает, придет так же 400,
+                // так что нужно это учитывать при обновлении или добавлении
             }
             
             if let data = data,
