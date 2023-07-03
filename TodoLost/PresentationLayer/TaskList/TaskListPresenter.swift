@@ -25,13 +25,14 @@ protocol TaskListPresentationLogic: AnyObject {
     func toggleVisibleTask()
     
     func delete(_ task: TaskViewModel)
-    func setIsDone(_ task: TaskViewModel)
+    func setDoneStatus(_ task: TaskViewModel)
     
     /// Метод для получения todo списка с сервера
     func getTodoList()
-    
     /// Метод для отправки единичного элемента на сервер
     func sendTodoItem(item: APIElementResponse)
+    /// Метод для удаления элемента с сервера по ID
+    func deleteTodoItem(id: String)
 }
 
 final class TaskListPresenter {
@@ -41,6 +42,7 @@ final class TaskListPresenter {
     weak var view: TaskListView?
     var router: TaskListRoutingLogic?
     
+    var logger: LumberjackLogger?
     var fileCacheStorage: IFileCache?
     var requestService: IRequestSender?
     /// СОбирается в конфигураторе и используется для делегирования нажатия на кнопку
@@ -51,6 +53,10 @@ final class TaskListPresenter {
     private var viewModels: [TaskViewModel] = []
     /// Свойство для хранения состояния, отображать скрытые задачи или нет
     private var isShowComplete = false
+    
+    /// Используется для временного хранения текущей ревизии
+    /// - Обновляется при каждом запросе к серверу
+    private var revision = "0"
     
     // MARK: - Initializer
     
@@ -131,23 +137,66 @@ extension TaskListPresenter: TaskListPresentationLogic {
     // MARK: Server requests
     
     func getTodoList() {
-        let requestConfig = RequestFactory.TodoListRequest.getModelConfig()
+        logger?.logInfoMessage("Отправлен запрос на получение списка дел")
+        
+        let requestConfig = RequestFactory.TodoListRequest.getListConfig()
         requestService?.send(config: requestConfig) { [weak self] result in
             switch result {
             case .success(let(model, _, _)):
-                SystemLogger.info("Model: \(model)")
+                guard let model else {
+                    self?.logger?.logWarningMessage("Не удалось получить модель")
+                    return
+                }
+                
+                self?.revision = String(model.revision)
+                
+                if let revision = self?.revision {
+                    self?.logger?.logInfoMessage("Данные получены, новая ревизия: \(revision)")
+                }
+            case .failure(let error):
+                self?.logger?.logErrorMessage(error.describing)
+            }
+        }
+    }
+    
+    func sendTodoItem(item: APIElementResponse) {
+        logger?.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
+        
+        let requestConfig = RequestFactory.TodoListRequest.postItemConfig(dataModel: item, revision: revision)
+        requestService?.send(config: requestConfig) { [weak self] result in
+            switch result {
+            case .success(let(model, _, _)):
+                guard let model else {
+                    self?.logger?.logWarningMessage("Данные не сохранены")
+                    return
+                }
+                
+                self?.revision = String(model.revision)
+                if let revision = self?.revision {
+                    self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
         }
     }
     
-    func sendTodoItem(item: APIElementResponse) {
-        let requestConfig = RequestFactory.TodoListRequest.postModelConfig(dataModel: item)
+    func deleteTodoItem(id: String) {
+        logger?.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
+        
+        let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: revision)
         requestService?.send(config: requestConfig) { [weak self] result in
             switch result {
-            case .success(let(_, _, _)):
-                SystemLogger.info("Сохранение удалось")
+            case .success(let(model, _, _)):
+                guard let model else {
+                    self?.logger?.logWarningMessage("Данные не удалены")
+                    return
+                }
+                
+                self?.revision = String(model.revision)
+                if let revision = self?.revision {
+                    self?.logger?.logInfoMessage("Данные удалены, новая ревизия: \(revision)")
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -160,7 +209,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
         view?.setSelectedCell(indexPath: indexPath)
     }
     
-    func setIsDone(_ task: TaskViewModel) {
+    func setDoneStatus(_ task: TaskViewModel) {
         var isDone = task.isDone
         isDone.toggle()
         

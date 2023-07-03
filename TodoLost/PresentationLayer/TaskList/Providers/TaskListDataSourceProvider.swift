@@ -261,7 +261,7 @@ extension TaskListDataSourceProvider {
             // TODO: () Подумать как это сделать без asyncAfter
             // Возможно DiffableDataSource не предполагает использование с UIContextualAction
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-                self?.presenter?.setIsDone(viewModel)
+                self?.presenter?.setDoneStatus(viewModel)
             }
             
             isDone(true)
@@ -315,7 +315,7 @@ extension TaskListDataSourceProvider {
                 title: doneTitle ?? "",
                 image: doneImage
             ) { [weak self] _ in
-                self?.presenter?.setIsDone(viewModel)
+                self?.presenter?.setDoneStatus(viewModel)
             }
             
             let deleteAction = UIAction(

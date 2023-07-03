@@ -57,6 +57,8 @@ final class RequestSender: IRequestSender {
                     completionHandler(.failure(.messageError(serverMessage)))
                 case 401:
                     completionHandler(.failure(.authError))
+                case 404:
+                    completionHandler(.failure(.elementNotFound))
                 case 500...:
                     completionHandler(.failure(.serverUnavailable))
                 default:
@@ -69,18 +71,13 @@ final class RequestSender: IRequestSender {
             // Для отладки и сверки данных
             if let data = data, let jsonString = String(data: data, encoding: .utf8) {
                 SystemLogger.info("Response JSON: \(jsonString)")
-                // TODO: в вответе приходит следующая ревизия, и статус ok,
-                // если эти данные будут после отправки на сохранение
-                // (сравнивать с текущей ревизией) и если она выше, значит
-                // подтверждать что сохранение удалось. В ошибку оно не падает и приходит ответ 400
-                // всё это будет нужно обработать. Если ID совпадает, придет так же 400,
-                // так что нужно это учитывать при обновлении или добавлении
             }
             
             if let data = data,
                let parseModel: Parser.Model = config.parser?.parse(data: data) {
                 completionHandler(.success((parseModel, nil, nil)))
             } else if let data = data {
+                // кейс на случай, когда не нужно парсить модель, но ответ получить нужно
                 completionHandler(.success((nil, data, response)))
             } else {
                 completionHandler(.failure(.parseError))

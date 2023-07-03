@@ -1,23 +1,24 @@
 //
-//  TodoItemPostRequest.swift
+//  TodoItemDeleteRequest.swift
 //  TodoLost
 //
-//  Created by Дмитрий Данилин on 02.07.2023.
+//  Created by Дмитрий Данилин on 03.07.2023.
 //
 
 import Foundation
 
-struct TodoItemPostRequest: IRequest {
+struct TodoItemDeleteRequest: IRequest {
     var urlRequest: URLRequest?
     
     let url: URL = URLProvider.getBaseUrl()
     
-    init(data: Data, revision: String) {
-        self.urlRequest = request(data: data, revision: revision)
+    init(delete id: String, revision: String) {
+        self.urlRequest = request(delete: id, revision: revision)
     }
     
-    mutating func request(data: Data, revision: String) -> URLRequest? {
+    mutating func request(delete id: String, revision: String) -> URLRequest? {
         let endpoint = "/list"
+        let id = "/\(id)"
         
         guard var urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: true) else {
             print("Invalid URL components")
@@ -25,6 +26,7 @@ struct TodoItemPostRequest: IRequest {
         }
         
         urlComponents.path += endpoint
+        urlComponents.path += id
         
         guard let url = urlComponents.url else {
             print("Invalid complete URL")
@@ -32,7 +34,7 @@ struct TodoItemPostRequest: IRequest {
         }
         
         var urlRequest = URLRequest(url: url, timeoutInterval: 30)
-        urlRequest.httpMethod = HttpMethod.post.name
+        urlRequest.httpMethod = HttpMethod.delete.name
         urlRequest.addValue(
             Headers.authorization.value,
             forHTTPHeaderField: Headers.authorization.key
@@ -41,7 +43,6 @@ struct TodoItemPostRequest: IRequest {
             Headers.revision(revision).value,
             forHTTPHeaderField: Headers.revision(nil).key
         )
-        urlRequest.httpBody = data
         
         return urlRequest
     }

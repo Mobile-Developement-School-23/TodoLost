@@ -9,15 +9,18 @@ import UIKit
 
 /// Конфигурация MVP модуля
 final class TaskListConfigurator {
+    private let logger: LumberjackLogger
     private let fileCacheStorage: IFileCache
     private let requestService: IRequestSender
     private let splashScreenPresenter: ISplashScreenPresenter
     
     init(
+        logger: LumberjackLogger,
         fileCacheStorage: IFileCache,
         requestService: IRequestSender,
         splashScreenPresenter: ISplashScreenPresenter
     ) {
+        self.logger = logger
         self.fileCacheStorage = fileCacheStorage
         self.requestService = requestService
         self.splashScreenPresenter = splashScreenPresenter
@@ -39,6 +42,7 @@ final class TaskListConfigurator {
         view.transition = transitionAnimation
         presenter.view = view
         presenter.router = router
+        presenter.logger = logger
         presenter.fileCacheStorage = fileCacheStorage
         presenter.requestService = requestService
     }

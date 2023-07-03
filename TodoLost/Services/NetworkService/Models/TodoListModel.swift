@@ -12,7 +12,9 @@ struct APIListResponse: Codable {
 }
 
 struct APIElementResponse: Codable {
+    let status: String
     let element: TodoItemServerModel
+    let revision: Int
 }
 
 struct TodoItemServerModel: Codable {
