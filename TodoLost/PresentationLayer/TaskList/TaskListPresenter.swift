@@ -29,6 +29,8 @@ protocol TaskListPresentationLogic: AnyObject {
     
     /// Метод для получения todo списка с сервера
     func getTodoList()
+    /// Метод для синхронизации данных с сервером
+    func syncTodoList(list: APIListResponse)
     /// Метод для отправки единичного элемента на сервер
     func sendTodoItem(item: APIElementResponse)
     /// Метод для получения задачи с сервера по ID
@@ -168,6 +170,31 @@ extension TaskListPresenter: TaskListPresentationLogic {
         }
     }
     
+    func syncTodoList(list: APIListResponse) {
+        SystemLogger.info("Отправлен запрос на синхронизацию данных")
+//        logger?.logInfoMessage("Отправлен запрос на синхронизацию данных")
+        
+        let requestConfig = RequestFactory.TodoListRequest.patchListConfig(list: list, revision: revision)
+        requestService?.send(config: requestConfig) { [weak self] result in
+            switch result {
+            case .success(let(model, _, _)):
+                guard let model else {
+                    SystemLogger.warning("Данные не синхронизированы")
+//                    self?.logger?.logWarningMessage("Данные не сохранены")
+                    return
+                }
+                
+                self?.revision = String(model.revision)
+                if let revision = self?.revision {
+                    SystemLogger.info("Данные синхронизированы, новая ревизия: \(revision)")
+//                    self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        }
+    }
+    
     func sendTodoItem(item: APIElementResponse) {
         SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
 //        logger?.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
@@ -209,8 +236,8 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 
                 self?.revision = String(model.revision)
                 if let revision = self?.revision {
-                    SystemLogger.info("Данные получены")
-//                    self?.logger?.logInfoMessage("Данные получены")
+                    SystemLogger.info("Данные получены. Ревизия: \(revision)")
+//                    self?.logger?.logInfoMessage("Данные получены. Ревизия: \(revision)")
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
