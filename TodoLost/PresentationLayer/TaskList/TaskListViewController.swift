@@ -280,6 +280,9 @@ extension TaskListViewController: UIViewControllerTransitioningDelegate {
         return transition
     }
     
+    // FIXME: Есть баг при скрытии контроллера в модальном режиме при кастомной анимации
+    // Вью удаляется, а вью перехода остаются и блокирует взаимодействие с экраном
+    // поэтому чтобы избежать проблем, временно возвращаю nil вместо transition
     func animationController(forDismissed dismissed: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         
         // TODO: () Отрефакторить, сейчас дублируется кроме сброса isAddButtonClicked
@@ -304,6 +307,6 @@ extension TaskListViewController: UIViewControllerTransitioningDelegate {
         
         transition.presenting = false
         
-        return transition
+        return nil
     }
 }

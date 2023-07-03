@@ -344,7 +344,7 @@ final class TaskDetailViewController: UIViewController {
     @objc private func segmentedControlValueChanged(_ sender: UISegmentedControl) {
         switch sender.selectedSegmentIndex {
         case 0: presenter?.updateViewModel(.low)
-        case 1: presenter?.updateViewModel(.normal)
+        case 1: presenter?.updateViewModel(.basic)
         case 2: presenter?.updateViewModel(.important)
         default:
             break
@@ -436,7 +436,7 @@ extension TaskDetailViewController: TaskDetailView {
         switch viewModel?.importance {
         case .low:
             importanceSegmentedControl.selectedSegmentIndex = 0
-        case .normal:
+        case .basic:
             importanceSegmentedControl.selectedSegmentIndex = 1
         case .important:
             importanceSegmentedControl.selectedSegmentIndex = 2

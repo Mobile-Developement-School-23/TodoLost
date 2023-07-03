@@ -2,7 +2,7 @@ import Foundation
 
 enum Importance: String {
     case low
-    case normal
+    case basic
     case important
 }
 
@@ -52,7 +52,7 @@ extension TodoItem {
             let dateCreatedTimestamp = json[JsonKey.dateCreated] as? TimeInterval
         else { return nil }
         
-        let importance = (json[JsonKey.importance] as? String).flatMap(Importance.init(rawValue:)) ?? .normal
+        let importance = (json[JsonKey.importance] as? String).flatMap(Importance.init(rawValue:)) ?? .basic
         
         var deadline: Date?
         if let deadlineTimestamp = json[JsonKey.deadline] as? TimeInterval {
@@ -87,7 +87,7 @@ extension TodoItem {
         var json: [String: Any] = [:]
         json[JsonKey.id] = id
         json[JsonKey.text] = text
-        if importance != .normal {
+        if importance != .basic {
             json[JsonKey.importance] = importance.rawValue
         }
         if let deadline {
@@ -134,7 +134,7 @@ extension TodoItem {
         let id = csvValues[idIndex]
         let text = csvValues[textIndex].replacingOccurrences(of: "|", with: ",")
         let importanceString = csvValues[importanceIndex]
-        let importance = Importance(rawValue: importanceString) ?? .normal
+        let importance = Importance(rawValue: importanceString) ?? .basic
         
         let isDoneString = csvValues[isDoneIndex]
         let isDone = isDoneString.lowercased() == "true"
@@ -178,7 +178,7 @@ extension TodoItem {
         // будет и его можно запретить к вводу.
         csv += "\(id),\(text.replacingOccurrences(of: ",", with: "|")),"
         
-        if importance != .normal {
+        if importance != .basic {
             csv += "\(importance.rawValue),"
         } else {
             csv += ","

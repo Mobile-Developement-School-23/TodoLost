@@ -137,7 +137,7 @@ extension TaskListDataSourceProvider {
             status: .statusDefault,
             title: "",
             subtitle: nil,
-            importance: .normal,
+            importance: .basic,
             deadline: nil,
             isDone: false,
             dateEdited: nil,

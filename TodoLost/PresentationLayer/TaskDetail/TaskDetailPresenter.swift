@@ -108,7 +108,7 @@ final class TaskDetailPresenter: NSObject {
         return viewModel = TaskDetailViewModel(
             id: UUID().uuidString,
             text: "",
-            importance: .normal,
+            importance: .basic,
             dateCreated: Date(),
             isDone: false
         )
