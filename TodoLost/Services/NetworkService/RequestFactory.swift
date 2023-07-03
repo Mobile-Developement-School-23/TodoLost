@@ -23,6 +23,12 @@ struct RequestFactory {
             return RequestConfig<JSONParser>(request: request, parser: parser)
         }
         
+        static func getItemConfig(id: String, revision: String) -> RequestConfig<JSONParser<APIElementResponse>> {
+            let parser = JSONParser<APIElementResponse>()
+            let request = TodoItemGetRequest(id: id, revision: revision)
+            return RequestConfig<JSONParser>(request: request, parser: parser)
+        }
+        
         static func deleteItemConfig(id: String, revision: String) -> RequestConfig<JSONParser<APIElementResponse>> {
             let parser = JSONParser<APIElementResponse>()
             let request = TodoItemDeleteRequest(delete: id, revision: revision)

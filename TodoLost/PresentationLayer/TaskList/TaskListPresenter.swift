@@ -31,6 +31,8 @@ protocol TaskListPresentationLogic: AnyObject {
     func getTodoList()
     /// Метод для отправки единичного элемента на сервер
     func sendTodoItem(item: APIElementResponse)
+    /// Метод для получения задачи с сервера по ID
+    func getTodoItem(id: String)
     /// Метод для удаления элемента с сервера по ID
     func deleteTodoItem(id: String)
 }
@@ -174,6 +176,28 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 self?.revision = String(model.revision)
                 if let revision = self?.revision {
                     self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        }
+    }
+    
+    func getTodoItem(id: String) {
+        logger?.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
+        
+        let requestConfig = RequestFactory.TodoListRequest.getItemConfig(id: id, revision: revision)
+        requestService?.send(config: requestConfig) { [weak self] result in
+            switch result {
+            case .success(let(model, _, _)):
+                guard let model else {
+                    self?.logger?.logWarningMessage("Данные не получены")
+                    return
+                }
+                
+                self?.revision = String(model.revision)
+                if let revision = self?.revision {
+                    self?.logger?.logInfoMessage("Данные получены")
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)

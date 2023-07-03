@@ -66,6 +66,7 @@
 		2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */; };
 		2CD382E02A432B6400C82343 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
 		2CE19BCB2A52BAE100674392 /* TodoItemDeleteRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE19BCA2A52BAE100674392 /* TodoItemDeleteRequest.swift */; };
+		2CE19BCD2A52F43A00674392 /* TodoItemGetRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE19BCC2A52F43A00674392 /* TodoItemGetRequest.swift */; };
 		2CE2692D2A4F3620000F90A7 /* ColorWheel in Frameworks */ = {isa = PBXBuildFile; productRef = 2CE2692C2A4F3620000F90A7 /* ColorWheel */; };
 		2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CF941A92A4D63A300555DB5 /* TransitionAnimationVC.swift */; };
 		2DE6A19C38A6190E438784C4 /* Pods_TodoLostTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35E1CEC2918624B4F8EEFB98 /* Pods_TodoLostTests.framework */; };
@@ -154,6 +155,7 @@
 		2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceAssembly.swift; sourceTree = "<group>"; };
 		2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
 		2CE19BCA2A52BAE100674392 /* TodoItemDeleteRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemDeleteRequest.swift; sourceTree = "<group>"; };
+		2CE19BCC2A52F43A00674392 /* TodoItemGetRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemGetRequest.swift; sourceTree = "<group>"; };
 		2CF941A92A4D63A300555DB5 /* TransitionAnimationVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransitionAnimationVC.swift; sourceTree = "<group>"; };
 		35E1CEC2918624B4F8EEFB98 /* Pods_TodoLostTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TodoLostTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4225ABD829F27BF5A949EDA2 /* Pods_TodoLost.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TodoLost.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -463,6 +465,7 @@
 				2C8049B02A51CB5C00F60FB0 /* Methods.swift */,
 				2C8049AA2A51CAA700F60FB0 /* TodoListGetRequest.swift */,
 				2C8049AC2A51CAEA00F60FB0 /* TodoItemPostRequest.swift */,
+				2CE19BCC2A52F43A00674392 /* TodoItemGetRequest.swift */,
 				2CE19BCA2A52BAE100674392 /* TodoItemDeleteRequest.swift */,
 			);
 			path = Requests;
@@ -761,6 +764,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2C507EAE2A48AE8E005F8B4A /* IdentifableCell.swift in Sources */,
+				2CE19BCD2A52F43A00674392 /* TodoItemGetRequest.swift in Sources */,
 				2C507EA62A48AB4B005F8B4A /* TaskListDataSourceProvider.swift in Sources */,
 				2C30557F2A4C8646001C3E5D /* SplashScreenAnimator.swift in Sources */,
 				2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */,
