@@ -33,6 +33,8 @@ protocol TaskListPresentationLogic: AnyObject {
     func sendTodoItem(item: APIElementResponse)
     /// Метод для получения задачи с сервера по ID
     func getTodoItem(id: String)
+    /// Метод для обновления todo задачи на сервере
+    func updateTodoItem(item: APIElementResponse)
     /// Метод для удаления элемента с сервера по ID
     func deleteTodoItem(id: String)
 }
@@ -138,22 +140,27 @@ final class TaskListPresenter {
 extension TaskListPresenter: TaskListPresentationLogic {
     // MARK: Server requests
     
+    // ???: Почему то дублируется логгер, как будто возникает утечка памяти.
+    // Мой класс логгера 1 единственный, а вот под капотом что то идёт не так.
     func getTodoList() {
-        logger?.logInfoMessage("Отправлен запрос на получение списка дел")
+        SystemLogger.info("Отправлен запрос на получение списка дел")
+//        logger?.logInfoMessage("Отправлен запрос на получение списка дел")
         
         let requestConfig = RequestFactory.TodoListRequest.getListConfig()
         requestService?.send(config: requestConfig) { [weak self] result in
             switch result {
             case .success(let(model, _, _)):
                 guard let model else {
-                    self?.logger?.logWarningMessage("Не удалось получить модель")
+                    SystemLogger.warning("Не удалось получить модель")
+//                    self?.logger?.logWarningMessage("Не удалось получить модель")
                     return
                 }
                 
                 self?.revision = String(model.revision)
                 
                 if let revision = self?.revision {
-                    self?.logger?.logInfoMessage("Данные получены, новая ревизия: \(revision)")
+                    SystemLogger.info("Данные получены, новая ревизия: \(revision)")
+//                    self?.logger?.logInfoMessage("Данные получены, новая ревизия: \(revision)")
                 }
             case .failure(let error):
                 self?.logger?.logErrorMessage(error.describing)
@@ -162,20 +169,23 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func sendTodoItem(item: APIElementResponse) {
-        logger?.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
+        SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
+//        logger?.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
         
         let requestConfig = RequestFactory.TodoListRequest.postItemConfig(dataModel: item, revision: revision)
         requestService?.send(config: requestConfig) { [weak self] result in
             switch result {
             case .success(let(model, _, _)):
                 guard let model else {
-                    self?.logger?.logWarningMessage("Данные не сохранены")
+                    SystemLogger.warning("Данные не сохранены")
+//                    self?.logger?.logWarningMessage("Данные не сохранены")
                     return
                 }
                 
                 self?.revision = String(model.revision)
                 if let revision = self?.revision {
-                    self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
+                    SystemLogger.info("Данные сохранены, новая ревизия: \(revision)")
+//                    self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
@@ -184,20 +194,53 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func getTodoItem(id: String) {
-        logger?.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
+        SystemLogger.info("Отправлен запрос на получение элемента: \(id)")
+//        logger?.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
         
         let requestConfig = RequestFactory.TodoListRequest.getItemConfig(id: id, revision: revision)
         requestService?.send(config: requestConfig) { [weak self] result in
             switch result {
             case .success(let(model, _, _)):
                 guard let model else {
-                    self?.logger?.logWarningMessage("Данные не получены")
+                    SystemLogger.warning("Данные не получены")
+//                    self?.logger?.logWarningMessage("Данные не получены")
                     return
                 }
                 
                 self?.revision = String(model.revision)
                 if let revision = self?.revision {
-                    self?.logger?.logInfoMessage("Данные получены")
+                    SystemLogger.info("Данные получены")
+//                    self?.logger?.logInfoMessage("Данные получены")
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        }
+    }
+    
+    func updateTodoItem(item: APIElementResponse) {
+        SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
+//        logger?.logInfoMessage("Отправлен запрос на обновление элемента: \(item.element.id)")
+        
+        let requestConfig = RequestFactory.TodoListRequest.putItemConfig(
+            dataModel: item,
+            id: item.element.id,
+            revision: revision
+        )
+        
+        requestService?.send(config: requestConfig) { [weak self] result in
+            switch result {
+            case .success(let(model, _, _)):
+                guard let model else {
+                    SystemLogger.warning("Данные не обновлены")
+//                    self?.logger?.logWarningMessage("Данные не обновлены")
+                    return
+                }
+                
+                self?.revision = String(model.revision)
+                if let revision = self?.revision {
+                    SystemLogger.info("Данные обновлены, новая ревизия: \(revision)")
+//                    self?.logger?.logInfoMessage("Данные обновлены, новая ревизия: \(revision)")
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
@@ -206,20 +249,23 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func deleteTodoItem(id: String) {
-        logger?.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
+        SystemLogger.info("Отправлен запрос на удаление элемента: \(id)")
+//        logger?.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
         
         let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: revision)
         requestService?.send(config: requestConfig) { [weak self] result in
             switch result {
             case .success(let(model, _, _)):
                 guard let model else {
-                    self?.logger?.logWarningMessage("Данные не удалены")
+                    SystemLogger.warning("Данные не удалены")
+//                    self?.logger?.logWarningMessage("Данные не удалены")
                     return
                 }
                 
                 self?.revision = String(model.revision)
                 if let revision = self?.revision {
-                    self?.logger?.logInfoMessage("Данные удалены, новая ревизия: \(revision)")
+                    SystemLogger.info("Данные удалены, новая ревизия: \(revision)")
+//                    self?.logger?.logInfoMessage("Данные удалены, новая ревизия: \(revision)")
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
