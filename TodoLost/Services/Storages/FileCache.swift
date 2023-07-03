@@ -43,7 +43,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        logger?.logInfoMessage(fileURL.description)
+        SystemLogger.info(fileURL.description)
         
         let serializedItems = items.map({ $0.value.json })
         
@@ -86,7 +86,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        logger?.logInfoMessage(fileURL.description)
+        SystemLogger.info(fileURL.description)
         
         var csvString = ""
         
@@ -165,6 +165,7 @@ final class FileCache: IFileCache {
                 // Проверка на случай пустой строки вместо данных
                 if csvRow == "" {
                     logger?.logWarningMessage("Попалась пустая строка")
+                    SystemLogger.warning("Попалась пустая строка")
                     continue
                 }
                 

@@ -40,6 +40,9 @@ final class LumberjackLogger {
         fileLogger.rollingFrequency = 60 * 60 * 24 // 24 hours
         fileLogger.logFileManager.maximumNumberOfLogFiles = 7
         DDLog.add(fileLogger)
+        
+//        let osLogger = DDOSLogger(subsystem: "ru.zyfunphoto.TodoLost", category: "log")
+//        DDLog.add(osLogger)
     }
     
     private func logMessage(
@@ -50,7 +53,6 @@ final class LumberjackLogger {
         line: Int = #line
     ) {
         guard let module = URL(fileURLWithPath: file).deletingPathExtension().pathComponents.last else { return }
-        DDLog.add(DDOSLogger(subsystem: module, category: level.category))
         let fileName = (file as NSString).lastPathComponent
         let logSymbol = level.symbol
         let formattedMessage = "\(logSymbol) [\(fileName):\(line)] \(function) - \(message)"
@@ -65,7 +67,6 @@ final class LumberjackLogger {
         case .debug:
             DDLogDebug(formattedMessage)
         }
-        
     }
     
     func logInfoMessage(
