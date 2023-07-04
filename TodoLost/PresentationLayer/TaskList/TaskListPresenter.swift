@@ -29,30 +29,33 @@ protocol TaskListPresentationLogic: AnyObject {
     
     /// Метод для получения todo списка с сервера
     /// - Используется только 1 раз при  запуске приложения. После выполнения запрса закрывает сплешскрин.
-    func getTodoList()
+    func getTodoListFromServer()
     /// Метод для синхронизации данных с сервером
-    func syncTodoList(list: APIListResponse)
-    /// Метод для отправки единичного элемента на сервер
-    func sendTodoItem(item: APIElementResponse)
-    /// Метод для получения задачи с сервера по ID
-    func getTodoItem(id: String)
-    /// Метод для обновления todo задачи на сервере
-    func updateTodoItem(item: APIElementResponse)
-    /// Метод для удаления элемента с сервера по ID
-    func deleteTodoItem(id: String)
+    /// - Используется в случае других неудачных запросов. Считаем что все данные не сходятся
+    /// и нужна синхронизация
+    func syncTodoListWithServer(_ list: APIListResponse)
+    func sendTodoItemToServer(_ item: APIElementResponse)
+    func getTodoItemFromServer(_ id: String)
+    func updateTodoItemOnServer(_ item: APIElementResponse)
+    func deleteTodoItemFromServer(_ id: String)
 }
 
 final class TaskListPresenter {
     
-    // MARK: - Public Properties
+    // MARK: - Architecture Properties
     
     weak var view: TaskListView?
     var router: TaskListRoutingLogic?
     
+    // MARK: - Dependency properties
+    
     var logger: LumberjackLogger?
     var fileCacheStorage: IFileCache?
-    var requestService: IRequestSender?
-    /// СОбирается в конфигураторе и используется для делегирования нажатия на кнопку
+    var networkManager: INetworkManager?
+    
+    // MARK: - Public properties
+    
+    /// Собирается в конфигураторе и используется для делегирования нажатия на кнопку
     var taskListHeader: TaskListHeaderTableView?
     
     // MARK: - Private properties
@@ -60,10 +63,6 @@ final class TaskListPresenter {
     private var viewModels: [TaskViewModel] = []
     /// Свойство для хранения состояния, отображать скрытые задачи или нет
     private var isShowComplete = false
-    
-    /// Используется для временного хранения текущей ревизии
-    /// - Обновляется при каждом запросе к серверу
-    private var revision = "0"
     
     // MARK: - Initializer
     
@@ -142,7 +141,7 @@ final class TaskListPresenter {
     /// - Returns: <#description#>
     /// - warning: Данная конвертация производится только при обновлении и добовлении модели на сервере.
     /// При конвертации присваивается текущая дата изменения.
-    private func convertToServerModel(_ task: TaskViewModel) -> APIElementResponse {
+    private func convertToServerModel(_ task: TodoItem) -> APIElementResponse {
         var deadlineInt: Int64?
         if let deadline = task.deadline?.timeIntervalSince1970 {
             deadlineInt = Int64(deadline)
@@ -154,7 +153,7 @@ final class TaskListPresenter {
             status: "",
             element: TodoItemServerModel(
                 id: task.id,
-                text: task.title,
+                text: task.text,
                 importance: task.importance.rawValue,
                 deadline: deadlineInt,
                 done: task.isDone,
@@ -216,7 +215,7 @@ final class TaskListPresenter {
     /// - Parameter serverModels: <#serverModels description#>
     /// - Returns: <#description#>
     /// - Используется при получении серверной модели перед сохранением данных в память устройства
-    private func convertServerModelsToModel(_ serverModels: APIListResponse) -> [TodoItem] {
+    private func convertToViewModelFrom(_ serverModels: APIListResponse) -> [TodoItem] {
         var todoItems: [TodoItem] = []
         
         serverModels.list.forEach { model in
@@ -254,25 +253,15 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
-    // MARK: Server requests
+    // MARK: Network requests
     
-    func getTodoList() {
-        SystemLogger.info("Отправлен запрос на получение списка дел")
-        logger?.logInfoMessage("Отправлен запрос на получение списка дел")
-        
-        let requestConfig = RequestFactory.TodoListRequest.getListConfig()
-        requestService?.send(config: requestConfig) { [weak self] result in
+    func getTodoListFromServer() {
+        networkManager?.getTodoList(completion: { [weak self] result in
             guard let self else { return }
             
             switch result {
-            case .success(let(model, _, _)):
-                guard let model else {
-                    SystemLogger.warning("Не удалось получить модель")
-                    self.logger?.logWarningMessage("Не удалось получить модель")
-                    return
-                }
-                
-                let todoItems = self.convertServerModelsToModel(model)
+            case .success(let serverModels):
+                let todoItems = self.convertToViewModelFrom(serverModels)
                 todoItems.forEach { item in
                     self.fileCacheStorage?.addToCache(item)
                 }
@@ -282,170 +271,69 @@ extension TaskListPresenter: TaskListPresentationLogic {
                     self.getModels()
                     self.view?.dismissSplashScreen()
                 }
-                
-                self.revision = String(model.revision)
-                SystemLogger.info("Данные получены, новая ревизия: \(self.revision)")
-                self.logger?.logInfoMessage("Данные получены, новая ревизия: \(self.revision)")
             case .failure(let error):
-                self.logger?.logErrorMessage(error.describing)
-                self.view?.dismissSplashScreen()
-            }
-        }
-    }
-    
-    func syncTodoList(list: APIListResponse) {
-        SystemLogger.info("Отправлен запрос на синхронизацию данных")
-        logger?.logInfoMessage("Отправлен запрос на синхронизацию данных")
-        
-        // Уводим запрос на глобал очередь, так-как при создании конфигурации
-        // происходит парсинг данных
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self else { return }
-            
-            let requestConfig = RequestFactory.TodoListRequest.patchListConfig(
-                list: list,
-                revision: self.revision
-            )
-            
-            self.requestService?.send(config: requestConfig) { [weak self] result in
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Данные не синхронизированы")
-                        self?.logger?.logWarningMessage("Данные не сохранены")
-                        return
-                    }
-                    
-                    self?.revision = String(model.revision)
-                    if let revision = self?.revision {
-                        SystemLogger.info("Данные синхронизированы, новая ревизия: \(revision)")
-                        self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
-                    }
-                case .failure(let error):
-                    SystemLogger.error(error.describing)
+                SystemLogger.error(error.describing)
+                DispatchQueue.main.async {
+                    self.view?.dismissSplashScreen()
                 }
             }
-        }
+        })
     }
     
-    func sendTodoItem(item: APIElementResponse) {
-        SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
-        logger?.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
-        
-        // Уводим запрос на глобал очередь, так-как при создании конфигурации
-        // происходит парсинг данных
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self else { return }
-            
-            let requestConfig = RequestFactory.TodoListRequest.postItemConfig(
-                dataModel: item,
-                revision: self.revision
-            )
-            
-            self.requestService?.send(config: requestConfig) { [weak self] result in
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Данные не сохранены")
-                        self?.logger?.logWarningMessage("Данные не сохранены")
-                        return
-                    }
-                    
-                    self?.revision = String(model.revision)
-                    if let revision = self?.revision {
-                        SystemLogger.info("Данные сохранены, новая ревизия: \(revision)")
-                        self?.logger?.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
-                    }
-                case .failure(let error):
-                    SystemLogger.error(error.describing)
-                }
-            }
-        }
-    }
-    
-    func getTodoItem(id: String) {
-        SystemLogger.info("Отправлен запрос на получение элемента: \(id)")
-        logger?.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
-        
-        let requestConfig = RequestFactory.TodoListRequest.getItemConfig(id: id, revision: revision)
-        requestService?.send(config: requestConfig) { [weak self] result in
+    func syncTodoListWithServer(_ list: APIListResponse) {
+        networkManager?.syncTodoList(list: list, completion: { result in
             switch result {
-            case .success(let(model, _, _)):
-                guard let model else {
-                    SystemLogger.warning("Данные не получены")
-                    self?.logger?.logWarningMessage("Данные не получены")
-                    return
-                }
-                
-                self?.revision = String(model.revision)
-                if let revision = self?.revision {
-                    SystemLogger.info("Данные получены. Ревизия: \(revision)")
-                    self?.logger?.logInfoMessage("Данные получены. Ревизия: \(revision)")
-                }
+            case .success:
+                SystemLogger.info("Синхронизация прошла успешно")
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
-        }
+        })
     }
     
-    func updateTodoItem(item: APIElementResponse) {
-        SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
-        logger?.logInfoMessage("Отправлен запрос на обновление элемента: \(item.element.id)")
-        
-        // Уводим запрос на глобал очередь, так-как при создании конфигурации
-        // происходит парсинг данных
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let self else { return }
-            let requestConfig = RequestFactory.TodoListRequest.putItemConfig(
-                dataModel: item,
-                id: item.element.id,
-                revision: self.revision
-            )
-            
-            requestService?.send(config: requestConfig) { [weak self] result in
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Данные не обновлены")
-                        self?.logger?.logWarningMessage("Данные не обновлены")
-                        return
-                    }
-                    
-                    self?.revision = String(model.revision)
-                    if let revision = self?.revision {
-                        SystemLogger.info("Данные обновлены, новая ревизия: \(revision)")
-                        self?.logger?.logInfoMessage("Данные обновлены, новая ревизия: \(revision)")
-                    }
-                case .failure(let error):
-                    SystemLogger.error(error.describing)
-                }
-            }
-        }
-    }
-    
-    func deleteTodoItem(id: String) {
-        SystemLogger.info("Отправлен запрос на удаление элемента: \(id)")
-        logger?.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
-        
-        let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: revision)
-        requestService?.send(config: requestConfig) { [weak self] result in
+    func sendTodoItemToServer(_ item: APIElementResponse) {
+        networkManager?.sendTodoItem(item: item, completion: { result in
             switch result {
-            case .success(let(model, _, _)):
-                guard let model else {
-                    SystemLogger.warning("Данные не удалены")
-                    self?.logger?.logWarningMessage("Данные не удалены")
-                    return
-                }
-                
-                self?.revision = String(model.revision)
-                if let revision = self?.revision {
-                    SystemLogger.info("Данные удалены, новая ревизия: \(revision)")
-                    self?.logger?.logErrorMessage("Данные удалены, новая ревизия: \(revision)")
-                }
+            case .success:
+                SystemLogger.info("Сохранение подтверждено")
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
-        }
+        })
+    }
+    
+    // TODO: () Пока никак не используется
+    func getTodoItemFromServer(_ id: String) {
+        networkManager?.getTodoItem(id: id, completion: { result in
+            switch result {
+            case .success(let serverModel):
+                SystemLogger.info("\(serverModel)")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    func updateTodoItemOnServer(_ item: APIElementResponse) {
+        networkManager?.updateTodoItem(item: item, completion: { result in
+            switch result {
+            case .success:
+                SystemLogger.info("Обновление подтверждено")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    func deleteTodoItemFromServer(_ id: String) {
+        networkManager?.deleteTodoItem(id: id, completion: { result in
+            switch result {
+            case .success:
+                SystemLogger.info("Удаление подтверждено")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
     }
     
     // MARK: Others
@@ -469,11 +357,12 @@ extension TaskListPresenter: TaskListPresentationLogic {
             hexColor: task.hexColor
         )
         
-        let serverModel = convertToServerModel(task)
-        
         fileCacheStorage?.addToCache(todoItem)
         saveDataToStorage()
-        updateTodoItem(item: serverModel)
+        
+        let serverModel = convertToServerModel(todoItem)
+        updateTodoItemOnServer(serverModel)
+        
         // обновляем данные после сохранения
         getModels()
     }
@@ -481,7 +370,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
     func delete(_ task: TaskViewModel) {
         fileCacheStorage?.deleteFromCache(task.id)
         saveDataToStorage()
-        deleteTodoItem(id: task.id)
+        deleteTodoItemFromServer(task.id)
         // обновляем данные после удаления
         getModels()
     }
@@ -506,10 +395,11 @@ extension TaskListPresenter: TaskListPresentationLogic {
             // TODO: () временное решение для отправки новых данных на сервер
             // после создания менеджера работы с данными, удалить и выполнять
             // синхронизацию так, как это написанро в ТЗ
+            // в текущем виде данные из заметки не обновляются
             if let models = self?.viewModels {
                 let serverData = self?.convertModelsToServerModel(models)
                 guard let serverData else { return }
-                self?.syncTodoList(list: serverData)
+                self?.syncTodoListWithServer(serverData)
             }
         }
     }

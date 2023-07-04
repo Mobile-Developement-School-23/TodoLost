@@ -11,19 +11,19 @@ import UIKit
 final class TaskListConfigurator {
     private let logger: LumberjackLogger
     private let fileCacheStorage: IFileCache
-    private let requestService: IRequestSender
     private let splashScreenPresenter: ISplashScreenPresenter
+    private let networkManager: INetworkManager
     
     init(
         logger: LumberjackLogger,
         fileCacheStorage: IFileCache,
-        requestService: IRequestSender,
-        splashScreenPresenter: ISplashScreenPresenter
+        splashScreenPresenter: ISplashScreenPresenter,
+        networkManager: INetworkManager
     ) {
         self.logger = logger
         self.fileCacheStorage = fileCacheStorage
-        self.requestService = requestService
         self.splashScreenPresenter = splashScreenPresenter
+        self.networkManager = networkManager
     }
     
     func config(
@@ -44,6 +44,6 @@ final class TaskListConfigurator {
         presenter.router = router
         presenter.logger = logger
         presenter.fileCacheStorage = fileCacheStorage
-        presenter.requestService = requestService
+        presenter.networkManager = networkManager
     }
 }

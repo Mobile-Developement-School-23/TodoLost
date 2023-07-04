@@ -85,14 +85,13 @@ final class TaskListViewController: UIViewController {
         splashScreenPresenter?.present()
         setup()
         
-        presenter?.getTodoList()
+        presenter?.getTodoListFromServer()
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
         setupHeaderTableView()
-        presenter?.getModels()
     }
     
     // TODO: (FIX1) Подумать как решить проблему с ломающимися ячейками при добавлении и поворотах
