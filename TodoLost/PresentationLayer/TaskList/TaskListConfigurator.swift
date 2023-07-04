@@ -33,7 +33,10 @@ final class TaskListConfigurator {
         guard let view = view as? TaskListViewController else { return }
         let presenter = TaskListPresenter(view: view)
         let dataSourceProvider: ITaskListDataSourceProvider = TaskListDataSourceProvider(presenter: presenter)
-        let router = TaskListRouter(withNavigationController: navigationController)
+        let router = TaskListRouter(
+            withNavigationController: navigationController,
+            networkManager: networkManager
+        )
         let transitionAnimation = TransitionAnimationVC()
         
         view.presenter = presenter

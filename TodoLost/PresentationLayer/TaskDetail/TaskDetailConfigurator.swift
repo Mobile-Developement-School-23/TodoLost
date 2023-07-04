@@ -22,7 +22,8 @@ final class TaskDetailConfigurator {
     
     func config(
         view: UIViewController,
-        navigationController: UINavigationController
+        navigationController: UINavigationController,
+        networkManager: INetworkManager
     ) {
         guard let view = view as? TaskDetailViewController else { return }
         let presenter = TaskDetailPresenter(view: view)
@@ -33,5 +34,6 @@ final class TaskDetailConfigurator {
         presenter.view = view
         presenter.router = router
         presenter.fileCacheStorage = fileCacheStorage
+        presenter.networkManager = networkManager
     }
 }

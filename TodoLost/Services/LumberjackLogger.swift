@@ -52,7 +52,6 @@ final class LumberjackLogger {
         function: String = #function,
         line: Int = #line
     ) {
-        guard let module = URL(fileURLWithPath: file).deletingPathExtension().pathComponents.last else { return }
         let fileName = (file as NSString).lastPathComponent
         let logSymbol = level.symbol
         let formattedMessage = "\(logSymbol) [\(fileName):\(line)] \(function) - \(message)"

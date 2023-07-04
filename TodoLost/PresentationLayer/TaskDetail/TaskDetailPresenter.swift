@@ -31,18 +31,27 @@ protocol TaskDetailPresentationLogic: AnyObject,
     func clearDeadlineFromViewModel()
     
     func openColorPickerVC()
+    
+    func sendTodoItemToServer(_ item: APIElementResponse)
+    func updateTodoItemOnServer(_ item: APIElementResponse)
+    func deleteTodoItemFromServer(_ id: String)
 }
 
 final class TaskDetailPresenter: NSObject {
-    // MARK: - Public Properties
+    // MARK: - Architecture Properties
     
     weak var view: TaskDetailView?
     var router: TaskDetailRoutingLogic?
     
-    var completion: (() -> Void)?
-    var itemID: String?
+    // MARK: - Dependency properties
     
     var fileCacheStorage: IFileCache?
+    var networkManager: INetworkManager?
+    
+    // MARK: - Public Properties
+    
+    var completion: (() -> Void)?
+    var itemID: String?
     
     // MARK: - Private properties
     
@@ -124,6 +133,42 @@ final class TaskDetailPresenter: NSObject {
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
+    // MARK: Network requests
+    
+    func sendTodoItemToServer(_ item: APIElementResponse) {
+        networkManager?.sendTodoItem(item: item, completion: { result in
+            switch result {
+            case .success:
+                SystemLogger.info("Сохранение подтверждено")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    func updateTodoItemOnServer(_ item: APIElementResponse) {
+        networkManager?.updateTodoItem(item: item, completion: { result in
+            switch result {
+            case .success:
+                SystemLogger.info("Обновление подтверждено")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    func deleteTodoItemFromServer(_ id: String) {
+        networkManager?.deleteTodoItem(id: id, completion: { result in
+            switch result {
+            case .success:
+                SystemLogger.info("Удаление подтверждено")
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    // MARK: Others
     
     func openColorPickerVC() {
         router?.routeTo(target: .colorPicker) { [weak self] color in
@@ -162,6 +207,13 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         
         fileCacheStorage?.addToCache(todoItem)
         
+        let serverModel = APIElementResponse.convert(todoItem)
+        if itemID != nil && itemID != "" {
+            updateTodoItemOnServer(serverModel)
+        } else {
+            sendTodoItemToServer(serverModel)
+        }
+        
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
             completion?()
@@ -184,6 +236,8 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             SystemLogger.warning("Модель не обновлена, ID нет")
             return
         }
+        
+        deleteTodoItemFromServer(id)
         fileCacheStorage?.deleteFromCache(id)
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")

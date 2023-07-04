@@ -22,9 +22,14 @@ protocol TaskListRoutingLogic {
 final class TaskListRouter: TaskListRoutingLogic {
     
     private var navigationController: UINavigationController
+    private var networkManager: INetworkManager
     
-    init(withNavigationController: UINavigationController) {
+    init(
+        withNavigationController: UINavigationController,
+        networkManager: INetworkManager
+    ) {
         navigationController = withNavigationController
+        self.networkManager = networkManager
     }
     
     /// Таргет для перехода на другой экран
@@ -43,7 +48,8 @@ final class TaskListRouter: TaskListRoutingLogic {
             
             PresentationAssembly().taskDetail.config(
                 view: taskDetailVC,
-                navigationController: navigationController
+                navigationController: navigationController,
+                networkManager: networkManager
             )
             
             // TODO: () Задать эту настройку в конфигураторе другого модуля

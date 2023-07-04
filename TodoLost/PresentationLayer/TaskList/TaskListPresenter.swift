@@ -34,14 +34,11 @@ protocol TaskListPresentationLogic: AnyObject {
     /// - Используется в случае других неудачных запросов. Считаем что все данные не сходятся
     /// и нужна синхронизация
     func syncTodoListWithServer(_ list: APIListResponse)
-    func sendTodoItemToServer(_ item: APIElementResponse)
-    func getTodoItemFromServer(_ id: String)
     func updateTodoItemOnServer(_ item: APIElementResponse)
     func deleteTodoItemFromServer(_ id: String)
 }
 
 final class TaskListPresenter {
-    
     // MARK: - Architecture Properties
     
     weak var view: TaskListView?
@@ -135,119 +132,6 @@ final class TaskListPresenter {
         
         return viewModels
     }
-    
-    /// Метод для конвертации при отправке или обновлении задачи на сервере
-    /// - Parameter task: <#task description#>
-    /// - Returns: <#description#>
-    /// - warning: Данная конвертация производится только при обновлении и добовлении модели на сервере.
-    /// При конвертации присваивается текущая дата изменения.
-    private func convertToServerModel(_ task: TodoItem) -> APIElementResponse {
-        var deadlineInt: Int64?
-        if let deadline = task.deadline?.timeIntervalSince1970 {
-            deadlineInt = Int64(deadline)
-        }
-        
-        let dateCreated = Int64(task.dateCreated.timeIntervalSince1970)
-        
-        let model = APIElementResponse(
-            status: "",
-            element: TodoItemServerModel(
-                id: task.id,
-                text: task.text,
-                importance: task.importance.rawValue,
-                deadline: deadlineInt,
-                done: task.isDone,
-                color: task.hexColor,
-                createdAt: dateCreated,
-                changedAt: Int64(Date.now.timeIntervalSince1970),
-                lastUpdatedBy: UIDevice.current.name
-            ),
-            revision: 0
-        )
-        
-        return model
-    }
-    
-    /// Метод для конвертации  списка дел при отправке обновления на сервер
-    /// - Parameter tasks: <#tasks description#>
-    /// - Returns: <#description#>
-    /// - Используется при синхронизации данных сервером
-    private func convertModelsToServerModel(_ tasks: [TaskViewModel]) -> APIListResponse {
-        var items: [TodoItemServerModel] = []
-        
-        tasks.forEach { task in
-            var deadlineInt: Int64?
-            if let deadline = task.deadline?.timeIntervalSince1970 {
-                deadlineInt = Int64(deadline)
-            }
-            
-            let dateCreated = Int64(task.dateCreated.timeIntervalSince1970)
-            var dateEditedInt = dateCreated
-            if let dateEdited = task.dateEdited?.timeIntervalSince1970 {
-                dateEditedInt = Int64(dateEdited)
-            }
-            
-            let item = TodoItemServerModel(
-                id: task.id,
-                text: task.title,
-                importance: task.importance.rawValue,
-                deadline: deadlineInt,
-                done: task.isDone,
-                color: task.hexColor,
-                createdAt: dateCreated,
-                changedAt: dateEditedInt,
-                lastUpdatedBy: UIDevice.current.name
-            )
-            
-            items.append(item)
-        }
-        
-        let model = APIListResponse(
-            status: "",
-            list: items,
-            revision: 0
-        )
-        
-        return model
-    }
-    
-    /// Метод для конвертации полученных данных с сервера
-    /// - Parameter serverModels: <#serverModels description#>
-    /// - Returns: <#description#>
-    /// - Используется при получении серверной модели перед сохранением данных в память устройства
-    private func convertToViewModelFrom(_ serverModels: APIListResponse) -> [TodoItem] {
-        var todoItems: [TodoItem] = []
-        
-        serverModels.list.forEach { model in
-            
-            let deadlineTimestamp = Double(model.createdAt) as TimeInterval
-            let dateCreated = Date(timeIntervalSince1970: deadlineTimestamp)
-            
-            var deadline: Date?
-            if let deadlineInt = model.deadline {
-                let deadlineTimestamp = Double(deadlineInt) as TimeInterval
-                deadline = Date(timeIntervalSince1970: deadlineTimestamp)
-            }
-            
-            let dateEditedTimestamp = Double(model.changedAt) as TimeInterval
-            let dateEdited = Date(timeIntervalSince1970: dateEditedTimestamp)
-            
-            let item = TodoItem(
-                id: model.id,
-                text: model.text,
-                importance: Importance(rawValue: model.importance) ?? .basic,
-                deadline: deadline,
-                isDone: model.done,
-                dateCreated: dateCreated,
-                dateEdited: dateEdited,
-                hexColor: model.color
-            )
-            
-            todoItems.append(item)
-        }
-
-        return todoItems
-    }
 }
 
 // MARK: - Presentation Logic
@@ -261,7 +145,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
             
             switch result {
             case .success(let serverModels):
-                let todoItems = self.convertToViewModelFrom(serverModels)
+                let todoItems = APIListResponse.convert(serverModels)
                 todoItems.forEach { item in
                     self.fileCacheStorage?.addToCache(item)
                 }
@@ -274,6 +158,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
             case .failure(let error):
                 SystemLogger.error(error.describing)
                 DispatchQueue.main.async {
+                    self.getModels()
                     self.view?.dismissSplashScreen()
                 }
             }
@@ -285,29 +170,6 @@ extension TaskListPresenter: TaskListPresentationLogic {
             switch result {
             case .success:
                 SystemLogger.info("Синхронизация прошла успешно")
-            case .failure(let error):
-                SystemLogger.error(error.describing)
-            }
-        })
-    }
-    
-    func sendTodoItemToServer(_ item: APIElementResponse) {
-        networkManager?.sendTodoItem(item: item, completion: { result in
-            switch result {
-            case .success:
-                SystemLogger.info("Сохранение подтверждено")
-            case .failure(let error):
-                SystemLogger.error(error.describing)
-            }
-        })
-    }
-    
-    // TODO: () Пока никак не используется
-    func getTodoItemFromServer(_ id: String) {
-        networkManager?.getTodoItem(id: id, completion: { result in
-            switch result {
-            case .success(let serverModel):
-                SystemLogger.info("\(serverModel)")
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -360,7 +222,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
         fileCacheStorage?.addToCache(todoItem)
         saveDataToStorage()
         
-        let serverModel = convertToServerModel(todoItem)
+        let serverModel = APIElementResponse.convert(todoItem)
         updateTodoItemOnServer(serverModel)
         
         // обновляем данные после сохранения
@@ -386,21 +248,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
     
     func openDetailTaskVC(id: String?) {
         router?.routeTo(target: .taskDetail(id)) { [weak self] in
-            // TODO: () Перенести логику по сохранению на главный экран
-            // а экран редактирования оставить так, чтобы он ничего не делал с
-            // памятью и только брал данные из кеша. То есть по колбеку вызывать
-            // не обновление массива, а производить сохранение, удаление и т.д.
+            // TODO: () Перенести логику по сохранению в менеджер работы с данными
+            // чтобы вся работа с фаловой системой не была в логике презентера
+            // сейчас из-за этого идёт дублирование кода
             self?.getModels()
-            
-            // TODO: () временное решение для отправки новых данных на сервер
-            // после создания менеджера работы с данными, удалить и выполнять
-            // синхронизацию так, как это написанро в ТЗ
-            // в текущем виде данные из заметки не обновляются
-            if let models = self?.viewModels {
-                let serverData = self?.convertModelsToServerModel(models)
-                guard let serverData else { return }
-                self?.syncTodoListWithServer(serverData)
-            }
         }
     }
     
