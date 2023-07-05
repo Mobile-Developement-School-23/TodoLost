@@ -35,6 +35,7 @@ protocol TaskDetailPresentationLogic: AnyObject,
     func sendTodoItemToServer(_ item: APIElementResponse)
     func updateTodoItemOnServer(_ item: APIElementResponse)
     func deleteTodoItemFromServer(_ id: String)
+    func syncTodoListWithServer(_ list: APIListResponse)
 }
 
 final class TaskDetailPresenter: NSObject {
@@ -87,6 +88,18 @@ final class TaskDetailPresenter: NSObject {
         return viewModel
     }
     
+    /// Метод для подготовки модели к синхронизации с сервером
+    /// - Returns: <#description#>
+    private func fetchModelsFromCacheForServer() -> APIListResponse {
+        var items: [TodoItem] = []
+        
+        fileCacheStorage?.items.forEach({ (_, value) in
+            items.append(value)
+        })
+        
+        return APIListResponse.convert(items)
+    }
+    
     /// Метод установки выбранной даты дедлайна в календарь
     /// - Parameter date: принимает дату, которая будет установлена как выбранная. Если даты нет
     /// будет установлен следующий день от текущего.
@@ -133,13 +146,40 @@ final class TaskDetailPresenter: NSObject {
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
+    func syncTodoListWithServer(_ list: APIListResponse) {
+        networkManager?.syncTodoList(list: list, completion: { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let serverModels):
+                let todoItems = APIListResponse.convert(serverModels)
+                todoItems.forEach { item in
+                    self.fileCacheStorage?.addToCache(item)
+                }
+                
+                SystemLogger.info("Синхронизация прошла успешно")
+                
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
     // MARK: Network requests
     
     func sendTodoItemToServer(_ item: APIElementResponse) {
         networkManager?.sendTodoItem(item: item, completion: { result in
             switch result {
-            case .success:
-                SystemLogger.info("Сохранение подтверждено")
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Сохранение подтверждено")
+                } else {
+                    // TODO: () Намеренный захват self чтобы сохранить класс живым,
+                    // пока не будет закончена синхронизация. Будет исправлено
+                    // при доработке архитектуры
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -149,8 +189,16 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
     func updateTodoItemOnServer(_ item: APIElementResponse) {
         networkManager?.updateTodoItem(item: item, completion: { result in
             switch result {
-            case .success:
-                SystemLogger.info("Обновление подтверждено")
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Обновление подтверждено")
+                } else {
+                    // TODO: () Намеренный захват self чтобы сохранить класс живым,
+                    // пока не будет закончена синхронизация. Будет исправлено
+                    // при доработке архитектуры
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -160,8 +208,16 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
     func deleteTodoItemFromServer(_ id: String) {
         networkManager?.deleteTodoItem(id: id, completion: { result in
             switch result {
-            case .success:
-                SystemLogger.info("Удаление подтверждено")
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Удаление подтверждено")
+                } else {
+                    // TODO: () Намеренный захват self чтобы сохранить класс живым,
+                    // пока не будет закончена синхронизация. Будет исправлено
+                    // при доработке архитектуры
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -214,12 +270,7 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             sendTodoItemToServer(serverModel)
         }
         
-        do {
-            try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
-            completion?()
-        } catch {
-            // TODO: () Вывести алерт
-        }
+        completion?()
     }
     
     func fetchTask() {

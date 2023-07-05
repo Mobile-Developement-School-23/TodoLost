@@ -6,6 +6,8 @@ protocol IFileCache {
     
     var items: [String: TodoItem] { get }
     
+    /// Добавляет новый элемент в кеш
+    /// - Parameter item: Если ID элемента совпадает, то данные в кеше будут перезаписаны.
     func addToCache(_ item: TodoItem)
     func deleteFromCache(_ itemId: String)
     

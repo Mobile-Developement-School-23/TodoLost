@@ -121,9 +121,7 @@ extension APIListResponse {
         }
         
         let model = APIListResponse(
-            status: "",
-            list: items,
-            revision: 0
+            list: items
         )
         
         return model
@@ -169,5 +167,51 @@ extension APIListResponse {
         }
         
         return todoItems
+    }
+}
+
+// MARK: - TodoItems to APIListResponse
+
+extension APIListResponse {
+    /// Метод для конвертации данных из кеша в серверную модель
+    /// - Parameter todoModels: <#todoModels description#>
+    /// - Returns: <#description#>
+    /// - Используется при синхронизации данных
+    static func convert(_ todoModels: [TodoItem]) -> APIListResponse {
+        var items: [TodoItemServerModel] = []
+        
+        todoModels.forEach { task in
+            var deadlineInt: Int64?
+            if let deadline = task.deadline?.timeIntervalSince1970 {
+                deadlineInt = Int64(deadline)
+            }
+            
+            let dateCreated = Int64(task.dateCreated.timeIntervalSince1970)
+            var dateEditedInt = dateCreated
+            if let dateEdited = task.dateEdited?.timeIntervalSince1970 {
+                dateEditedInt = Int64(dateEdited)
+            }
+            
+            let item = TodoItemServerModel(
+                id: task.id,
+                text: task.text,
+                importance: task.importance.rawValue,
+                deadline: deadlineInt,
+                done: task.isDone,
+                color: task.hexColor,
+                createdAt: dateCreated,
+                changedAt: dateEditedInt,
+                lastUpdatedBy: UIDevice.current.name
+            )
+            
+            items.append(item)
+            
+        }
+        
+        let model = APIListResponse(
+            list: items
+        )
+        
+        return model
     }
 }

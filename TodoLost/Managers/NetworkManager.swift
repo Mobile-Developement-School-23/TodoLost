@@ -9,6 +9,9 @@ import Foundation
 import DTLogger
 import CocoaLumberjackSwift
 
+// TODO: Сделать делегат и связать его с презентером
+// Чтобы по окончанию работы методов останавливать активити индикатор
+
 protocol INetworkManager {
     func getTodoList(completion: @escaping (Result<APIListResponse, NetworkError>) -> Void)
     
@@ -17,10 +20,10 @@ protocol INetworkManager {
     /// происходит парсинг данных.
     /// - Parameters:
     ///   - list: принимает модель API сервера которая будет синхронизирована
-    ///   - completion: <#completion description#>
+    ///   - completion: Возвращает с сервера данные, которые удалось синхронизировать
     func syncTodoList(
         list: APIListResponse,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<APIListResponse, NetworkError>) -> Void
     )
     
     /// Метод для создания новой todo задачи на сервере
@@ -29,7 +32,7 @@ protocol INetworkManager {
     /// - Parameter item: <#item description#>
     func sendTodoItem(
         item: APIElementResponse,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<Bool, NetworkError>) -> Void
     )
     
     /// Метод для загрузки задачи с сервера по её ID
@@ -49,7 +52,7 @@ protocol INetworkManager {
     ///   - completion: <#completion description#>
     func updateTodoItem(
         item: APIElementResponse,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<Bool, NetworkError>) -> Void
     )
     
     /// Метод для удаление todo задачи с сервера
@@ -58,7 +61,7 @@ protocol INetworkManager {
     ///   - completion: <#completion description#>
     func deleteTodoItem(
         id: String,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<Bool, NetworkError>) -> Void
     )
 }
 
@@ -73,6 +76,7 @@ final class NetworkManager {
     /// Используется для хранения текущей ревизии
     /// - Обновляется при каждом запросе к серверу
     private var revision = "0"
+    private var isDirty = false
     
     private var queue = DispatchQueue(
         label: "ru.TodoLost.networkRequest",
@@ -124,7 +128,7 @@ extension NetworkManager: INetworkManager {
     
     func syncTodoList(
         list: APIListResponse,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<APIListResponse, NetworkError>) -> Void
     ) {
         SystemLogger.info("Отправлен запрос на синхронизацию данных")
         logger.logInfoMessage("Отправлен запрос на синхронизацию данных")
@@ -153,7 +157,8 @@ extension NetworkManager: INetworkManager {
                         self?.logger.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
                     }
                     
-                    completion(.success(()))
+                    self?.isDirty = false
+                    completion(.success((model)))
                 case .failure(let error):
                     SystemLogger.error(error.describing)
                     completion(.failure(error))
@@ -164,7 +169,7 @@ extension NetworkManager: INetworkManager {
     
     func sendTodoItem(
         item: APIElementResponse,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
         SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
         logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
@@ -178,22 +183,24 @@ extension NetworkManager: INetworkManager {
             )
             
             self.requestService.send(config: requestConfig) { [weak self] result in
+                guard let self else { return }
+                
                 switch result {
                 case .success(let(model, _, _)):
                     guard let model else {
                         SystemLogger.warning("Данные не сохранены")
-                        self?.logger.logWarningMessage("Данные не сохранены")
+                        self.logger.logWarningMessage("Данные не сохранены")
+                        self.isDirty = true
                         completion(.failure(.unownedError))
                         return
                     }
                     
-                    self?.revision = String(model.revision)
-                    if let revision = self?.revision {
-                        SystemLogger.info("Данные сохранены, новая ревизия: \(revision)")
-                        self?.logger.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
-                    }
-                    completion(.success(()))
+                    self.revision = String(model.revision)
+                    SystemLogger.info("Данные сохранены, новая ревизия: \(self.revision)")
+                    self.logger.logInfoMessage("Данные сохранены, новая ревизия: \(self.revision)")
+                    completion(.success((self.isDirty)))
                 case .failure(let error):
+                    self.isDirty = true
                     SystemLogger.error(error.describing)
                     completion(.failure(error))
                 }
@@ -239,7 +246,7 @@ extension NetworkManager: INetworkManager {
     
     func updateTodoItem(
         item: APIElementResponse,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
         SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
         logger.logInfoMessage("Отправлен запрос на обновление элемента: \(item.element.id)")
@@ -254,24 +261,26 @@ extension NetworkManager: INetworkManager {
             )
             
             requestService.send(config: requestConfig) { [weak self] result in
+                guard let self else { return }
+                
                 switch result {
                 case .success(let(model, _, _)):
                     guard let model else {
                         SystemLogger.warning("Данные не обновлены")
-                        self?.logger.logWarningMessage("Данные не обновлены")
+                        self.logger.logWarningMessage("Данные не обновлены")
+                        self.isDirty = true
                         completion(.failure(.unownedError))
                         return
                     }
                     
-                    self?.revision = String(model.revision)
-                    if let revision = self?.revision {
-                        SystemLogger.info("Данные обновлены, новая ревизия: \(revision)")
-                        self?.logger.logInfoMessage("Данные обновлены, новая ревизия: \(revision)")
-                    }
+                    self.revision = String(model.revision)
+                    SystemLogger.info("Данные обновлены, новая ревизия: \(self.revision)")
+                    self.logger.logInfoMessage("Данные обновлены, новая ревизия: \(self.revision)")
                     
-                    completion(.success(()))
+                    completion(.success((self.isDirty)))
                 case .failure(let error):
                     SystemLogger.error(error.describing)
+                    self.isDirty = true
                     completion(.failure(error))
                 }
             }
@@ -280,31 +289,33 @@ extension NetworkManager: INetworkManager {
     
     func deleteTodoItem(
         id: String,
-        completion: @escaping (Result<Void, NetworkError>) -> Void
+        completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
         SystemLogger.info("Отправлен запрос на удаление элемента: \(id)")
         logger.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
         
         let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: revision)
         requestService.send(config: requestConfig) { [weak self] result in
+            guard let self else { return }
+            
             switch result {
             case .success(let(model, _, _)):
                 guard let model else {
                     SystemLogger.warning("Данные не удалены")
-                    self?.logger.logWarningMessage("Данные не удалены")
+                    self.logger.logWarningMessage("Данные не удалены")
+                    self.isDirty = true
                     completion(.failure(.unownedError))
                     return
                 }
                 
-                self?.revision = String(model.revision)
-                if let revision = self?.revision {
-                    SystemLogger.info("Данные удалены, новая ревизия: \(revision)")
-                    self?.logger.logErrorMessage("Данные удалены, новая ревизия: \(revision)")
-                }
+                self.revision = String(model.revision)
+                SystemLogger.info("Данные удалены, новая ревизия: \(self.revision)")
+                self.logger.logErrorMessage("Данные удалены, новая ревизия: \(self.revision)")
                 
-                completion(.success(()))
+                completion(.success((self.isDirty)))
             case .failure(let error):
                 SystemLogger.error(error.describing)
+                self.isDirty = true
                 completion(.failure(error))
             }
         }

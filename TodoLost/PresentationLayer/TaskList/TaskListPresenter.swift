@@ -132,6 +132,18 @@ final class TaskListPresenter {
         
         return viewModels
     }
+    
+    /// Метод для подготовки модели к синхронизации с сервером
+    /// - Returns: <#description#>
+    private func fetchModelsFromCacheForServer() -> APIListResponse {
+        var items: [TodoItem] = []
+        
+        fileCacheStorage?.items.forEach({ (_, value) in
+            items.append(value)
+        })
+        
+        return APIListResponse.convert(items)
+    }
 }
 
 // MARK: - Presentation Logic
@@ -166,10 +178,21 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func syncTodoListWithServer(_ list: APIListResponse) {
-        networkManager?.syncTodoList(list: list, completion: { result in
+        networkManager?.syncTodoList(list: list, completion: { [weak self] result in
+            guard let self else { return }
+            
             switch result {
-            case .success:
-                SystemLogger.info("Синхронизация прошла успешно")
+            case .success(let serverModels):
+                let todoItems = APIListResponse.convert(serverModels)
+                todoItems.forEach { item in
+                    self.fileCacheStorage?.addToCache(item)
+                }
+                self.saveDataToStorage()
+                
+                DispatchQueue.main.async {
+                    self.getModels()
+                    SystemLogger.info("Синхронизация прошла успешно")
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -177,10 +200,17 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func updateTodoItemOnServer(_ item: APIElementResponse) {
-        networkManager?.updateTodoItem(item: item, completion: { result in
+        networkManager?.updateTodoItem(item: item, completion: { [weak self] result in
+            guard let self else { return }
+            
             switch result {
-            case .success:
-                SystemLogger.info("Обновление подтверждено")
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Обновление подтверждено")
+                } else {
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -188,10 +218,16 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func deleteTodoItemFromServer(_ id: String) {
-        networkManager?.deleteTodoItem(id: id, completion: { result in
+        networkManager?.deleteTodoItem(id: id, completion: { [weak self] result in
+            guard let self else { return }
             switch result {
-            case .success:
-                SystemLogger.info("Удаление подтверждено")
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Удаление подтверждено")
+                } else {
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -250,7 +286,13 @@ extension TaskListPresenter: TaskListPresentationLogic {
         router?.routeTo(target: .taskDetail(id)) { [weak self] in
             // TODO: () Перенести логику по сохранению в менеджер работы с данными
             // чтобы вся работа с фаловой системой не была в логике презентера
-            // сейчас из-за этого идёт дублирование кода
+            // сейчас из-за этого идёт дублирование кода в модуле списка и редактирования
+            do {
+                try self?.fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
+            } catch {
+                // TODO: () Вывести алерт
+            }
+            
             self?.getModels()
         }
     }
