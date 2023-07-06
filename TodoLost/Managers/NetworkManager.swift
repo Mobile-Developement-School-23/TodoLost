@@ -202,6 +202,7 @@ extension NetworkManager: INetworkManager {
                     self.revision = String(model.revision)
                     SystemLogger.info("Данные получены, новая ревизия: \(self.revision)")
                     self.logger.logInfoMessage("Данные получены, новая ревизия: \(self.revision)")
+                    
                     self.isDirty = false
                     completion(.success(model))
                     semaphore.signal()
@@ -239,13 +240,16 @@ extension NetworkManager: INetworkManager {
                 jitter: self.jitter
             ) {
                 self.requestService.send(config: requestConfig) { [weak self] result in
+                    defer {
+                        self?.semaphore.signal()
+                    }
+                    
                     switch result {
                     case .success(let(model, _, _)):
                         guard let model else {
                             SystemLogger.warning("Данные не синхронизированы")
                             self?.logger.logWarningMessage("Данные не сохранены")
                             completion(.failure(.unownedError))
-                            self?.semaphore.signal()
                             return
                         }
                         
@@ -257,11 +261,9 @@ extension NetworkManager: INetworkManager {
                         
                         self?.isDirty = false
                         completion(.success((model)))
-                        self?.semaphore.signal()
                     case .failure(let error):
                         SystemLogger.error(error.describing)
                         completion(.failure(error))
-                        self?.semaphore.signal()
                     }
                 }
             }
@@ -296,6 +298,10 @@ extension NetworkManager: INetworkManager {
                 SystemLogger.warning(self.revision)
                 
                 self.requestService.send(config: requestConfig) { [weak self] result in
+                    defer {
+                        self?.semaphore.signal()
+                    }
+                    
                     guard let self else { return }
                     
                     switch result {
@@ -305,20 +311,19 @@ extension NetworkManager: INetworkManager {
                             self.logger.logWarningMessage("Данные не сохранены")
                             self.isDirty = true
                             completion(.failure(.unownedError))
-                            semaphore.signal()
                             return
                         }
                         
                         self.revision = String(model.revision)
                         SystemLogger.info("Данные сохранены, новая ревизия: \(self.revision)")
                         self.logger.logInfoMessage("Данные сохранены, новая ревизия: \(self.revision)")
+                        
+                        self.isDirty = false
                         completion(.success((self.isDirty)))
-                        semaphore.signal()
                     case .failure(let error):
                         self.isDirty = true
                         SystemLogger.error(error.describing)
                         completion(.failure(error))
-                        semaphore.signal()
                     }
                 }
             }
@@ -345,13 +350,16 @@ extension NetworkManager: INetworkManager {
             jitter: jitter
         ) { [weak self] in
             self?.requestService.send(config: requestConfig) { [weak self] result in
+                defer {
+                    self?.semaphore.signal()
+                }
+                
                 switch result {
                 case .success(let(model, _, _)):
                     guard let model else {
                         SystemLogger.warning("Данные не получены")
                         self?.logger.logWarningMessage("Данные не получены")
                         completion(.failure(.unownedError))
-                        self?.semaphore.signal()
                         return
                     }
                     
@@ -361,12 +369,11 @@ extension NetworkManager: INetworkManager {
                         self?.logger.logInfoMessage("Данные получены. Ревизия: \(revision)")
                     }
                     
+                    self?.isDirty = false
                     completion(.success((model)))
-                    self?.semaphore.signal()
                 case .failure(let error):
                     SystemLogger.error(error.describing)
                     completion(.failure(error))
-                    self?.semaphore.signal()
                 }
             }
         }
@@ -400,6 +407,10 @@ extension NetworkManager: INetworkManager {
                 self.requestService.send(config: requestConfig) { [weak self] result in
                     guard let self else { return }
                     
+                    defer {
+                        self.semaphore.signal()
+                    }
+                    
                     switch result {
                     case .success(let(model, _, _)):
                         guard let model else {
@@ -407,7 +418,6 @@ extension NetworkManager: INetworkManager {
                             self.logger.logWarningMessage("Данные не обновлены")
                             self.isDirty = true
                             completion(.failure(.unownedError))
-                            self.semaphore.signal()
                             return
                         }
                         
@@ -415,13 +425,12 @@ extension NetworkManager: INetworkManager {
                         SystemLogger.info("Данные обновлены, новая ревизия: \(self.revision)")
                         self.logger.logInfoMessage("Данные обновлены, новая ревизия: \(self.revision)")
                         
+                        self.isDirty = false
                         completion(.success((self.isDirty)))
-                        self.semaphore.signal()
                     case .failure(let error):
                         SystemLogger.error(error.describing)
                         self.isDirty = true
                         completion(.failure(error))
-                        self.semaphore.signal()
                     }
                 }
             }
@@ -447,6 +456,10 @@ extension NetworkManager: INetworkManager {
             self?.requestService.send(config: requestConfig) { [weak self] result in
                 guard let self else { return }
                 
+                defer {
+                    self.semaphore.signal()
+                }
+                
                 switch result {
                 case .success(let(model, _, _)):
                     guard let model else {
@@ -454,7 +467,6 @@ extension NetworkManager: INetworkManager {
                         self.logger.logWarningMessage("Данные не удалены")
                         self.isDirty = true
                         completion(.failure(.unownedError))
-                        self.semaphore.signal()
                         return
                     }
                     
@@ -462,13 +474,12 @@ extension NetworkManager: INetworkManager {
                     SystemLogger.info("Данные удалены, новая ревизия: \(self.revision)")
                     self.logger.logErrorMessage("Данные удалены, новая ревизия: \(self.revision)")
                     
+                    self.isDirty = false
                     completion(.success((self.isDirty)))
-                    self.semaphore.signal()
                 case .failure(let error):
                     SystemLogger.error(error.describing)
                     self.isDirty = true
                     completion(.failure(error))
-                    self.semaphore.signal()
                 }
             }
         }
