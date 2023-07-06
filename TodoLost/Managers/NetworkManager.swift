@@ -12,6 +12,11 @@ import CocoaLumberjackSwift
 // TODO: Сделать делегат и связать его с презентером
 // Чтобы по окончанию работы методов останавливать активити индикатор
 
+// TODO: Индикатор отображается, когда есть хотя бы один незавершенный запрос у NetworkingService’а.
+// Сделать это например через добавление задачи в группу. Запускать метод который
+// скроет индикатор сразу после завершения выполнения, но не давать ему запустится
+// пока все задачи в группе не выполнены.
+
 protocol INetworkManager {
     func getTodoList(completion: @escaping (Result<APIListResponse, NetworkError>) -> Void)
     
@@ -78,10 +83,19 @@ final class NetworkManager {
     private var revision = "0"
     private var isDirty = false
     
+    // параметры для retry запроса
+    private var shouldRetry = true
+    private let minDelay: TimeInterval = 2.0
+    private let maxDelay: TimeInterval = 120.0
+    private let factor: Double = 1.5
+    private let jitter: Double = 0.05
+    
     private var queue = DispatchQueue(
         label: "ru.TodoLost.networkRequest",
         qos: .userInteractive
     )
+    /// Используется для блокировки потока, пока не будет получен результат запроса к серверу
+    private var semaphore = DispatchSemaphore(value: 0)
     
     // MARK: - Initializer
     
@@ -92,36 +106,107 @@ final class NetworkManager {
         self.requestService = requestService
         self.logger = logger
     }
+    
+    func exponentialRetry(
+        requestCount: Int,
+        minDelay: TimeInterval,
+        maxDelay: TimeInterval,
+        factor: Double,
+        jitter: Double,
+        action: @escaping () -> Void
+    ) {
+        queue.async { [weak self] in
+            guard let self else { return }
+            
+            guard self.shouldRetry else {
+                SystemLogger.warning("Количество попыток отправить запрос превышено. isDirty: \(self.isDirty)")
+                return
+            }
+            
+            // Запускает выполнение запроса к серверу
+            action()
+            
+            SystemLogger.info("Ожидание результата запроса")
+            self.semaphore.wait()
+            
+            if self.shouldRetryRequest() {
+                let baseDelay = minDelay * pow(factor, Double(requestCount - 1))
+                
+                let randomJitter = (Double.random(in: -jitter...jitter)) * baseDelay
+                let delay = min(baseDelay + randomJitter, maxDelay)
+                
+                if delay >= maxDelay {
+                    self.shouldRetry = false
+                }
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                    SystemLogger.warning("Повторный запрос. Задержка: \(delay)")
+                    self?.exponentialRetry(
+                        requestCount: requestCount + 1,
+                        minDelay: minDelay,
+                        maxDelay: maxDelay,
+                        factor: factor,
+                        jitter: jitter,
+                        action: action
+                    )
+                }
+            } else {
+                self.isDirty = false
+                SystemLogger.info("Запрос выполнен успешно")
+            }
+        }
+        
+    }
+    
+    private func shouldRetryRequest() -> Bool {
+        return isDirty
+    }
+    
 }
 
 // MARK: - INetworkManager
 
 extension NetworkManager: INetworkManager {
     func getTodoList(completion: @escaping (Result<APIListResponse, NetworkError>) -> Void) {
+        let requestConfig = RequestFactory.TodoListRequest.getListConfig()
+        
         SystemLogger.info("Отправлен запрос на получение списка дел")
         logger.logInfoMessage("Отправлен запрос на получение списка дел")
         
-        let requestConfig = RequestFactory.TodoListRequest.getListConfig()
-        requestService.send(config: requestConfig) { [weak self] result in
-            guard let self else { return }
-            
-            switch result {
-            case .success(let(model, _, _)):
-                guard let model else {
-                    SystemLogger.warning("Не удалось получить модель")
-                    self.logger.logWarningMessage("Не удалось получить модель")
-                    completion(.failure(.unownedError))
-                    return
-                }
+        exponentialRetry(
+            requestCount: 1,
+            minDelay: minDelay,
+            maxDelay: maxDelay,
+            factor: factor,
+            jitter: jitter
+        ) {
+            self.requestService.send(config: requestConfig) { [weak self] result in
+                guard let self else { return }
                 
-                self.revision = String(model.revision)
-                SystemLogger.info("Данные получены, новая ревизия: \(self.revision)")
-                self.logger.logInfoMessage("Данные получены, новая ревизия: \(self.revision)")
-                completion(.success(model))
-            case .failure(let error):
-                SystemLogger.error(error.describing)
-                self.logger.logErrorMessage(error.describing)
-                completion(.failure(error))
+                switch result {
+                case .success(let(model, _, _)):
+                    guard let model else {
+                        SystemLogger.warning("Не удалось получить модель")
+                        self.logger.logWarningMessage("Не удалось получить модель")
+                        self.isDirty = true
+                        completion(.failure(.unownedError))
+                        semaphore.signal()
+                        return
+                    }
+                    
+                    self.revision = String(model.revision)
+                    SystemLogger.info("Данные получены, новая ревизия: \(self.revision)")
+                    self.logger.logInfoMessage("Данные получены, новая ревизия: \(self.revision)")
+                    self.isDirty = false
+                    completion(.success(model))
+                    semaphore.signal()
+                case .failure(let error):
+                    SystemLogger.error(error.describing)
+                    self.logger.logErrorMessage(error.describing)
+                    self.isDirty = true
+                    completion(.failure(error))
+                    semaphore.signal()
+                }
             }
         }
     }
@@ -141,27 +226,38 @@ extension NetworkManager: INetworkManager {
                 revision: self.revision
             )
             
-            self.requestService.send(config: requestConfig) { [weak self] result in
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Данные не синхронизированы")
-                        self?.logger.logWarningMessage("Данные не сохранены")
-                        completion(.failure(.unownedError))
-                        return
+            self.exponentialRetry(
+                requestCount: 1,
+                minDelay: self.minDelay,
+                maxDelay: self.maxDelay,
+                factor: self.factor,
+                jitter: self.jitter
+            ) {
+                self.requestService.send(config: requestConfig) { [weak self] result in
+                    switch result {
+                    case .success(let(model, _, _)):
+                        guard let model else {
+                            SystemLogger.warning("Данные не синхронизированы")
+                            self?.logger.logWarningMessage("Данные не сохранены")
+                            completion(.failure(.unownedError))
+                            self?.semaphore.signal()
+                            return
+                        }
+                        
+                        self?.revision = String(model.revision)
+                        if let revision = self?.revision {
+                            SystemLogger.info("Данные синхронизированы, новая ревизия: \(revision)")
+                            self?.logger.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
+                        }
+                        
+                        self?.isDirty = false
+                        completion(.success((model)))
+                        self?.semaphore.signal()
+                    case .failure(let error):
+                        SystemLogger.error(error.describing)
+                        completion(.failure(error))
+                        self?.semaphore.signal()
                     }
-                    
-                    self?.revision = String(model.revision)
-                    if let revision = self?.revision {
-                        SystemLogger.info("Данные синхронизированы, новая ревизия: \(revision)")
-                        self?.logger.logInfoMessage("Данные сохранены, новая ревизия: \(revision)")
-                    }
-                    
-                    self?.isDirty = false
-                    completion(.success((model)))
-                case .failure(let error):
-                    SystemLogger.error(error.describing)
-                    completion(.failure(error))
                 }
             }
         }
@@ -182,27 +278,43 @@ extension NetworkManager: INetworkManager {
                 revision: self.revision
             )
             
-            self.requestService.send(config: requestConfig) { [weak self] result in
-                guard let self else { return }
+            self.exponentialRetry(
+                requestCount: 1,
+                minDelay: self.minDelay,
+                maxDelay: self.maxDelay,
+                factor: self.factor,
+                jitter: self.jitter
+            ) {
+                SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
+                self.logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
                 
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Данные не сохранены")
-                        self.logger.logWarningMessage("Данные не сохранены")
-                        self.isDirty = true
-                        completion(.failure(.unownedError))
-                        return
-                    }
+                SystemLogger.warning(self.revision)
+                
+                self.requestService.send(config: requestConfig) { [weak self] result in
+                    guard let self else { return }
                     
-                    self.revision = String(model.revision)
-                    SystemLogger.info("Данные сохранены, новая ревизия: \(self.revision)")
-                    self.logger.logInfoMessage("Данные сохранены, новая ревизия: \(self.revision)")
-                    completion(.success((self.isDirty)))
-                case .failure(let error):
-                    self.isDirty = true
-                    SystemLogger.error(error.describing)
-                    completion(.failure(error))
+                    switch result {
+                    case .success(let(model, _, _)):
+                        guard let model else {
+                            SystemLogger.warning("Данные не сохранены")
+                            self.logger.logWarningMessage("Данные не сохранены")
+                            self.isDirty = true
+                            completion(.failure(.unownedError))
+                            semaphore.signal()
+                            return
+                        }
+                        
+                        self.revision = String(model.revision)
+                        SystemLogger.info("Данные сохранены, новая ревизия: \(self.revision)")
+                        self.logger.logInfoMessage("Данные сохранены, новая ревизия: \(self.revision)")
+                        completion(.success((self.isDirty)))
+                        semaphore.signal()
+                    case .failure(let error):
+                        self.isDirty = true
+                        SystemLogger.error(error.describing)
+                        completion(.failure(error))
+                        semaphore.signal()
+                    }
                 }
             }
         }
@@ -220,39 +332,52 @@ extension NetworkManager: INetworkManager {
             revision: revision
         )
         
-        requestService.send(config: requestConfig) { [weak self] result in
-            switch result {
-            case .success(let(model, _, _)):
-                guard let model else {
-                    SystemLogger.warning("Данные не получены")
-                    self?.logger.logWarningMessage("Данные не получены")
-                    completion(.failure(.unownedError))
-                    return
+        exponentialRetry(
+            requestCount: 1,
+            minDelay: minDelay,
+            maxDelay: maxDelay,
+            factor: factor,
+            jitter: jitter
+        ) { [weak self] in
+            self?.requestService.send(config: requestConfig) { [weak self] result in
+                switch result {
+                case .success(let(model, _, _)):
+                    guard let model else {
+                        SystemLogger.warning("Данные не получены")
+                        self?.logger.logWarningMessage("Данные не получены")
+                        completion(.failure(.unownedError))
+                        self?.semaphore.signal()
+                        return
+                    }
+                    
+                    self?.revision = String(model.revision)
+                    if let revision = self?.revision {
+                        SystemLogger.info("Данные получены. Ревизия: \(revision)")
+                        self?.logger.logInfoMessage("Данные получены. Ревизия: \(revision)")
+                    }
+                    
+                    completion(.success((model)))
+                    self?.semaphore.signal()
+                case .failure(let error):
+                    SystemLogger.error(error.describing)
+                    completion(.failure(error))
+                    self?.semaphore.signal()
                 }
-                
-                self?.revision = String(model.revision)
-                if let revision = self?.revision {
-                    SystemLogger.info("Данные получены. Ревизия: \(revision)")
-                    self?.logger.logInfoMessage("Данные получены. Ревизия: \(revision)")
-                }
-                
-                completion(.success((model)))
-            case .failure(let error):
-                SystemLogger.error(error.describing)
-                completion(.failure(error))
             }
         }
+
     }
     
     func updateTodoItem(
         item: APIElementResponse,
         completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
-        SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
-        logger.logInfoMessage("Отправлен запрос на обновление элемента: \(item.element.id)")
         
         queue.async { [weak self] in
             guard let self else { return }
+            
+            SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
+            self.logger.logInfoMessage("Отправлен запрос на обновление элемента: \(item.element.id)")
             
             let requestConfig = RequestFactory.TodoListRequest.putItemConfig(
                 dataModel: item,
@@ -260,28 +385,39 @@ extension NetworkManager: INetworkManager {
                 revision: self.revision
             )
             
-            requestService.send(config: requestConfig) { [weak self] result in
-                guard let self else { return }
-                
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Данные не обновлены")
-                        self.logger.logWarningMessage("Данные не обновлены")
+            exponentialRetry(
+                requestCount: 1,
+                minDelay: minDelay,
+                maxDelay: maxDelay,
+                factor: factor,
+                jitter: jitter
+            ) {
+                self.requestService.send(config: requestConfig) { [weak self] result in
+                    guard let self else { return }
+                    
+                    switch result {
+                    case .success(let(model, _, _)):
+                        guard let model else {
+                            SystemLogger.warning("Данные не обновлены")
+                            self.logger.logWarningMessage("Данные не обновлены")
+                            self.isDirty = true
+                            completion(.failure(.unownedError))
+                            self.semaphore.signal()
+                            return
+                        }
+                        
+                        self.revision = String(model.revision)
+                        SystemLogger.info("Данные обновлены, новая ревизия: \(self.revision)")
+                        self.logger.logInfoMessage("Данные обновлены, новая ревизия: \(self.revision)")
+                        
+                        completion(.success((self.isDirty)))
+                        self.semaphore.signal()
+                    case .failure(let error):
+                        SystemLogger.error(error.describing)
                         self.isDirty = true
-                        completion(.failure(.unownedError))
-                        return
+                        completion(.failure(error))
+                        self.semaphore.signal()
                     }
-                    
-                    self.revision = String(model.revision)
-                    SystemLogger.info("Данные обновлены, новая ревизия: \(self.revision)")
-                    self.logger.logInfoMessage("Данные обновлены, новая ревизия: \(self.revision)")
-                    
-                    completion(.success((self.isDirty)))
-                case .failure(let error):
-                    SystemLogger.error(error.describing)
-                    self.isDirty = true
-                    completion(.failure(error))
                 }
             }
         }
@@ -295,28 +431,40 @@ extension NetworkManager: INetworkManager {
         logger.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
         
         let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: revision)
-        requestService.send(config: requestConfig) { [weak self] result in
-            guard let self else { return }
-            
-            switch result {
-            case .success(let(model, _, _)):
-                guard let model else {
-                    SystemLogger.warning("Данные не удалены")
-                    self.logger.logWarningMessage("Данные не удалены")
+        
+        exponentialRetry(
+            requestCount: 1,
+            minDelay: minDelay,
+            maxDelay: maxDelay,
+            factor: factor,
+            jitter: jitter
+        ) { [weak self] in
+            self?.requestService.send(config: requestConfig) { [weak self] result in
+                guard let self else { return }
+                
+                switch result {
+                case .success(let(model, _, _)):
+                    guard let model else {
+                        SystemLogger.warning("Данные не удалены")
+                        self.logger.logWarningMessage("Данные не удалены")
+                        self.isDirty = true
+                        completion(.failure(.unownedError))
+                        self.semaphore.signal()
+                        return
+                    }
+                    
+                    self.revision = String(model.revision)
+                    SystemLogger.info("Данные удалены, новая ревизия: \(self.revision)")
+                    self.logger.logErrorMessage("Данные удалены, новая ревизия: \(self.revision)")
+                    
+                    completion(.success((self.isDirty)))
+                    self.semaphore.signal()
+                case .failure(let error):
+                    SystemLogger.error(error.describing)
                     self.isDirty = true
-                    completion(.failure(.unownedError))
-                    return
+                    completion(.failure(error))
+                    self.semaphore.signal()
                 }
-                
-                self.revision = String(model.revision)
-                SystemLogger.info("Данные удалены, новая ревизия: \(self.revision)")
-                self.logger.logErrorMessage("Данные удалены, новая ревизия: \(self.revision)")
-                
-                completion(.success((self.isDirty)))
-            case .failure(let error):
-                SystemLogger.error(error.describing)
-                self.isDirty = true
-                completion(.failure(error))
             }
         }
     }

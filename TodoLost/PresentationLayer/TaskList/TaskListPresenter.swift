@@ -163,8 +163,8 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 }
                 
                 DispatchQueue.main.async {
-                    self.saveDataToStorage()
                     self.getModels()
+                    self.saveDataToStorage()
                     self.view?.dismissSplashScreen()
                 }
             case .failure(let error):
