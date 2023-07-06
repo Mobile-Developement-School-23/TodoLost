@@ -353,6 +353,7 @@ final class TaskDetailViewController: UIViewController {
     }
     
     @objc private func cancelButtonPressed() {
+        presenter?.cancelCreateTask()
         dismiss(animated: true)
     }
     

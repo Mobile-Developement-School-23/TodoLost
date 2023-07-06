@@ -18,8 +18,9 @@ struct ConfigurationEnvironment {
             forInfoDictionaryKey: Keys.baseToken
         ) as? String else {
             SystemLogger.error("Не удалось получить токен к серверу из конфигурации")
-            #warning("Для проверки работы, подставь в return свой токен")
+            #warning("Для проверки работы, подставь в return свой токен вместо пустой строки")
             // Токен был вынесен в отдельный конфиг, чтобы он не попал на гитхаб
+            // Если что-то будет отображаться красным файлом, это оно. Так и должно быть :)
             return ""
         }
         return environment

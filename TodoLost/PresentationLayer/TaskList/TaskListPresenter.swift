@@ -152,6 +152,8 @@ extension TaskListPresenter: TaskListPresentationLogic {
     // MARK: Network requests
     
     func getTodoListFromServer() {
+        view?.startActivityAnimating()
+        
         networkManager?.getTodoList(completion: { [weak self] result in
             guard let self else { return }
             
@@ -176,12 +178,14 @@ extension TaskListPresenter: TaskListPresentationLogic {
             }
         })
         
-        networkManager?.hideActivityIndicator {
-            // TODO: Вызвать скрытие активити индикатора
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
         }
     }
     
     func syncTodoListWithServer(_ list: APIListResponse) {
+        view?.startActivityAnimating()
+        
         networkManager?.syncTodoList(list: list, completion: { [weak self] result in
             guard let self else { return }
             
@@ -202,12 +206,14 @@ extension TaskListPresenter: TaskListPresentationLogic {
             }
         })
         
-        networkManager?.hideActivityIndicator {
-            // TODO: Вызвать скрытие активити индикатора
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
         }
     }
     
     func updateTodoItemOnServer(_ item: APIElementResponse) {
+        view?.startActivityAnimating()
+        
         networkManager?.updateTodoItem(item: item, completion: { [weak self] result in
             guard let self else { return }
             
@@ -224,12 +230,14 @@ extension TaskListPresenter: TaskListPresentationLogic {
             }
         })
         
-        networkManager?.hideActivityIndicator {
-            // TODO: Вызвать скрытие активити индикатора
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
         }
     }
     
     func deleteTodoItemFromServer(_ id: String) {
+        view?.startActivityAnimating()
+        
         networkManager?.deleteTodoItem(id: id, completion: { [weak self] result in
             guard let self else { return }
             switch result {
@@ -245,8 +253,8 @@ extension TaskListPresenter: TaskListPresentationLogic {
             }
         })
         
-        networkManager?.hideActivityIndicator {
-            // TODO: Вызвать скрытие активити индикатора
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
         }
     }
     
@@ -299,22 +307,30 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func openDetailTaskVC(id: String?) {
-        router?.routeTo(target: .taskDetail(id)) { [weak self] in
-            // TODO: () Перенести логику по сохранению в менеджер работы с данными
-            // чтобы вся работа с фаловой системой не была в логике презентера
-            // сейчас из-за этого идёт дублирование кода в модуле списка и редактирования
-            do {
-                try self?.fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
-            } catch {
-                // TODO: () Вывести алерт
+        view?.startActivityAnimating()
+        
+        router?.routeTo(
+            target: .taskDetail(id),
+            completion: { [weak self] in
+                // TODO: () Перенести логику по сохранению в менеджер работы с данными
+                // чтобы вся работа с фаловой системой не была в логике презентера
+                // сейчас из-за этого идёт дублирование кода в модуле списка и редактирования
+                do {
+                    try self?.fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
+                } catch {
+                    // TODO: () Вывести алерт
+                }
+                
+                self?.getModels()
+                
+                self?.networkManager?.hideActivityIndicator { [weak self] in
+                    self?.view?.stopActivityAnimating()
+                }
+            },
+            cancelCompletion: { [weak self] in
+                self?.view?.stopActivityAnimating()
             }
-            
-            self?.getModels()
-            
-            self?.networkManager?.hideActivityIndicator {
-                // TODO: Вызвать скрытие активити индикатора
-            }
-        }
+        )
     }
     
     func getModels() {

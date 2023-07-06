@@ -16,7 +16,11 @@ protocol TaskListRoutingLogic {
     /// - Parameters:
     ///   - target: таргет экрана, на который будет осуществлен переход
     ///   - completion: <#completion description#>
-    func routeTo(target: TaskListRouter.Targets, completion: (() -> Void)?)
+    func routeTo(
+        target: TaskListRouter.Targets,
+        completion: (() -> Void)?,
+        cancelCompletion: (() -> Void)?
+    )
 }
 
 final class TaskListRouter: TaskListRoutingLogic {
@@ -41,7 +45,11 @@ final class TaskListRouter: TaskListRoutingLogic {
         case taskDetail(String?)
     }
     
-    func routeTo(target: TaskListRouter.Targets, completion: (() -> Void)?) {
+    func routeTo(
+        target: TaskListRouter.Targets,
+        completion: (() -> Void)?,
+        cancelCompletion: (() -> Void)?
+    ) {
         switch target {
         case .taskDetail(let itemID):
             let taskDetailVC = TaskDetailViewController()
@@ -49,12 +57,11 @@ final class TaskListRouter: TaskListRoutingLogic {
             PresentationAssembly().taskDetail.config(
                 view: taskDetailVC,
                 navigationController: navigationController,
-                networkManager: networkManager
+                networkManager: networkManager,
+                itemID: itemID,
+                completion: completion,
+                cancelCompletion: cancelCompletion
             )
-            
-            // TODO: () Задать эту настройку в конфигураторе другого модуля
-            taskDetailVC.presenter?.completion = completion
-            taskDetailVC.presenter?.itemID = itemID
             
             guard let currentViewController = navigationController.visibleViewController else {
                 SystemLogger.error("Не удалось получить текущий VC")

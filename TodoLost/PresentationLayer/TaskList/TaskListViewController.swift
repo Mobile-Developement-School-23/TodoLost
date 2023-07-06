@@ -23,6 +23,9 @@ protocol TaskListView: AnyObject {
     func setSelectedCell(indexPath: IndexPath)
     
     func dismissSplashScreen()
+    
+    func startActivityAnimating()
+    func stopActivityAnimating()
 }
 
 final class TaskListViewController: UIViewController {
@@ -46,6 +49,12 @@ final class TaskListViewController: UIViewController {
 //    private var shouldReloadOnLayoutSubviews = false
     
     private var headerView: TaskListHeaderTableView?
+    
+    private var activityIndicator: HalfRingActivityIndicator = {
+        let activityIndicator = HalfRingActivityIndicator()
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        return activityIndicator
+    }()
     
     private let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
@@ -121,6 +130,18 @@ final class TaskListViewController: UIViewController {
 // MARK: - Логика обновления данных View
 
 extension TaskListViewController: TaskListView {
+    func startActivityAnimating() {
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator.startAnimating()
+        }
+    }
+    
+    func stopActivityAnimating() {
+        DispatchQueue.main.async { [weak self] in
+            self?.activityIndicator.stopAnimating()
+        }
+    }
+    
     func dismissSplashScreen() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
             self.splashScreenPresenter?.dismiss { [weak self] in
@@ -212,6 +233,7 @@ private extension TaskListViewController {
     
     func setupConstraints() {
         view.addSubview(tableView)
+        view.addSubview(activityIndicator)
         view.addSubview(placeholderLabel)
         view.addSubview(addButton)
         
@@ -227,7 +249,12 @@ private extension TaskListViewController {
             addButton.heightAnchor.constraint(equalToConstant: Constants.buttonRectangle),
             addButton.widthAnchor.constraint(equalToConstant: Constants.buttonRectangle),
             addButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30)
+            addButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30),
+            
+            activityIndicator.centerYAnchor.constraint(equalTo: addButton.centerYAnchor, constant: -8),
+            activityIndicator.centerXAnchor.constraint(equalTo: addButton.centerXAnchor),
+            activityIndicator.heightAnchor.constraint(equalToConstant: 60),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 60)
         ])
     }
 }

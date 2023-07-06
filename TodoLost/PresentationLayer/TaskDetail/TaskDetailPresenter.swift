@@ -25,6 +25,9 @@ protocol TaskDetailPresentationLogic: AnyObject,
     func fetchTask()
     func saveTask()
     func deleteTask()
+    /// Отменяет анимацию активити индикатора
+    func cancelCreateTask() // TODO: () Костыль пока не будет доработана архитектура
+    // Пока нет единого менеджера работы с данными
     
     func updateViewModel(_ importance: Importance)
     func setDeadlineForViewModel()
@@ -52,6 +55,7 @@ final class TaskDetailPresenter: NSObject {
     // MARK: - Public Properties
     
     var completion: (() -> Void)?
+    var cancelCompletion: (() -> Void)?
     var itemID: String?
     
     // MARK: - Private properties
@@ -146,6 +150,8 @@ final class TaskDetailPresenter: NSObject {
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
+    // MARK: Network requests
+    
     func syncTodoListWithServer(_ list: APIListResponse) {
         networkManager?.syncTodoList(list: list, completion: { [weak self] result in
             guard let self else { return }
@@ -164,8 +170,6 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             }
         })
     }
-    
-    // MARK: Network requests
     
     func sendTodoItemToServer(_ item: APIElementResponse) {
         networkManager?.sendTodoItem(item: item, completion: { result in
@@ -226,12 +230,6 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
     
     // MARK: Others
     
-    func openColorPickerVC() {
-        router?.routeTo(target: .colorPicker) { [weak self] color in
-            self?.handleColorSelection(hexColor: color)
-        }
-    }
-    
     /// Метод переводит временную дату дедлайна в постоянную
     /// - Используется в том случае, когда пользователь переключает свич установки дедлайна.
     /// Это необходимо для того, чтобы дедлайн правильно сохранился, если ранее он был nil
@@ -246,6 +244,10 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
     
     func updateViewModel(_ importance: Importance) {
         viewModel?.importance = importance
+    }
+    
+    func cancelCreateTask() {
+        cancelCompletion?()
     }
     
     func saveTask() {
@@ -295,6 +297,14 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             completion?()
         } catch {
             // TODO: () Вывести алерт
+        }
+    }
+    
+    // MARK: Navigation
+    
+    func openColorPickerVC() {
+        router?.routeTo(target: .colorPicker) { [weak self] color in
+            self?.handleColorSelection(hexColor: color)
         }
     }
 }
