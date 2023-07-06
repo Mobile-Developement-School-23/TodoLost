@@ -175,6 +175,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 }
             }
         })
+        
+        networkManager?.hideActivityIndicator {
+            // TODO: Вызвать скрытие активити индикатора
+        }
     }
     
     func syncTodoListWithServer(_ list: APIListResponse) {
@@ -197,6 +201,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 SystemLogger.error(error.describing)
             }
         })
+        
+        networkManager?.hideActivityIndicator {
+            // TODO: Вызвать скрытие активити индикатора
+        }
     }
     
     func updateTodoItemOnServer(_ item: APIElementResponse) {
@@ -215,6 +223,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 SystemLogger.error(error.describing)
             }
         })
+        
+        networkManager?.hideActivityIndicator {
+            // TODO: Вызвать скрытие активити индикатора
+        }
     }
     
     func deleteTodoItemFromServer(_ id: String) {
@@ -232,6 +244,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 SystemLogger.error(error.describing)
             }
         })
+        
+        networkManager?.hideActivityIndicator {
+            // TODO: Вызвать скрытие активити индикатора
+        }
     }
     
     // MARK: Others
@@ -294,6 +310,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
             }
             
             self?.getModels()
+            
+            self?.networkManager?.hideActivityIndicator {
+                // TODO: Вызвать скрытие активити индикатора
+            }
         }
     }
     

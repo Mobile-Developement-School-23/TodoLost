@@ -9,14 +9,6 @@ import Foundation
 import DTLogger
 import CocoaLumberjackSwift
 
-// TODO: Сделать делегат и связать его с презентером
-// Чтобы по окончанию работы методов останавливать активити индикатор
-
-// TODO: Индикатор отображается, когда есть хотя бы один незавершенный запрос у NetworkingService’а.
-// Сделать это например через добавление задачи в группу. Запускать метод который
-// скроет индикатор сразу после завершения выполнения, но не давать ему запустится
-// пока все задачи в группе не выполнены.
-
 protocol INetworkManager {
     func getTodoList(completion: @escaping (Result<APIListResponse, NetworkError>) -> Void)
     
@@ -68,6 +60,11 @@ protocol INetworkManager {
         id: String,
         completion: @escaping (Result<Bool, NetworkError>) -> Void
     )
+    
+    /// Скрывает активити индикатор
+    /// - Parameter completion: выполняет блок кода, после того как все задачи в группе
+    /// были завершены и не осталось больше ни одного сетевого запроса.
+    func hideActivityIndicator(completion: @escaping () -> Void)
 }
 
 final class NetworkManager {
@@ -96,6 +93,7 @@ final class NetworkManager {
     )
     /// Используется для блокировки потока, пока не будет получен результат запроса к серверу
     private var semaphore = DispatchSemaphore(value: 0)
+    private var group = DispatchGroup()
     
     // MARK: - Initializer
     
@@ -115,7 +113,7 @@ final class NetworkManager {
         jitter: Double,
         action: @escaping () -> Void
     ) {
-        queue.async { [weak self] in
+        queue.async(group: group) { [weak self] in
             guard let self else { return }
             
             guard self.shouldRetry else {
@@ -167,6 +165,13 @@ final class NetworkManager {
 // MARK: - INetworkManager
 
 extension NetworkManager: INetworkManager {
+    func hideActivityIndicator(completion: @escaping () -> Void) {
+        group.notify(queue: .main) {
+            SystemLogger.warning("Все задачи завершены")
+            completion()
+        }
+    }
+    
     func getTodoList(completion: @escaping (Result<APIListResponse, NetworkError>) -> Void) {
         let requestConfig = RequestFactory.TodoListRequest.getListConfig()
         
@@ -218,7 +223,7 @@ extension NetworkManager: INetworkManager {
         SystemLogger.info("Отправлен запрос на синхронизацию данных")
         logger.logInfoMessage("Отправлен запрос на синхронизацию данных")
         
-        queue.async { [weak self] in
+        queue.async(group: group) { [weak self] in
             guard let self else { return }
             
             let requestConfig = RequestFactory.TodoListRequest.patchListConfig(
@@ -270,7 +275,7 @@ extension NetworkManager: INetworkManager {
         SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
         logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
         
-        queue.async { [weak self] in
+        queue.async(group: group) { [weak self] in
             guard let self else { return }
             
             let requestConfig = RequestFactory.TodoListRequest.postItemConfig(
@@ -373,7 +378,7 @@ extension NetworkManager: INetworkManager {
         completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
         
-        queue.async { [weak self] in
+        queue.async(group: group) { [weak self] in
             guard let self else { return }
             
             SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
