@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C07DC5A2A5809C000170E76 /* URLSession+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C07DC592A5809C000170E76 /* URLSession+.swift */; };
 		2C1603F02A5458EB00FE6CE8 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1603EF2A5458EB00FE6CE8 /* NetworkManager.swift */; };
 		2C2016302A4EDC89004EB2A7 /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C20162F2A4EDC89004EB2A7 /* CocoaLumberjackSwift */; };
 		2C2016322A4EDC89004EB2A7 /* CocoaLumberjackSwiftLogBackend in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2016312A4EDC89004EB2A7 /* CocoaLumberjackSwiftLogBackend */; };
@@ -97,6 +98,7 @@
 
 /* Begin PBXFileReference section */
 		1FAFD59BFF832BC9F03568DB /* Pods-TodoLostTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TodoLostTests.release.xcconfig"; path = "Target Support Files/Pods-TodoLostTests/Pods-TodoLostTests.release.xcconfig"; sourceTree = "<group>"; };
+		2C07DC592A5809C000170E76 /* URLSession+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSession+.swift"; sourceTree = "<group>"; };
 		2C1603EF2A5458EB00FE6CE8 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		2C2016332A4EF00A004EB2A7 /* LumberjackLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumberjackLogger.swift; sourceTree = "<group>"; };
 		2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+DateFormatter.swift"; sourceTree = "<group>"; };
@@ -231,6 +233,7 @@
 				2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */,
 				2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */,
 				2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */,
+				2C07DC592A5809C000170E76 /* URLSession+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -803,6 +806,7 @@
 				2C3055812A4C8646001C3E5D /* SplashScreenViewController.swift in Sources */,
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */,
+				2C07DC5A2A5809C000170E76 /* URLSession+.swift in Sources */,
 				2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */,
 				2C80499C2A513FAE00F60FB0 /* RequestService.swift in Sources */,
 				2C8049B12A51CB5C00F60FB0 /* Methods.swift in Sources */,
@@ -949,6 +953,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = minimal;
 			};
 			name = Debug;
 		};
@@ -1002,6 +1007,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = minimal;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
