@@ -173,64 +173,13 @@ extension NetworkManager: INetworkManager {
     }
     
     func getTodoList(completion: @escaping (Result<APIListResponse, NetworkError>) -> Void) {
-        let requestConfig = RequestFactory.TodoListRequest.getListConfig()
-        
-        SystemLogger.info("Отправлен запрос на получение списка дел")
-        logger.logInfoMessage("Отправлен запрос на получение списка дел")
-        
-        exponentialRetry(
-            requestCount: 1,
-            minDelay: minDelay,
-            maxDelay: maxDelay,
-            factor: factor,
-            jitter: jitter
-        ) {
-            self.requestService.send(config: requestConfig) { [weak self] result in
-                guard let self else { return }
-                
-                switch result {
-                case .success(let(model, _, _)):
-                    guard let model else {
-                        SystemLogger.warning("Не удалось получить модель")
-                        self.logger.logWarningMessage("Не удалось получить модель")
-                        self.isDirty = true
-                        completion(.failure(.unownedError))
-                        semaphore.signal()
-                        return
-                    }
-                    
-                    self.revision = String(model.revision)
-                    SystemLogger.info("Данные получены, новая ревизия: \(self.revision)")
-                    self.logger.logInfoMessage("Данные получены, новая ревизия: \(self.revision)")
-                    
-                    self.isDirty = false
-                    completion(.success(model))
-                    semaphore.signal()
-                case .failure(let error):
-                    SystemLogger.error(error.describing)
-                    self.logger.logErrorMessage(error.describing)
-                    self.isDirty = true
-                    completion(.failure(error))
-                    semaphore.signal()
-                }
-            }
-        }
-    }
-    
-    func syncTodoList(
-        list: APIListResponse,
-        completion: @escaping (Result<APIListResponse, NetworkError>) -> Void
-    ) {
-        SystemLogger.info("Отправлен запрос на синхронизацию данных")
-        logger.logInfoMessage("Отправлен запрос на синхронизацию данных")
-        
-        queue.async(group: group) { [weak self] in
+        queue.async { [weak self] in
             guard let self else { return }
             
-            let requestConfig = RequestFactory.TodoListRequest.patchListConfig(
-                list: list,
-                revision: self.revision
-            )
+            SystemLogger.info("Отправлен запрос на получение списка дел")
+            self.logger.logInfoMessage("Отправлен запрос на получение списка дел")
+            
+            let requestConfig = RequestFactory.TodoListRequest.getListConfig()
             
             self.exponentialRetry(
                 requestCount: 1,
@@ -239,6 +188,62 @@ extension NetworkManager: INetworkManager {
                 factor: self.factor,
                 jitter: self.jitter
             ) {
+                self.requestService.send(config: requestConfig) { [weak self] result in
+                    guard let self else { return }
+                    
+                    switch result {
+                    case .success(let(model, _, _)):
+                        guard let model else {
+                            SystemLogger.warning("Не удалось получить модель")
+                            self.logger.logWarningMessage("Не удалось получить модель")
+                            self.isDirty = true
+                            completion(.failure(.unownedError))
+                            semaphore.signal()
+                            return
+                        }
+                        
+                        self.revision = String(model.revision)
+                        SystemLogger.info("Данные получены, новая ревизия: \(self.revision)")
+                        self.logger.logInfoMessage("Данные получены, новая ревизия: \(self.revision)")
+                        
+                        self.isDirty = false
+                        completion(.success(model))
+                        semaphore.signal()
+                    case .failure(let error):
+                        SystemLogger.error(error.describing)
+                        self.logger.logErrorMessage(error.describing)
+                        self.isDirty = true
+                        completion(.failure(error))
+                        semaphore.signal()
+                    }
+                }
+            }
+            
+        }
+    }
+    
+    func syncTodoList(
+        list: APIListResponse,
+        completion: @escaping (Result<APIListResponse, NetworkError>) -> Void
+    ) {
+        queue.async(group: group) { [weak self] in
+            guard let self else { return }
+            
+            SystemLogger.info("Отправлен запрос на синхронизацию данных")
+            self.logger.logInfoMessage("Отправлен запрос на синхронизацию данных")
+            
+            self.exponentialRetry(
+                requestCount: 1,
+                minDelay: self.minDelay,
+                maxDelay: self.maxDelay,
+                factor: self.factor,
+                jitter: self.jitter
+            ) {
+                let requestConfig = RequestFactory.TodoListRequest.patchListConfig(
+                    list: list,
+                    revision: self.revision
+                )
+                
                 self.requestService.send(config: requestConfig) { [weak self] result in
                     defer {
                         self?.semaphore.signal()
@@ -274,16 +279,11 @@ extension NetworkManager: INetworkManager {
         item: APIElementResponse,
         completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
-        SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
-        logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
-        
         queue.async(group: group) { [weak self] in
             guard let self else { return }
             
-            let requestConfig = RequestFactory.TodoListRequest.postItemConfig(
-                dataModel: item,
-                revision: self.revision
-            )
+            SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
+            self.logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
             
             self.exponentialRetry(
                 requestCount: 1,
@@ -292,6 +292,11 @@ extension NetworkManager: INetworkManager {
                 factor: self.factor,
                 jitter: self.jitter
             ) {
+                let requestConfig = RequestFactory.TodoListRequest.postItemConfig(
+                    dataModel: item,
+                    revision: self.revision
+                )
+                
                 SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
                 self.logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
                 
@@ -337,11 +342,6 @@ extension NetworkManager: INetworkManager {
         SystemLogger.info("Отправлен запрос на получение элемента: \(id)")
         logger.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
         
-        let requestConfig = RequestFactory.TodoListRequest.getItemConfig(
-            id: id,
-            revision: revision
-        )
-        
         exponentialRetry(
             requestCount: 1,
             minDelay: minDelay,
@@ -349,7 +349,14 @@ extension NetworkManager: INetworkManager {
             factor: factor,
             jitter: jitter
         ) { [weak self] in
-            self?.requestService.send(config: requestConfig) { [weak self] result in
+            guard let self else { return }
+            
+            let requestConfig = RequestFactory.TodoListRequest.getItemConfig(
+                id: id,
+                revision: self.revision
+            )
+            
+            self.requestService.send(config: requestConfig) { [weak self] result in
                 defer {
                     self?.semaphore.signal()
                 }
@@ -377,7 +384,7 @@ extension NetworkManager: INetworkManager {
                 }
             }
         }
-
+        
     }
     
     func updateTodoItem(
@@ -391,12 +398,6 @@ extension NetworkManager: INetworkManager {
             SystemLogger.info("Отправлен запрос на обновление элемента: \(item.element.id)")
             self.logger.logInfoMessage("Отправлен запрос на обновление элемента: \(item.element.id)")
             
-            let requestConfig = RequestFactory.TodoListRequest.putItemConfig(
-                dataModel: item,
-                id: item.element.id,
-                revision: self.revision
-            )
-            
             exponentialRetry(
                 requestCount: 1,
                 minDelay: minDelay,
@@ -404,6 +405,12 @@ extension NetworkManager: INetworkManager {
                 factor: factor,
                 jitter: jitter
             ) {
+                let requestConfig = RequestFactory.TodoListRequest.putItemConfig(
+                    dataModel: item,
+                    id: item.element.id,
+                    revision: self.revision
+                )
+                
                 self.requestService.send(config: requestConfig) { [weak self] result in
                     guard let self else { return }
                     
@@ -444,8 +451,6 @@ extension NetworkManager: INetworkManager {
         SystemLogger.info("Отправлен запрос на удаление элемента: \(id)")
         logger.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
         
-        let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: revision)
-        
         exponentialRetry(
             requestCount: 1,
             minDelay: minDelay,
@@ -453,7 +458,11 @@ extension NetworkManager: INetworkManager {
             factor: factor,
             jitter: jitter
         ) { [weak self] in
-            self?.requestService.send(config: requestConfig) { [weak self] result in
+            guard let self else { return }
+            
+            let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: self.revision)
+            
+            self.requestService.send(config: requestConfig) { [weak self] result in
                 guard let self else { return }
                 
                 defer {
