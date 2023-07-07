@@ -6,6 +6,8 @@ protocol IFileCache {
     
     var items: [String: TodoItem] { get }
     
+    /// Добавляет новый элемент в кеш
+    /// - Parameter item: Если ID элемента совпадает, то данные в кеше будут перезаписаны.
     func addToCache(_ item: TodoItem)
     func deleteFromCache(_ itemId: String)
     
@@ -43,7 +45,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        logger?.logInfoMessage(fileURL.description)
+        SystemLogger.info(fileURL.description)
         
         let serializedItems = items.map({ $0.value.json })
         
@@ -86,7 +88,7 @@ final class FileCache: IFileCache {
             throw FileCacheErrors.failedFoundPath
         }
         
-        logger?.logInfoMessage(fileURL.description)
+        SystemLogger.info(fileURL.description)
         
         var csvString = ""
         
@@ -165,6 +167,7 @@ final class FileCache: IFileCache {
                 // Проверка на случай пустой строки вместо данных
                 if csvRow == "" {
                     logger?.logWarningMessage("Попалась пустая строка")
+                    SystemLogger.warning("Попалась пустая строка")
                     continue
                 }
                 

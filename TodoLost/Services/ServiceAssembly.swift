@@ -18,6 +18,11 @@ final class ServiceAssembly {
         return fileCache
     }()
     
+    lazy var requestService: IRequestSender = {
+        var requestService = RequestSender()
+        return requestService
+    }()
+    
     lazy var notificationKeyboardObserver: INotificationKeyboardObserver = {
        return NotificationKeyboardObserver()
     }()

@@ -25,24 +25,38 @@ protocol TaskDetailPresentationLogic: AnyObject,
     func fetchTask()
     func saveTask()
     func deleteTask()
+    /// Отменяет анимацию активити индикатора
+    func cancelCreateTask() // TODO: () Костыль пока не будет доработана архитектура
+    // Пока нет единого менеджера работы с данными
     
     func updateViewModel(_ importance: Importance)
     func setDeadlineForViewModel()
     func clearDeadlineFromViewModel()
     
     func openColorPickerVC()
+    
+    func sendTodoItemToServer(_ item: APIElementResponse)
+    func updateTodoItemOnServer(_ item: APIElementResponse)
+    func deleteTodoItemFromServer(_ id: String)
+    func syncTodoListWithServer(_ list: APIListResponse)
 }
 
 final class TaskDetailPresenter: NSObject {
-    // MARK: - Public Properties
+    // MARK: - Architecture Properties
     
     weak var view: TaskDetailView?
     var router: TaskDetailRoutingLogic?
     
-    var completion: (() -> Void)?
-    var itemID: String?
+    // MARK: - Dependency properties
     
     var fileCacheStorage: IFileCache?
+    var networkManager: INetworkManager?
+    
+    // MARK: - Public Properties
+    
+    var completion: (() -> Void)?
+    var cancelCompletion: (() -> Void)?
+    var itemID: String?
     
     // MARK: - Private properties
     
@@ -78,6 +92,18 @@ final class TaskDetailPresenter: NSObject {
         return viewModel
     }
     
+    /// Метод для подготовки модели к синхронизации с сервером
+    /// - Returns: <#description#>
+    private func fetchModelsFromCacheForServer() -> APIListResponse {
+        var items: [TodoItem] = []
+        
+        fileCacheStorage?.items.forEach({ (_, value) in
+            items.append(value)
+        })
+        
+        return APIListResponse.convert(items)
+    }
+    
     /// Метод установки выбранной даты дедлайна в календарь
     /// - Parameter date: принимает дату, которая будет установлена как выбранная. Если даты нет
     /// будет установлен следующий день от текущего.
@@ -108,7 +134,7 @@ final class TaskDetailPresenter: NSObject {
         return viewModel = TaskDetailViewModel(
             id: UUID().uuidString,
             text: "",
-            importance: .normal,
+            importance: .basic,
             dateCreated: Date(),
             isDone: false
         )
@@ -124,12 +150,85 @@ final class TaskDetailPresenter: NSObject {
 // MARK: - Presentation Logic
 
 extension TaskDetailPresenter: TaskDetailPresentationLogic {
+    // MARK: Network requests
     
-    func openColorPickerVC() {
-        router?.routeTo(target: .colorPicker) { [weak self] color in
-            self?.handleColorSelection(hexColor: color)
-        }
+    func syncTodoListWithServer(_ list: APIListResponse) {
+        networkManager?.syncTodoList(list: list, completion: { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let serverModels):
+                let todoItems = APIListResponse.convert(serverModels)
+                todoItems.forEach { item in
+                    self.fileCacheStorage?.addToCache(item)
+                }
+                
+                SystemLogger.info("Синхронизация прошла успешно")
+                
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
     }
+    
+    func sendTodoItemToServer(_ item: APIElementResponse) {
+        networkManager?.sendTodoItem(item: item, completion: { result in
+            switch result {
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Сохранение подтверждено")
+                } else {
+                    // TODO: () Намеренный захват self чтобы сохранить класс живым,
+                    // пока не будет закончена синхронизация. Будет исправлено
+                    // при доработке архитектуры
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    func updateTodoItemOnServer(_ item: APIElementResponse) {
+        networkManager?.updateTodoItem(item: item, completion: { result in
+            switch result {
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Обновление подтверждено")
+                } else {
+                    // TODO: () Намеренный захват self чтобы сохранить класс живым,
+                    // пока не будет закончена синхронизация. Будет исправлено
+                    // при доработке архитектуры
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    func deleteTodoItemFromServer(_ id: String) {
+        networkManager?.deleteTodoItem(id: id, completion: { result in
+            switch result {
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Удаление подтверждено")
+                } else {
+                    // TODO: () Намеренный захват self чтобы сохранить класс живым,
+                    // пока не будет закончена синхронизация. Будет исправлено
+                    // при доработке архитектуры
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+    }
+    
+    // MARK: Others
     
     /// Метод переводит временную дату дедлайна в постоянную
     /// - Используется в том случае, когда пользователь переключает свич установки дедлайна.
@@ -147,6 +246,10 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         viewModel?.importance = importance
     }
     
+    func cancelCreateTask() {
+        cancelCompletion?()
+    }
+    
     func saveTask() {
         guard let viewModel else { return }
         
@@ -162,12 +265,14 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         
         fileCacheStorage?.addToCache(todoItem)
         
-        do {
-            try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
-            completion?()
-        } catch {
-            // TODO: () Вывести алерт
+        let serverModel = APIElementResponse.convert(todoItem)
+        if itemID != nil && itemID != "" {
+            updateTodoItemOnServer(serverModel)
+        } else {
+            sendTodoItemToServer(serverModel)
         }
+        
+        completion?()
     }
     
     func fetchTask() {
@@ -184,12 +289,22 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             SystemLogger.warning("Модель не обновлена, ID нет")
             return
         }
+        
+        deleteTodoItemFromServer(id)
         fileCacheStorage?.deleteFromCache(id)
         do {
             try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
             completion?()
         } catch {
             // TODO: () Вывести алерт
+        }
+    }
+    
+    // MARK: Navigation
+    
+    func openColorPickerVC() {
+        router?.routeTo(target: .colorPicker) { [weak self] color in
+            self?.handleColorSelection(hexColor: color)
         }
     }
 }

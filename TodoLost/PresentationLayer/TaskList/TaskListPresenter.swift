@@ -25,18 +25,34 @@ protocol TaskListPresentationLogic: AnyObject {
     func toggleVisibleTask()
     
     func delete(_ task: TaskViewModel)
-    func setIsDone(_ task: TaskViewModel)
+    func setDoneStatus(_ task: TaskViewModel)
+    
+    /// Метод для получения todo списка с сервера
+    /// - Используется только 1 раз при  запуске приложения. После выполнения запрса закрывает сплешскрин.
+    func getTodoListFromServer()
+    /// Метод для синхронизации данных с сервером
+    /// - Используется в случае других неудачных запросов. Считаем что все данные не сходятся
+    /// и нужна синхронизация
+    func syncTodoListWithServer(_ list: APIListResponse)
+    func updateTodoItemOnServer(_ item: APIElementResponse)
+    func deleteTodoItemFromServer(_ id: String)
 }
 
 final class TaskListPresenter {
-    
-    // MARK: - Public Properties
+    // MARK: - Architecture Properties
     
     weak var view: TaskListView?
     var router: TaskListRoutingLogic?
     
+    // MARK: - Dependency properties
+    
+    var logger: LumberjackLogger?
     var fileCacheStorage: IFileCache?
-    /// СОбирается в конфигураторе и используется для делегирования нажатия на кнопку
+    var networkManager: INetworkManager?
+    
+    // MARK: - Public properties
+    
+    /// Собирается в конфигураторе и используется для делегирования нажатия на кнопку
     var taskListHeader: TaskListHeaderTableView?
     
     // MARK: - Private properties
@@ -88,7 +104,7 @@ final class TaskListPresenter {
             switch value.importance {
             case .low:
                 statusTask = .statusLow
-            case .normal:
+            case .basic:
                 statusTask = .statusDefault
             case .important:
                 statusTask = .statusHigh
@@ -110,22 +126,145 @@ final class TaskListPresenter {
                 dateEdited: value.dateEdited,
                 hexColor: value.hexColor
             )
-
+            
             viewModels.append(viewModel)
         })
         
         return viewModels
+    }
+    
+    /// Метод для подготовки модели к синхронизации с сервером
+    /// - Returns: <#description#>
+    private func fetchModelsFromCacheForServer() -> APIListResponse {
+        var items: [TodoItem] = []
+        
+        fileCacheStorage?.items.forEach({ (_, value) in
+            items.append(value)
+        })
+        
+        return APIListResponse.convert(items)
     }
 }
 
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    // MARK: Network requests
+    
+    func getTodoListFromServer() {
+        view?.startActivityAnimating()
+        
+        networkManager?.getTodoList(completion: { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let serverModels):
+                let todoItems = APIListResponse.convert(serverModels)
+                todoItems.forEach { item in
+                    self.fileCacheStorage?.addToCache(item)
+                }
+                
+                DispatchQueue.main.async {
+                    self.getModels()
+                    self.saveDataToStorage()
+                    self.view?.dismissSplashScreen()
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+                DispatchQueue.main.async {
+                    self.getModels()
+                    self.view?.dismissSplashScreen()
+                }
+            }
+        })
+        
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
+        }
+    }
+    
+    func syncTodoListWithServer(_ list: APIListResponse) {
+        view?.startActivityAnimating()
+        
+        networkManager?.syncTodoList(list: list, completion: { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let serverModels):
+                let todoItems = APIListResponse.convert(serverModels)
+                todoItems.forEach { item in
+                    self.fileCacheStorage?.addToCache(item)
+                }
+                self.saveDataToStorage()
+                
+                DispatchQueue.main.async {
+                    self.getModels()
+                    SystemLogger.info("Синхронизация прошла успешно")
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+        
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
+        }
+    }
+    
+    func updateTodoItemOnServer(_ item: APIElementResponse) {
+        view?.startActivityAnimating()
+        
+        networkManager?.updateTodoItem(item: item, completion: { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Обновление подтверждено")
+                } else {
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+        
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
+        }
+    }
+    
+    func deleteTodoItemFromServer(_ id: String) {
+        view?.startActivityAnimating()
+        
+        networkManager?.deleteTodoItem(id: id, completion: { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let isDirty):
+                if !isDirty {
+                    SystemLogger.info("Удаление подтверждено")
+                } else {
+                    let apiList = self.fetchModelsFromCacheForServer()
+                    self.syncTodoListWithServer(apiList)
+                }
+            case .failure(let error):
+                SystemLogger.error(error.describing)
+            }
+        })
+        
+        networkManager?.hideActivityIndicator { [weak self] in
+            self?.view?.stopActivityAnimating()
+        }
+    }
+    
+    // MARK: Others
+    
     func setSelectedCell(indexPath: IndexPath) {
         view?.setSelectedCell(indexPath: indexPath)
     }
     
-    func setIsDone(_ task: TaskViewModel) {
+    func setDoneStatus(_ task: TaskViewModel) {
         var isDone = task.isDone
         isDone.toggle()
         
@@ -142,6 +281,10 @@ extension TaskListPresenter: TaskListPresentationLogic {
         
         fileCacheStorage?.addToCache(todoItem)
         saveDataToStorage()
+        
+        let serverModel = APIElementResponse.convert(todoItem)
+        updateTodoItemOnServer(serverModel)
+        
         // обновляем данные после сохранения
         getModels()
     }
@@ -149,6 +292,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
     func delete(_ task: TaskViewModel) {
         fileCacheStorage?.deleteFromCache(task.id)
         saveDataToStorage()
+        deleteTodoItemFromServer(task.id)
         // обновляем данные после удаления
         getModels()
     }
@@ -163,13 +307,30 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func openDetailTaskVC(id: String?) {
-        router?.routeTo(target: .taskDetail(id)) { [weak self] in
-            // TODO: () Перенести логику по сохранению на главный экран
-            // а экран редактирования оставить так, чтобы он ничего не делал с
-            // памятью и только брал данные из кеша. То есть по колбеку вызывать
-            // не обновление массива, а производить сохранение, удаление и т.д.
-            self?.getModels()
-        }
+        view?.startActivityAnimating()
+        
+        router?.routeTo(
+            target: .taskDetail(id),
+            completion: { [weak self] in
+                // TODO: () Перенести логику по сохранению в менеджер работы с данными
+                // чтобы вся работа с фаловой системой не была в логике презентера
+                // сейчас из-за этого идёт дублирование кода в модуле списка и редактирования
+                do {
+                    try self?.fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
+                } catch {
+                    // TODO: () Вывести алерт
+                }
+                
+                self?.getModels()
+                
+                self?.networkManager?.hideActivityIndicator { [weak self] in
+                    self?.view?.stopActivityAnimating()
+                }
+            },
+            cancelCompletion: { [weak self] in
+                self?.view?.stopActivityAnimating()
+            }
+        )
     }
     
     func getModels() {
@@ -182,6 +343,5 @@ extension TaskListPresenter: TaskListPresentationLogic {
         }
         
         view?.display(models: viewModels, isShowComplete: isShowComplete)
-        view?.dismissSplashScreen()
     }
 }
