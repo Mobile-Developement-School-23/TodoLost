@@ -16,6 +16,7 @@ protocol ISQLiteStorage {
     
     func insertOrReplace(item: TodoItem) throws
     func load() throws -> [TodoItem]?
+    func loadItem(id: String) throws -> TodoItem?
     func delete(id: String) throws
 }
 
@@ -34,6 +35,8 @@ final class SQLiteStorage {
     private let dateEdited = Expression<Date?>("dateEdited")
     private let hexColor = Expression<String?>("hexColor")
 }
+
+// MARK: - ISQLiteStorage
 
 extension SQLiteStorage: ISQLiteStorage {
     func fetchOrCreateDB() throws {
@@ -113,6 +116,31 @@ extension SQLiteStorage: ISQLiteStorage {
         return items
     }
     
+    func loadItem(id: String) throws -> TodoItem? {
+        var item: TodoItem?
+        
+        let query = tableDB.filter(id == self.id)
+        
+        do {
+            if let row = try db?.pluck(query) {
+                item = TodoItem(
+                    id: row[self.id],
+                    text: row[text],
+                    importance: Importance(rawValue: row[importance]) ?? .basic,
+                    deadline: row[deadline],
+                    isDone: row[isDone],
+                    dateCreated: row[dateCreated],
+                    dateEdited: row[dateEdited],
+                    hexColor: row[hexColor]
+                )
+            }
+        } catch {
+            throw Errors.failedToLoad(error.localizedDescription)
+        }
+        
+        return item
+    }
+    
     func delete(id: String) throws {
         let deleteQuery = tableDB.filter(id == self.id).delete()
         
@@ -123,6 +151,8 @@ extension SQLiteStorage: ISQLiteStorage {
         }
     }
 }
+
+// MARK: - Errors
 
 extension SQLiteStorage {
     enum Errors: Error, LocalizedError {

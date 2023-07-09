@@ -18,6 +18,10 @@ final class ServiceAssembly {
         return fileCache
     }()
     
+    lazy var sqliteStorage: ISQLiteStorage = {
+        return SQLiteStorage()
+    }()
+    
     lazy var requestService: IRequestSender = {
         var requestService = RequestSender()
         return requestService

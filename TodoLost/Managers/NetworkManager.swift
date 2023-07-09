@@ -167,7 +167,7 @@ final class NetworkManager {
 extension NetworkManager: INetworkManager {
     func hideActivityIndicator(completion: @escaping () -> Void) {
         group.notify(queue: .main) {
-            SystemLogger.warning("Все задачи завершены")
+            SystemLogger.info("Все задачи завершены")
             completion()
         }
     }
@@ -296,8 +296,6 @@ extension NetworkManager: INetworkManager {
                 
                 SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
                 self.logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
-                
-                SystemLogger.warning(self.revision)
                 
                 self.requestService.send(config: requestConfig) { [weak self] result in
                     defer {

@@ -455,7 +455,6 @@
 				2C2016332A4EF00A004EB2A7 /* LumberjackLogger.swift */,
 				2C8049922A513E5200F60FB0 /* NetworkService */,
 				2C3614AA2A4465C700C6C9BC /* Observers */,
-				2C6C24142A34AFFC002B107C /* Models */,
 				2C9B8B232A37292900CC591A /* Storages */,
 			);
 			path = Services;
@@ -509,6 +508,7 @@
 		2C9B8B232A37292900CC591A /* Storages */ = {
 			isa = PBXGroup;
 			children = (
+				2C6C24142A34AFFC002B107C /* Models */,
 				2C9B8B242A37295000CC591A /* FileCache.swift */,
 				2C2CD9F72A5992DE00CC2A3D /* SQLiteStorage.swift */,
 			);

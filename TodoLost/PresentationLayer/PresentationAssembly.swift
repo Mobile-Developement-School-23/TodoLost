@@ -18,6 +18,7 @@ final class PresentationAssembly {
         return TaskListConfigurator(
             logger: service.logger,
             fileCacheStorage: service.fileCacheStorage,
+            sqliteStorage: service.sqliteStorage,
             splashScreenPresenter: SplashScreenPresenter(),
             networkManager: networkManager
         )

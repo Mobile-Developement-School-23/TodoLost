@@ -94,7 +94,9 @@ final class TaskListViewController: UIViewController {
         splashScreenPresenter?.present()
         setup()
         
+        presenter?.createDB()
         presenter?.getTodoListFromServer()
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
