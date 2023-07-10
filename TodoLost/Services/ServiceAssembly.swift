@@ -22,6 +22,10 @@ final class ServiceAssembly {
         return SQLiteStorage()
     }()
     
+    lazy var coreDataStorage: ICoreDataStorage = {
+        return CoreDataStorage.shared
+    }()
+    
     lazy var requestService: IRequestSender = {
         var requestService = RequestSender()
         return requestService

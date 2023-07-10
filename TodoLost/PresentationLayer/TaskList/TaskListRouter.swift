@@ -19,6 +19,7 @@ protocol TaskListRoutingLogic {
     func routeTo(
         target: TaskListRouter.Targets,
         sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         completion: (() -> Void)?,
         cancelCompletion: (() -> Void)?
     )
@@ -28,16 +29,13 @@ final class TaskListRouter: TaskListRoutingLogic {
     
     private var navigationController: UINavigationController
     private var networkManager: INetworkManager
-    private var sqliteStorage: ISQLiteStorage
     
     init(
         withNavigationController: UINavigationController,
-        networkManager: INetworkManager,
-        sqliteStorage: ISQLiteStorage
+        networkManager: INetworkManager
     ) {
         navigationController = withNavigationController
         self.networkManager = networkManager
-        self.sqliteStorage = sqliteStorage
     }
     
     /// Таргет для перехода на другой экран
@@ -52,6 +50,7 @@ final class TaskListRouter: TaskListRoutingLogic {
     func routeTo(
         target: TaskListRouter.Targets,
         sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         completion: (() -> Void)?,
         cancelCompletion: (() -> Void)?
     ) {
@@ -64,6 +63,7 @@ final class TaskListRouter: TaskListRoutingLogic {
                 navigationController: navigationController,
                 networkManager: networkManager,
                 sqliteStorage: sqliteStorage,
+                coreDataStorage: coreDataStorage,
                 itemID: itemID,
                 completion: completion,
                 cancelCompletion: cancelCompletion

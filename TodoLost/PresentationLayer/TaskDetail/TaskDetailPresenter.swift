@@ -56,6 +56,7 @@ final class TaskDetailPresenter: NSObject {
     var fileCacheStorage: IFileCache?
     var networkManager: INetworkManager?
     var sqliteStorage: ISQLiteStorage?
+    var coreDataStorage: ICoreDataStorage?
     
     // MARK: - Public Properties
     
@@ -80,11 +81,26 @@ final class TaskDetailPresenter: NSObject {
     /// не был nil
     private func fetchTodoItemFromDB() -> TaskDetailViewModel? {
         var todoItem: TodoItem?
-        do {
-            todoItem = try sqliteStorage?.loadItem(id: itemID ?? "")
-        } catch {
-            SystemLogger.warning(error.localizedDescription)
-        }
+        
+        guard let dbItem = coreDataStorage?.fetchObject(withId: itemID ?? "") else { return nil }
+        todoItem = TodoItem(
+            id: dbItem.id ?? UUID().uuidString,
+            text: dbItem.text ?? "",
+            importance: Importance(rawValue: dbItem.importance ?? "basic") ?? .basic,
+            deadline: dbItem.deadline,
+            isDone: dbItem.isDone,
+            dateCreated: dbItem.dateCreated ?? Date.now,
+            dateEdited: dbItem.dateEdited,
+            hexColor: dbItem.hexColor
+        )
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+        // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
+//        do {
+//            todoItem = try sqliteStorage?.loadItem(id: itemID ?? "")
+//        } catch {
+//            SystemLogger.warning(error.localizedDescription)
+//        }
         
         guard let todoItem else { return nil }
         var viewModel = TaskDetailViewModel(
@@ -287,12 +303,19 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             hexColor: viewModel.textColor?.toHexString()
         )
         
-        do {
-            try sqliteStorage?.insertOrReplace(item: todoItem)
-        } catch {
-            SystemLogger.error(error.localizedDescription)
-            // TODO: () Вывести алерт
+        coreDataStorage?.performSave { [weak self] context in
+            self?.coreDataStorage?.save(todoItem, context: context)
+        } completion: { [weak self] in
+            self?.completion?()
         }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        do {
+//            try sqliteStorage?.insertOrReplace(item: todoItem)
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//            // TODO: () Вывести алерт
+//        }
         
         let serverModel = APIElementResponse.convert(todoItem)
         if itemID != nil && itemID != "" {
@@ -301,7 +324,8 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             sendTodoItemToServer(serverModel)
         }
         
-        completion?()
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        completion?()
     }
     
     func fetchTask() {
@@ -321,13 +345,20 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         
         deleteTodoItemFromServer(id)
         
-        do {
-            try sqliteStorage?.delete(id: id)
-            completion?()
-        } catch {
-            SystemLogger.error(error.localizedDescription)
-            // TODO: () Вывести алерт
+        coreDataStorage?.performSave { [weak self] context in
+            self?.coreDataStorage?.deleteObject(withId: id, context: context)
+        } completion: { [weak self] in
+            self?.completion?()
         }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        do {
+//            try sqliteStorage?.delete(id: id)
+//            completion?()
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//            // TODO: () Вывести алерт
+//        }
     }
     
     // MARK: Navigation

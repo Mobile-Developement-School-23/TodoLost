@@ -19,6 +19,7 @@ final class PresentationAssembly {
             logger: service.logger,
             fileCacheStorage: service.fileCacheStorage,
             sqliteStorage: service.sqliteStorage,
+            coreDataStorage: service.coreDataStorage,
             splashScreenPresenter: SplashScreenPresenter(),
             networkManager: networkManager
         )

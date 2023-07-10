@@ -14,17 +14,20 @@ final class TaskListConfigurator {
     private let sqliteStorage: ISQLiteStorage
     private let splashScreenPresenter: ISplashScreenPresenter
     private let networkManager: INetworkManager
+    private let coreDataStorage: ICoreDataStorage
     
     init(
         logger: LumberjackLogger,
         fileCacheStorage: IFileCache,
         sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         splashScreenPresenter: ISplashScreenPresenter,
         networkManager: INetworkManager
     ) {
         self.logger = logger
         self.fileCacheStorage = fileCacheStorage
         self.sqliteStorage = sqliteStorage
+        self.coreDataStorage = coreDataStorage
         self.splashScreenPresenter = splashScreenPresenter
         self.networkManager = networkManager
     }
@@ -38,8 +41,7 @@ final class TaskListConfigurator {
         let dataSourceProvider: ITaskListDataSourceProvider = TaskListDataSourceProvider(presenter: presenter)
         let router = TaskListRouter(
             withNavigationController: navigationController,
-            networkManager: networkManager,
-            sqliteStorage: sqliteStorage
+            networkManager: networkManager
         )
         let transitionAnimation = TransitionAnimationVC()
         
@@ -52,6 +54,7 @@ final class TaskListConfigurator {
         presenter.logger = logger
         presenter.fileCacheStorage = fileCacheStorage
         presenter.sqliteStorage = sqliteStorage
+        presenter.coreDataStorage = coreDataStorage
         presenter.networkManager = networkManager
     }
 }
