@@ -82,17 +82,21 @@ final class TaskDetailPresenter: NSObject {
     private func fetchTodoItemFromDB() -> TaskDetailViewModel? {
         var todoItem: TodoItem?
         
-        guard let dbItem = coreDataStorage?.fetchObject(withId: itemID ?? "") else { return nil }
-        todoItem = TodoItem(
-            id: dbItem.id ?? UUID().uuidString,
-            text: dbItem.text ?? "",
-            importance: Importance(rawValue: dbItem.importance ?? "basic") ?? .basic,
-            deadline: dbItem.deadline,
-            isDone: dbItem.isDone,
-            dateCreated: dbItem.dateCreated ?? Date.now,
-            dateEdited: dbItem.dateEdited,
-            hexColor: dbItem.hexColor
-        )
+        do {
+            guard let dbItem = try coreDataStorage?.fetchObject(withId: itemID ?? "") else { return nil }
+            todoItem = TodoItem(
+                id: dbItem.id ?? UUID().uuidString,
+                text: dbItem.text ?? "",
+                importance: Importance(rawValue: dbItem.importance ?? "basic") ?? .basic,
+                deadline: dbItem.deadline,
+                isDone: dbItem.isDone,
+                dateCreated: dbItem.dateCreated ?? Date.now,
+                dateEdited: dbItem.dateEdited,
+                hexColor: dbItem.hexColor
+            )
+        } catch {
+            
+        }
         
         // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
         // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
@@ -305,8 +309,13 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         
         coreDataStorage?.performSave { [weak self] context in
             self?.coreDataStorage?.save(todoItem, context: context)
-        } completion: { [weak self] in
-            self?.completion?()
+        } completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.completion?()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
         }
         
         // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
@@ -346,9 +355,18 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         deleteTodoItemFromServer(id)
         
         coreDataStorage?.performSave { [weak self] context in
-            self?.coreDataStorage?.deleteObject(withId: id, context: context)
-        } completion: { [weak self] in
-            self?.completion?()
+            do {
+                try self?.coreDataStorage?.deleteObject(withId: id, context: context)
+            } catch {
+                SystemLogger.error("Не удалось удалить объект. Ошибка: \(error.localizedDescription)")
+            }
+        } completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.completion?()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
         }
         
         // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ

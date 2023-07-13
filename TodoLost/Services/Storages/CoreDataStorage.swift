@@ -10,7 +10,25 @@ import DTLogger
 
 /// Протокол для работы с базой данных
 protocol ICoreDataStorage {
-    func performSave(_ block: @escaping (NSManagedObjectContext) -> Void, completion: @escaping () -> Void)
+    /// Метод обработки изменений в контексте и сохранения результатов в базе
+    /// - Tip: Метод использует контекст для записи.
+    /// - Parameters:
+    ///   - block: блок  обработки методов работы с базой, с последующей попыткой сохранения изменений.
+    ///   - completion: блок завершения с результатами обработки.
+    /// ```
+    /// // Пример использования:
+    /// coreDataStorage.performSave({ context in
+    ///     self.coreDataStorage.save(item, context: context)
+    /// }, completion: { result in
+    ///     switch result {
+    ///     case .success:
+    ///         // Выполнение работы после подтверждения успешности сохранения
+    ///     case .failure(let error):
+    ///         // обработка какой то ошибки
+    ///     }
+    /// })
+    /// ```
+    func performSave(_ block: @escaping (NSManagedObjectContext) -> Void, completion: @escaping (Result<Void, Error>) -> Void)
     
     /// Метод для сохранения объекта
     /// - В случае совпадения id, объект перезаписывается.
@@ -30,25 +48,19 @@ protocol ICoreDataStorage {
     ///   - id: <#id description#>
     ///   - context: принимает контекст, в котором производится работа с данными.
     /// - Returns: <#description#>
-    func fetchObject(withId id: String, context: NSManagedObjectContext) -> DBTodoItem?
+    func fetchObject(withId id: String, context: NSManagedObjectContext) throws -> DBTodoItem?
     
     /// Метод для получения объекта по ID
     /// - Использует контекст для чтения
     /// - Parameter id: <#id description#>
     /// - Returns: <#description#>
-    func fetchObject(withId id: String) -> DBTodoItem?
-    
-    /// Метод для удаления объекта, который был получен в текущем контексте
-    /// - Parameters:
-    ///   - currentObject: <#currentObject description#>
-    ///   - context: принимает контекст, в котором производится работа с данными.
-    func delete(_ currentObject: NSManagedObject, context: NSManagedObjectContext)
+    func fetchObject(withId id: String) throws -> DBTodoItem?
     
     /// Метод для удаления объекта по ID
     /// - Parameters:
     ///   - id: <#id description#>
     ///   - context: принимает контекст, в котором производится работа с данными.
-    func deleteObject(withId id: String, context: NSManagedObjectContext)
+    func deleteObject(withId id: String, context: NSManagedObjectContext) throws
 }
  
 final class CoreDataStorage {
@@ -115,44 +127,24 @@ extension CoreDataStorage: ICoreDataStorage {
         return dbObjects
     }
     
-    func fetchObject(withId id: String, context: NSManagedObjectContext) -> DBTodoItem? {
+    func fetchObject(withId id: String, context: NSManagedObjectContext) throws -> DBTodoItem? {
         let fetchRequest: NSFetchRequest<DBTodoItem> = DBTodoItem.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         
-        do {
-            let results = try context.fetch(fetchRequest)
-            SystemLogger.info("Объект получен из базы. ID: \(results.first?.id ?? "")")
-            return results.first
-        } catch {
-            SystemLogger.error("Не удалось получить объект. Ошибка: \(error)")
-            return nil
-        }
+        let results = try context.fetch(fetchRequest)
+        return results.first
     }
     
-    func fetchObject(withId id: String) -> DBTodoItem? {
+    func fetchObject(withId id: String) throws -> DBTodoItem? {
         let fetchRequest: NSFetchRequest<DBTodoItem> = DBTodoItem.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", id)
         
-        do {
-            let results = try readContext.fetch(fetchRequest)
-            SystemLogger.info("Объект получен из базы. ID: \(results.first?.id ?? "")")
-            return results.first
-        } catch {
-            SystemLogger.error("Не удалось получить объект. Ошибка: \(error)")
-            return nil
-        }
+        let results = try readContext.fetch(fetchRequest)
+        return results.first
     }
     
-    func delete(_ currentObject: NSManagedObject, context: NSManagedObjectContext) {
-        let objectID = currentObject.objectID
-        let currentObject = context.object(with: objectID)
-        context.delete(currentObject)
-
-        SystemLogger.info("Запуск удаления объекта из базы")
-    }
-    
-    func deleteObject(withId id: String, context: NSManagedObjectContext) {
-        if let object = fetchObject(withId: id, context: context) {
+    func deleteObject(withId id: String, context: NSManagedObjectContext) throws {
+        if let object = try fetchObject(withId: id, context: context) {
             context.delete(object)
             SystemLogger.info("Запуск удаления объекта с id: \(id)")
         } else {
@@ -162,7 +154,10 @@ extension CoreDataStorage: ICoreDataStorage {
     
     // MARK: - Save context
     
-    func performSave(_ block: @escaping (NSManagedObjectContext) -> Void, completion: @escaping () -> Void) {
+    func performSave(
+        _ block: @escaping (NSManagedObjectContext) -> Void,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
         let context = writeContext
         context.perform { [weak self] in
             block(context)
@@ -171,13 +166,15 @@ extension CoreDataStorage: ICoreDataStorage {
                 SystemLogger.info("Данные изменены, попытка сохранения")
                 do {
                     try self?.performSave(in: context) {
-                        completion()
+                        SystemLogger.info("Изменения сохранены")
+                        completion(.success(()))
                     }
                 } catch {
-                    SystemLogger.error(error.localizedDescription)
+                    completion(.failure(error))
                 }
             } else {
                 SystemLogger.info("Изменений нет")
+                completion(.success(()))
             }
             
             SystemLogger.info("Проверка контекста на изменение закончена")
@@ -187,6 +184,5 @@ extension CoreDataStorage: ICoreDataStorage {
     private func performSave(in context: NSManagedObjectContext, completion: () -> Void) throws {
         try context.save()
         completion()
-        SystemLogger.info("Данные сохранены")
     }
 }

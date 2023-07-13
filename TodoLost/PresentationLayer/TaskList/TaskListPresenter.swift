@@ -214,7 +214,14 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 todoItems.forEach { item in
                     self.coreDataStorage?.performSave({ context in
                         self.coreDataStorage?.save(item, context: context)
-                    }, completion: {})
+                    }, completion: { result in
+                        switch result {
+                        case .success:
+                            break
+                        case .failure(let error):
+                            SystemLogger.error(error.localizedDescription)
+                        }
+                    })
                     
                     // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
                     // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
@@ -251,9 +258,13 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 todoItems.forEach { item in
                     self.coreDataStorage?.performSave({ context in
                         self.coreDataStorage?.save(item, context: context)
-                    }, completion: { [weak self] in
-                        self?.getModels()
-                        SystemLogger.info("Синхронизация прошла успешно")
+                    }, completion: { result in
+                        switch result {
+                        case .success:
+                            self.getModels()
+                        case .failure(let error):
+                            SystemLogger.error(error.localizedDescription)
+                        }
                     })
                     
                     // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
@@ -347,8 +358,13 @@ extension TaskListPresenter: TaskListPresentationLogic {
         
         self.coreDataStorage?.performSave({ [weak self] context in
             self?.coreDataStorage?.save(todoItem, context: context)
-        }, completion: { [weak self] in
-            self?.getModels()
+        }, completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.getModels()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
         })
         
 //        do {
@@ -366,9 +382,18 @@ extension TaskListPresenter: TaskListPresentationLogic {
     
     func delete(_ task: TaskViewModel) {
         self.coreDataStorage?.performSave({ [weak self] context in
-            self?.coreDataStorage?.deleteObject(withId: task.id, context: context)
-        }, completion: { [weak self] in
-            self?.getModels()
+            do {
+                try self?.coreDataStorage?.deleteObject(withId: task.id, context: context)
+            } catch {
+                SystemLogger.error("Не удалось удалить объект. Ошибка: \(error.localizedDescription)")
+            }
+        }, completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.getModels()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
         })
         
         // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
