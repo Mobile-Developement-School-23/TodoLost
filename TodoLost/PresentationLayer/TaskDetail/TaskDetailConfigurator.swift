@@ -24,6 +24,8 @@ final class TaskDetailConfigurator {
         view: UIViewController,
         navigationController: UINavigationController,
         networkManager: INetworkManager,
+        sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         itemID: String?,
         completion: (() -> Void)?,
         cancelCompletion: (() -> Void)?
@@ -38,6 +40,8 @@ final class TaskDetailConfigurator {
         presenter.router = router
         presenter.fileCacheStorage = fileCacheStorage
         presenter.networkManager = networkManager
+        presenter.sqliteStorage = sqliteStorage
+        presenter.coreDataStorage = coreDataStorage
         presenter.itemID = itemID
         presenter.completion = completion
         presenter.cancelCompletion = cancelCompletion

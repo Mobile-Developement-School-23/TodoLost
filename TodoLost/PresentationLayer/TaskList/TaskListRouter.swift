@@ -18,6 +18,8 @@ protocol TaskListRoutingLogic {
     ///   - completion: <#completion description#>
     func routeTo(
         target: TaskListRouter.Targets,
+        sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         completion: (() -> Void)?,
         cancelCompletion: (() -> Void)?
     )
@@ -47,6 +49,8 @@ final class TaskListRouter: TaskListRoutingLogic {
     
     func routeTo(
         target: TaskListRouter.Targets,
+        sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         completion: (() -> Void)?,
         cancelCompletion: (() -> Void)?
     ) {
@@ -58,6 +62,8 @@ final class TaskListRouter: TaskListRoutingLogic {
                 view: taskDetailVC,
                 navigationController: navigationController,
                 networkManager: networkManager,
+                sqliteStorage: sqliteStorage,
+                coreDataStorage: coreDataStorage,
                 itemID: itemID,
                 completion: completion,
                 cancelCompletion: cancelCompletion

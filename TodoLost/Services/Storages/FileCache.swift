@@ -4,20 +4,28 @@ import DTLogger
 protocol IFileCache {
     var logger: LumberjackLogger? { get set }
     
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     var items: [String: TodoItem] { get }
     
     /// Добавляет новый элемент в кеш
     /// - Parameter item: Если ID элемента совпадает, то данные в кеше будут перезаписаны.
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     func addToCache(_ item: TodoItem)
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     func deleteFromCache(_ itemId: String)
     
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     func saveToStorage(jsonFileName: String) throws
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     func loadFromStorage(jsonFileName: String) throws
     
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     func saveToStorage(csvFileName: String) throws
+    @available(*, deprecated, message: "Этот метод больше не нужен, теперб работа будет происходить с SQL базой")
     func loadFromStorage(csvFileName: String) throws
 }
 
+@available(*, deprecated, message: "Этот класс больше не нужен, теперь работа будет происходить с SQL базой")
 final class FileCache: IFileCache {
     
     static let shared: IFileCache = FileCache()

@@ -167,7 +167,7 @@ final class NetworkManager {
 extension NetworkManager: INetworkManager {
     func hideActivityIndicator(completion: @escaping () -> Void) {
         group.notify(queue: .main) {
-            SystemLogger.warning("Все задачи завершены")
+            SystemLogger.info("Все задачи завершены")
             completion()
         }
     }
@@ -282,9 +282,6 @@ extension NetworkManager: INetworkManager {
         queue.async(group: group) { [weak self] in
             guard let self else { return }
             
-            SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
-            self.logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
-            
             self.exponentialRetry(
                 requestCount: 1,
                 minDelay: self.minDelay,
@@ -299,8 +296,6 @@ extension NetworkManager: INetworkManager {
                 
                 SystemLogger.info("Отправлен запрос на добавление элемента: \(item.element.id)")
                 self.logger.logInfoMessage("Отправлен запрос на добавление элемента: \(item.element.id)")
-                
-                SystemLogger.warning(self.revision)
                 
                 self.requestService.send(config: requestConfig) { [weak self] result in
                     defer {
@@ -339,9 +334,6 @@ extension NetworkManager: INetworkManager {
         id: String,
         completion: @escaping (Result<APIElementResponse, NetworkError>) -> Void
     ) {
-        SystemLogger.info("Отправлен запрос на получение элемента: \(id)")
-        logger.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
-        
         exponentialRetry(
             requestCount: 1,
             minDelay: minDelay,
@@ -350,6 +342,9 @@ extension NetworkManager: INetworkManager {
             jitter: jitter
         ) { [weak self] in
             guard let self else { return }
+            
+            SystemLogger.info("Отправлен запрос на получение элемента: \(id)")
+            self.logger.logInfoMessage("Отправлен запрос на получение элемента: \(id)")
             
             let requestConfig = RequestFactory.TodoListRequest.getItemConfig(
                 id: id,
@@ -448,9 +443,6 @@ extension NetworkManager: INetworkManager {
         id: String,
         completion: @escaping (Result<Bool, NetworkError>) -> Void
     ) {
-        SystemLogger.info("Отправлен запрос на удаление элемента: \(id)")
-        logger.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
-        
         exponentialRetry(
             requestCount: 1,
             minDelay: minDelay,
@@ -459,6 +451,9 @@ extension NetworkManager: INetworkManager {
             jitter: jitter
         ) { [weak self] in
             guard let self else { return }
+            
+            SystemLogger.info("Отправлен запрос на удаление элемента: \(id)")
+            self.logger.logInfoMessage("Отправлен запрос на удаление элемента: \(id)")
             
             let requestConfig = RequestFactory.TodoListRequest.deleteItemConfig(id: id, revision: self.revision)
             

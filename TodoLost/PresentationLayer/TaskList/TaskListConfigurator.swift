@@ -11,17 +11,23 @@ import UIKit
 final class TaskListConfigurator {
     private let logger: LumberjackLogger
     private let fileCacheStorage: IFileCache
+    private let sqliteStorage: ISQLiteStorage
     private let splashScreenPresenter: ISplashScreenPresenter
     private let networkManager: INetworkManager
+    private let coreDataStorage: ICoreDataStorage
     
     init(
         logger: LumberjackLogger,
         fileCacheStorage: IFileCache,
+        sqliteStorage: ISQLiteStorage,
+        coreDataStorage: ICoreDataStorage,
         splashScreenPresenter: ISplashScreenPresenter,
         networkManager: INetworkManager
     ) {
         self.logger = logger
         self.fileCacheStorage = fileCacheStorage
+        self.sqliteStorage = sqliteStorage
+        self.coreDataStorage = coreDataStorage
         self.splashScreenPresenter = splashScreenPresenter
         self.networkManager = networkManager
     }
@@ -47,6 +53,8 @@ final class TaskListConfigurator {
         presenter.router = router
         presenter.logger = logger
         presenter.fileCacheStorage = fileCacheStorage
+        presenter.sqliteStorage = sqliteStorage
+        presenter.coreDataStorage = coreDataStorage
         presenter.networkManager = networkManager
     }
 }

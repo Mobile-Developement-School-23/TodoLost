@@ -40,6 +40,7 @@ struct TodoItem {
 // MARK: - Json data
 
 extension TodoItem {
+    @available(*, deprecated, message: "Теперь работа будет происходить с SQL базой, парсинг больше не нужен")
     static func parse(json: Any) -> TodoItem? {
         guard let json = json as? [String: Any] else {
             return nil
@@ -83,6 +84,7 @@ extension TodoItem {
         return item
     }
     
+    @available(*, deprecated, message: "Теперь работа будет происходить с SQL базой, парсинг больше не нужен")
     var json: Any {
         var json: [String: Any] = [:]
         json[JsonKey.id] = id
@@ -109,7 +111,8 @@ extension TodoItem {
 
 // MARK: - CSV data
 
-extension TodoItem {    
+extension TodoItem {
+    @available(*, deprecated, message: "Теперь работа будет происходить с SQL базой, парсинг больше не нужен")
     static func parse(csv: String) -> TodoItem? {
         let csvRows = csv.split(separator: "\n")
         guard csvRows.count > 1 else {
@@ -170,6 +173,7 @@ extension TodoItem {
         return item
     }
     
+    @available(*, deprecated, message: "Теперь работа будет происходить с SQL базой, парсинг больше не нужен")
     var csv: String {
         var csv = "\(JsonKey.id),\(JsonKey.text),\(JsonKey.importance),\(JsonKey.deadline),\(JsonKey.isDone),\(JsonKey.dateCreated),\(JsonKey.dateEdited)\n"
         

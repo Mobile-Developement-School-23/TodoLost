@@ -94,7 +94,9 @@ final class TaskListViewController: UIViewController {
         splashScreenPresenter?.present()
         setup()
         
+        presenter?.createDB()
         presenter?.getTodoListFromServer()
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -151,11 +153,15 @@ extension TaskListViewController: TaskListView {
     }
     
     func presentPlaceholder() {
-        placeholderLabel.isHidden = false
+        DispatchQueue.main.async { [weak self] in
+            self?.placeholderLabel.isHidden = false
+        }
     }
     
     func hidePlaceholder() {
-        placeholderLabel.isHidden = true
+        DispatchQueue.main.async { [weak self] in
+            self?.placeholderLabel.isHidden = true
+        }
     }
     
     func setSelectedCell(indexPath: IndexPath) {
@@ -164,7 +170,9 @@ extension TaskListViewController: TaskListView {
     
     func display(models: [TaskViewModel], isShowComplete: Bool) {
         dataSourceProvider?.viewModels = models
-        dataSourceProvider?.updateDataSource(isShowComplete)
+        DispatchQueue.main.async { [weak self] in
+            self?.dataSourceProvider?.updateDataSource(isShowComplete)
+        }
     }
     
     func display(doneTaskCount: String, buttonTitle: String) {

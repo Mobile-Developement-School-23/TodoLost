@@ -49,8 +49,14 @@ final class TaskDetailPresenter: NSObject {
     
     // MARK: - Dependency properties
     
+    // TODO: () Перенести логику по сохранению в менеджер работы с данными
+    // чтобы вся работа с фаловой системой и сервером не была в логике презентера
+    // сейчас из-за этого идёт дублирование кода в модуле списка и редактирования
+    
     var fileCacheStorage: IFileCache?
     var networkManager: INetworkManager?
+    var sqliteStorage: ISQLiteStorage?
+    var coreDataStorage: ICoreDataStorage?
     
     // MARK: - Public Properties
     
@@ -70,11 +76,36 @@ final class TaskDetailPresenter: NSObject {
     
     // MARK: - Private methods
     
-    /// Метод для получения кеша по ID
+    /// Метод для получения объекта по ID
     /// - Returns: возвращает вью модель, если такая была найдена по ключу и ключ
     /// не был nil
-    private func fetchTodoItemFromCache() -> TaskDetailViewModel? {
-        let todoItem = fileCacheStorage?.items[itemID ?? ""]
+    private func fetchTodoItemFromDB() -> TaskDetailViewModel? {
+        var todoItem: TodoItem?
+        
+        do {
+            guard let dbItem = try coreDataStorage?.fetchObject(withId: itemID ?? "") else { return nil }
+            todoItem = TodoItem(
+                id: dbItem.id ?? UUID().uuidString,
+                text: dbItem.text ?? "",
+                importance: Importance(rawValue: dbItem.importance ?? "basic") ?? .basic,
+                deadline: dbItem.deadline,
+                isDone: dbItem.isDone,
+                dateCreated: dbItem.dateCreated ?? Date.now,
+                dateEdited: dbItem.dateEdited,
+                hexColor: dbItem.hexColor
+            )
+        } catch {
+            
+        }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+        // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
+//        do {
+//            todoItem = try sqliteStorage?.loadItem(id: itemID ?? "")
+//        } catch {
+//            SystemLogger.warning(error.localizedDescription)
+//        }
+        
         guard let todoItem else { return nil }
         var viewModel = TaskDetailViewModel(
             id: todoItem.id,
@@ -94,12 +125,17 @@ final class TaskDetailPresenter: NSObject {
     
     /// Метод для подготовки модели к синхронизации с сервером
     /// - Returns: <#description#>
-    private func fetchModelsFromCacheForServer() -> APIListResponse {
+    private func fetchModelsFromDBForServer() -> APIListResponse {
         var items: [TodoItem] = []
         
-        fileCacheStorage?.items.forEach({ (_, value) in
-            items.append(value)
-        })
+        do {
+            let dbItems = try sqliteStorage?.load()
+            if let dbItems {
+                items.append(contentsOf: dbItems)
+            }
+        } catch {
+            SystemLogger.error(error.localizedDescription)
+        }
         
         return APIListResponse.convert(items)
     }
@@ -160,13 +196,18 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             case .success(let serverModels):
                 let todoItems = APIListResponse.convert(serverModels)
                 todoItems.forEach { item in
-                    self.fileCacheStorage?.addToCache(item)
+                    do {
+                        try self.sqliteStorage?.insertOrReplace(item: item)
+                    } catch {
+                        SystemLogger.error(error.localizedDescription)
+                    }
                 }
                 
                 SystemLogger.info("Синхронизация прошла успешно")
                 
             case .failure(let error):
                 SystemLogger.error(error.describing)
+                // TODO: () Вывести алерт
             }
         })
     }
@@ -181,11 +222,12 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
                     // TODO: () Намеренный захват self чтобы сохранить класс живым,
                     // пока не будет закончена синхронизация. Будет исправлено
                     // при доработке архитектуры
-                    let apiList = self.fetchModelsFromCacheForServer()
+                    let apiList = self.fetchModelsFromDBForServer()
                     self.syncTodoListWithServer(apiList)
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
+                // TODO: () Вывести алерт
             }
         })
     }
@@ -200,11 +242,12 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
                     // TODO: () Намеренный захват self чтобы сохранить класс живым,
                     // пока не будет закончена синхронизация. Будет исправлено
                     // при доработке архитектуры
-                    let apiList = self.fetchModelsFromCacheForServer()
+                    let apiList = self.fetchModelsFromDBForServer()
                     self.syncTodoListWithServer(apiList)
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
+                // TODO: () Вывести алерт
             }
         })
     }
@@ -219,11 +262,12 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
                     // TODO: () Намеренный захват self чтобы сохранить класс живым,
                     // пока не будет закончена синхронизация. Будет исправлено
                     // при доработке архитектуры
-                    let apiList = self.fetchModelsFromCacheForServer()
+                    let apiList = self.fetchModelsFromDBForServer()
                     self.syncTodoListWithServer(apiList)
                 }
             case .failure(let error):
                 SystemLogger.error(error.describing)
+                // TODO: () Вывести алерт
             }
         })
     }
@@ -263,7 +307,24 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             hexColor: viewModel.textColor?.toHexString()
         )
         
-        fileCacheStorage?.addToCache(todoItem)
+        coreDataStorage?.performSave { [weak self] context in
+            self?.coreDataStorage?.save(todoItem, context: context)
+        } completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.completion?()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
+        }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        do {
+//            try sqliteStorage?.insertOrReplace(item: todoItem)
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//            // TODO: () Вывести алерт
+//        }
         
         let serverModel = APIElementResponse.convert(todoItem)
         if itemID != nil && itemID != "" {
@@ -272,11 +333,12 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
             sendTodoItemToServer(serverModel)
         }
         
-        completion?()
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        completion?()
     }
     
     func fetchTask() {
-        viewModel = fetchTodoItemFromCache()
+        viewModel = fetchTodoItemFromDB()
         if viewModel == nil {
             createNewTask()
         }
@@ -291,13 +353,30 @@ extension TaskDetailPresenter: TaskDetailPresentationLogic {
         }
         
         deleteTodoItemFromServer(id)
-        fileCacheStorage?.deleteFromCache(id)
-        do {
-            try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
-            completion?()
-        } catch {
-            // TODO: () Вывести алерт
+        
+        coreDataStorage?.performSave { [weak self] context in
+            do {
+                try self?.coreDataStorage?.deleteObject(withId: id, context: context)
+            } catch {
+                SystemLogger.error("Не удалось удалить объект. Ошибка: \(error.localizedDescription)")
+            }
+        } completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.completion?()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
         }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        do {
+//            try sqliteStorage?.delete(id: id)
+//            completion?()
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//            // TODO: () Вывести алерт
+//        }
     }
     
     // MARK: Navigation

@@ -36,6 +36,8 @@ protocol TaskListPresentationLogic: AnyObject {
     func syncTodoListWithServer(_ list: APIListResponse)
     func updateTodoItemOnServer(_ item: APIElementResponse)
     func deleteTodoItemFromServer(_ id: String)
+    
+    func createDB()
 }
 
 final class TaskListPresenter {
@@ -48,6 +50,8 @@ final class TaskListPresenter {
     
     var logger: LumberjackLogger?
     var fileCacheStorage: IFileCache?
+    var sqliteStorage: ISQLiteStorage?
+    var coreDataStorage: ICoreDataStorage?
     var networkManager: INetworkManager?
     
     // MARK: - Public properties
@@ -69,33 +73,42 @@ final class TaskListPresenter {
     
     // MARK: - Private methods
     
-    private func loadDataFromStorage() {
-        do {
-            try fileCacheStorage?.loadFromStorage(jsonFileName: "TodoList")
-        } catch {
-            SystemLogger.error(error.localizedDescription)
-        }
-    }
-    
-    private func saveDataToStorage() {
-        do {
-            try fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
-        } catch {
-            SystemLogger.error(error.localizedDescription)
-        }
-    }
-    
-    private func fetchModelsFromCache() -> [TaskViewModel] {
-        if let items = fileCacheStorage?.items {
-            if items.isEmpty {
-                loadDataFromStorage()
-            }
-        }
-        
+    private func fetchModelsFromDB() -> [TaskViewModel] {
         var viewModels: [TaskViewModel] = []
+        var dbTodoItems: [TodoItem] = []
         
-        fileCacheStorage?.items.forEach({ (_, value) in
-            
+        do {
+            if let items = try coreDataStorage?.fetchObjects() {
+                items.forEach { item in
+                    let todoItem = TodoItem(
+                        id: item.id ?? UUID().uuidString,
+                        text: item.text ?? "",
+                        importance: Importance(rawValue: item.importance ?? "basic") ?? .basic,
+                        deadline: item.deadline,
+                        isDone: item.isDone,
+                        dateCreated: item.dateCreated ?? Date.now,
+                        dateEdited: item.dateEdited,
+                        hexColor: item.hexColor
+                    )
+                    
+                    dbTodoItems.append(todoItem)
+                }
+            }
+        } catch {
+            SystemLogger.error(error.localizedDescription)
+        }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+        // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
+//        do {
+//            if let items = try sqliteStorage?.load() {
+//                dbTodoItems = items
+//            }
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//        }
+        
+        dbTodoItems.forEach({ value in
             // TODO: () ВОзможно стоит хранить какой то статус по умолчанию в классе
             // чтобы была возможность вернуть его, когда пользователь отменяет
             // задачу как выполенную, а не устанавливать его по умолчанию
@@ -135,12 +148,39 @@ final class TaskListPresenter {
     
     /// Метод для подготовки модели к синхронизации с сервером
     /// - Returns: <#description#>
-    private func fetchModelsFromCacheForServer() -> APIListResponse {
+    private func fetchModelsFromDBForServer() -> APIListResponse {
         var items: [TodoItem] = []
         
-        fileCacheStorage?.items.forEach({ (_, value) in
-            items.append(value)
-        })
+        do {
+            if let dbItems = try coreDataStorage?.fetchObjects() {
+                dbItems.forEach { item in
+                    let todoItem = TodoItem(
+                        id: item.id ?? UUID().uuidString,
+                        text: item.text ?? "",
+                        importance: Importance(rawValue: item.importance ?? "basic") ?? .basic,
+                        deadline: item.deadline,
+                        isDone: item.isDone,
+                        dateCreated: item.dateCreated ?? Date.now,
+                        dateEdited: item.dateEdited,
+                        hexColor: item.hexColor
+                    )
+                    
+                    items.append(todoItem)
+                }
+            }
+        } catch {
+            SystemLogger.error(error.localizedDescription)
+        }
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+        // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
+//        do {
+//            if let dbItems = try sqliteStorage?.load() {
+//                items = dbItems
+//            }
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//        }
         
         return APIListResponse.convert(items)
     }
@@ -149,6 +189,17 @@ final class TaskListPresenter {
 // MARK: - Presentation Logic
 
 extension TaskListPresenter: TaskListPresentationLogic {
+    // MARK: SQLite requests
+    
+    func createDB() {
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        do {
+//            try sqliteStorage?.fetchOrCreateDB()
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//        }
+    }
+    
     // MARK: Network requests
     
     func getTodoListFromServer() {
@@ -161,20 +212,32 @@ extension TaskListPresenter: TaskListPresentationLogic {
             case .success(let serverModels):
                 let todoItems = APIListResponse.convert(serverModels)
                 todoItems.forEach { item in
-                    self.fileCacheStorage?.addToCache(item)
+                    self.coreDataStorage?.performSave({ context in
+                        self.coreDataStorage?.save(item, context: context)
+                    }, completion: { result in
+                        switch result {
+                        case .success:
+                            break
+                        case .failure(let error):
+                            SystemLogger.error(error.localizedDescription)
+                        }
+                    })
+                    
+                    // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+                    // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
+//                    do {
+//                        try self.sqliteStorage?.insertOrReplace(item: item)
+//                    } catch {
+//                        SystemLogger.error(error.localizedDescription)
+//                    }
                 }
                 
-                DispatchQueue.main.async {
-                    self.getModels()
-                    self.saveDataToStorage()
-                    self.view?.dismissSplashScreen()
-                }
+                self.getModels()
+                self.view?.dismissSplashScreen()
             case .failure(let error):
                 SystemLogger.error(error.describing)
-                DispatchQueue.main.async {
-                    self.getModels()
-                    self.view?.dismissSplashScreen()
-                }
+                self.getModels()
+                self.view?.dismissSplashScreen()
             }
         })
         
@@ -193,14 +256,28 @@ extension TaskListPresenter: TaskListPresentationLogic {
             case .success(let serverModels):
                 let todoItems = APIListResponse.convert(serverModels)
                 todoItems.forEach { item in
-                    self.fileCacheStorage?.addToCache(item)
+                    self.coreDataStorage?.performSave({ context in
+                        self.coreDataStorage?.save(item, context: context)
+                    }, completion: { result in
+                        switch result {
+                        case .success:
+                            self.getModels()
+                        case .failure(let error):
+                            SystemLogger.error(error.localizedDescription)
+                        }
+                    })
+                    
+                    // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+                    // для проверки получения данных из sql, закомментируй код выше, связанный с coredata
+//                    do {
+//                        try self.sqliteStorage?.insertOrReplace(item: item)
+//                    } catch {
+//                        SystemLogger.error(error.localizedDescription)
+//                    }
                 }
-                self.saveDataToStorage()
                 
-                DispatchQueue.main.async {
-                    self.getModels()
-                    SystemLogger.info("Синхронизация прошла успешно")
-                }
+//                self.getModels()
+//                SystemLogger.info("Синхронизация прошла успешно")
             case .failure(let error):
                 SystemLogger.error(error.describing)
             }
@@ -222,7 +299,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 if !isDirty {
                     SystemLogger.info("Обновление подтверждено")
                 } else {
-                    let apiList = self.fetchModelsFromCacheForServer()
+                    let apiList = self.fetchModelsFromDBForServer()
                     self.syncTodoListWithServer(apiList)
                 }
             case .failure(let error):
@@ -245,7 +322,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
                 if !isDirty {
                     SystemLogger.info("Удаление подтверждено")
                 } else {
-                    let apiList = self.fetchModelsFromCacheForServer()
+                    let apiList = self.fetchModelsFromDBForServer()
                     self.syncTodoListWithServer(apiList)
                 }
             case .failure(let error):
@@ -279,22 +356,55 @@ extension TaskListPresenter: TaskListPresentationLogic {
             hexColor: task.hexColor
         )
         
-        fileCacheStorage?.addToCache(todoItem)
-        saveDataToStorage()
+        self.coreDataStorage?.performSave({ [weak self] context in
+            self?.coreDataStorage?.save(todoItem, context: context)
+        }, completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.getModels()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
+        })
+        
+//        do {
+//            try self.sqliteStorage?.insertOrReplace(item: todoItem)
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//        }
         
         let serverModel = APIElementResponse.convert(todoItem)
         updateTodoItemOnServer(serverModel)
         
         // обновляем данные после сохранения
-        getModels()
+//        getModels()
     }
     
     func delete(_ task: TaskViewModel) {
-        fileCacheStorage?.deleteFromCache(task.id)
-        saveDataToStorage()
+        self.coreDataStorage?.performSave({ [weak self] context in
+            do {
+                try self?.coreDataStorage?.deleteObject(withId: task.id, context: context)
+            } catch {
+                SystemLogger.error("Не удалось удалить объект. Ошибка: \(error.localizedDescription)")
+            }
+        }, completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.getModels()
+            case .failure(let error):
+                SystemLogger.error(error.localizedDescription)
+            }
+        })
+        
+        // FIXME: Код для работы с SQL. Оставлен для проверки ДЗ
+//        do {
+//            try self.sqliteStorage?.delete(id: task.id)
+//        } catch {
+//            SystemLogger.error(error.localizedDescription)
+//        }
         deleteTodoItemFromServer(task.id)
         // обновляем данные после удаления
-        getModels()
+//        getModels()
     }
     
     func toggleVisibleTask() {
@@ -309,18 +419,21 @@ extension TaskListPresenter: TaskListPresentationLogic {
     func openDetailTaskVC(id: String?) {
         view?.startActivityAnimating()
         
+        guard let sqliteStorage else {
+            assertionFailure("К такому жизнь нас не готовила. SQL база не инициализирована")
+            return
+        }
+        
+        guard let coreDataStorage else {
+            assertionFailure("К такому жизнь нас не готовила. CoreData база не инициализирована")
+            return
+        }
+        
         router?.routeTo(
             target: .taskDetail(id),
+            sqliteStorage: sqliteStorage,
+            coreDataStorage: coreDataStorage,
             completion: { [weak self] in
-                // TODO: () Перенести логику по сохранению в менеджер работы с данными
-                // чтобы вся работа с фаловой системой не была в логике презентера
-                // сейчас из-за этого идёт дублирование кода в модуле списка и редактирования
-                do {
-                    try self?.fileCacheStorage?.saveToStorage(jsonFileName: "TodoList")
-                } catch {
-                    // TODO: () Вывести алерт
-                }
-                
                 self?.getModels()
                 
                 self?.networkManager?.hideActivityIndicator { [weak self] in
@@ -334,7 +447,7 @@ extension TaskListPresenter: TaskListPresentationLogic {
     }
     
     func getModels() {
-        viewModels = fetchModelsFromCache().sorted { $0.dateCreated > $1.dateCreated }
+        viewModels = fetchModelsFromDB().sorted { $0.dateCreated > $1.dateCreated }
         
         if viewModels.isEmpty {
             view?.presentPlaceholder()
