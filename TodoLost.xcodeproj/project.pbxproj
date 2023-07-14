@@ -13,6 +13,7 @@
 		2C2016322A4EDC89004EB2A7 /* CocoaLumberjackSwiftLogBackend in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2016312A4EDC89004EB2A7 /* CocoaLumberjackSwiftLogBackend */; };
 		2C2016342A4EF00A004EB2A7 /* LumberjackLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2016332A4EF00A004EB2A7 /* LumberjackLogger.swift */; };
 		2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C21E4832A41CFE800DAE09A /* Date+DateFormatter.swift */; };
+		2C29D4702A61F60C009965F0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD4EDBA2A61F4BC00ED0CFB /* ContentView.swift */; };
 		2C2CD9F82A5992DE00CC2A3D /* SQLiteStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2CD9F72A5992DE00CC2A3D /* SQLiteStorage.swift */; };
 		2C2CD9FB2A59A6C500CC2A3D /* SQLite in Frameworks */ = {isa = PBXBuildFile; productRef = 2C2CD9FA2A59A6C500CC2A3D /* SQLite */; };
 		2C2CFCA32A3F9DD400B80728 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C2CFCA22A3F9DD400B80728 /* Color.swift */; };
@@ -70,6 +71,10 @@
 		2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */; };
 		2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */; };
 		2CD382E02A432B6400C82343 /* TodoItems.json in Resources */ = {isa = PBXBuildFile; fileRef = 2C3458082A35A9DF00B5FA6A /* TodoItems.json */; };
+		2CD4EDB92A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD4EDB82A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift */; };
+		2CD4EDBB2A61F4BC00ED0CFB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD4EDBA2A61F4BC00ED0CFB /* ContentView.swift */; };
+		2CD4EDBD2A61F4BD00ED0CFB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CD4EDBC2A61F4BD00ED0CFB /* Assets.xcassets */; };
+		2CD4EDC02A61F4BD00ED0CFB /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2CD4EDBF2A61F4BD00ED0CFB /* Preview Assets.xcassets */; };
 		2CE19BCB2A52BAE100674392 /* TodoItemDeleteRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE19BCA2A52BAE100674392 /* TodoItemDeleteRequest.swift */; };
 		2CE19BCD2A52F43A00674392 /* TodoItemGetRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE19BCC2A52F43A00674392 /* TodoItemGetRequest.swift */; };
 		2CE19BCF2A52F9F400674392 /* TodoItemPutRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CE19BCE2A52F9F400674392 /* TodoItemPutRequest.swift */; };
@@ -167,6 +172,11 @@
 		2CB15C912A36515E0060584F /* TodoLost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoLost.xctestplan; sourceTree = "<group>"; };
 		2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceAssembly.swift; sourceTree = "<group>"; };
 		2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailViewModel.swift; sourceTree = "<group>"; };
+		2CD4EDB62A61F4BC00ED0CFB /* TodoLostSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TodoLostSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2CD4EDB82A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLostSwiftUIApp.swift; sourceTree = "<group>"; };
+		2CD4EDBA2A61F4BC00ED0CFB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		2CD4EDBC2A61F4BD00ED0CFB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		2CD4EDBF2A61F4BD00ED0CFB /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2CE19BCA2A52BAE100674392 /* TodoItemDeleteRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemDeleteRequest.swift; sourceTree = "<group>"; };
 		2CE19BCC2A52F43A00674392 /* TodoItemGetRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemGetRequest.swift; sourceTree = "<group>"; };
 		2CE19BCE2A52F9F400674392 /* TodoItemPutRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItemPutRequest.swift; sourceTree = "<group>"; };
@@ -211,6 +221,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				8831BD740D49570ACE000BE8 /* Pods_TodoLost_TodoLostUITests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CD4EDB32A61F4BC00ED0CFB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -394,6 +411,7 @@
 			children = (
 				2CB15C912A36515E0060584F /* TodoLost.xctestplan */,
 				2C5C7B9E2A3604A900B7DF19 /* .gitignore */,
+				2CD4EDB72A61F4BC00ED0CFB /* TodoLostSwiftUI */,
 				2C6C23DF2A34AEFC002B107C /* TodoLost */,
 				2C6C23F62A34AEFD002B107C /* TodoLostTests */,
 				2C6C24002A34AEFE002B107C /* TodoLostUITests */,
@@ -409,6 +427,7 @@
 				2C6C23DD2A34AEFC002B107C /* TodoLost.app */,
 				2C6C23F32A34AEFD002B107C /* TodoLostTests.xctest */,
 				2C6C23FD2A34AEFE002B107C /* TodoLostUITests.xctest */,
+				2CD4EDB62A61F4BC00ED0CFB /* TodoLostSwiftUI.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -539,6 +558,25 @@
 			path = Headers;
 			sourceTree = "<group>";
 		};
+		2CD4EDB72A61F4BC00ED0CFB /* TodoLostSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				2CD4EDB82A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift */,
+				2CD4EDBA2A61F4BC00ED0CFB /* ContentView.swift */,
+				2CD4EDBC2A61F4BD00ED0CFB /* Assets.xcassets */,
+				2CD4EDBE2A61F4BD00ED0CFB /* Preview Content */,
+			);
+			path = TodoLostSwiftUI;
+			sourceTree = "<group>";
+		};
+		2CD4EDBE2A61F4BD00ED0CFB /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				2CD4EDBF2A61F4BD00ED0CFB /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		2CF941A82A4D638800555DB5 /* Animations */ = {
 			isa = PBXGroup;
 			children = (
@@ -627,6 +665,23 @@
 			productReference = 2C6C23FD2A34AEFE002B107C /* TodoLostUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		2CD4EDB52A61F4BC00ED0CFB /* TodoLostSwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CD4EDC32A61F4BD00ED0CFB /* Build configuration list for PBXNativeTarget "TodoLostSwiftUI" */;
+			buildPhases = (
+				2CD4EDB22A61F4BC00ED0CFB /* Sources */,
+				2CD4EDB32A61F4BC00ED0CFB /* Frameworks */,
+				2CD4EDB42A61F4BC00ED0CFB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TodoLostSwiftUI;
+			productName = TodoLostSwiftUI;
+			productReference = 2CD4EDB62A61F4BC00ED0CFB /* TodoLostSwiftUI.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -647,6 +702,9 @@
 					2C6C23FC2A34AEFE002B107C = {
 						CreatedOnToolsVersion = 14.3;
 						TestTargetID = 2C6C23DC2A34AEFB002B107C;
+					};
+					2CD4EDB52A61F4BC00ED0CFB = {
+						CreatedOnToolsVersion = 14.3;
 					};
 				};
 			};
@@ -672,6 +730,7 @@
 				2C6C23DC2A34AEFB002B107C /* TodoLost */,
 				2C6C23F22A34AEFD002B107C /* TodoLostTests */,
 				2C6C23FC2A34AEFE002B107C /* TodoLostUITests */,
+				2CD4EDB52A61F4BC00ED0CFB /* TodoLostSwiftUI */,
 			);
 		};
 /* End PBXProject section */
@@ -701,6 +760,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2CD4EDB42A61F4BC00ED0CFB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CD4EDC02A61F4BD00ED0CFB /* Preview Assets.xcassets in Resources */,
+				2CD4EDBD2A61F4BD00ED0CFB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -807,6 +875,7 @@
 				2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */,
 				2C507E9C2A48A4BB005F8B4A /* TaskListViewController.swift in Sources */,
 				2C8049AB2A51CAA700F60FB0 /* TodoListGetRequest.swift in Sources */,
+				2C29D4702A61F60C009965F0 /* ContentView.swift in Sources */,
 				2C2016342A4EF00A004EB2A7 /* LumberjackLogger.swift in Sources */,
 				2C3055812A4C8646001C3E5D /* SplashScreenViewController.swift in Sources */,
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
@@ -876,6 +945,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2CD4EDB22A61F4BC00ED0CFB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CD4EDBB2A61F4BC00ED0CFB /* ContentView.swift in Sources */,
+				2CD4EDB92A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -905,6 +983,7 @@
 /* Begin XCBuildConfiguration section */
 		2C6C24052A34AEFE002B107C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2C8049A12A51695400F60FB0 /* TodoLostConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
@@ -1157,6 +1236,64 @@
 			};
 			name = Release;
 		};
+		2CD4EDC12A61F4BD00ED0CFB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"TodoLostSwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = B66N983M7Q;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ru.zyfunphoto.TodoLostSwiftUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		2CD4EDC22A61F4BD00ED0CFB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"TodoLostSwiftUI/Preview Content\"";
+				DEVELOPMENT_TEAM = B66N983M7Q;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ru.zyfunphoto.TodoLostSwiftUI;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1192,6 +1329,15 @@
 			buildConfigurations = (
 				2C6C240E2A34AEFE002B107C /* Debug */,
 				2C6C240F2A34AEFE002B107C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2CD4EDC32A61F4BD00ED0CFB /* Build configuration list for PBXNativeTarget "TodoLostSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2CD4EDC12A61F4BD00ED0CFB /* Debug */,
+				2CD4EDC22A61F4BD00ED0CFB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
