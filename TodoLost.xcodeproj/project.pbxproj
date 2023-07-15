@@ -67,6 +67,14 @@
 		2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */; };
 		2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */; };
 		2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */; };
+		2CA3BB122A62D005006D56BA /* TodoListViewModelSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB112A62D005006D56BA /* TodoListViewModelSUI.swift */; };
+		2CA3BB132A62D03E006D56BA /* TodoListViewModelSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB112A62D005006D56BA /* TodoListViewModelSUI.swift */; };
+		2CA3BB182A62DA77006D56BA /* TaskListCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */; };
+		2CA3BB192A62DAB0006D56BA /* TaskListCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */; };
+		2CA3BB1B2A62DC4F006D56BA /* TaskDetauilSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */; };
+		2CA3BB1C2A62DD3D006D56BA /* TaskDetauilSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */; };
+		2CA3BB1E2A62E943006D56BA /* AddCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */; };
+		2CA3BB1F2A62E94B006D56BA /* AddCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */; };
 		2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAC791D2A4AF8EB00A02382 /* TaskListHeaderTableView.swift */; };
 		2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */; };
 		2CD382DF2A43283100C82343 /* TaskDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CD382DE2A43283100C82343 /* TaskDetailViewModel.swift */; };
@@ -168,6 +176,11 @@
 		2C9F84122A459D2500A2F1FD /* TaskDetailRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailRouter.swift; sourceTree = "<group>"; };
 		2C9F84182A45BC2B00A2F1FD /* UIColor+HexFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+HexFormatter.swift"; sourceTree = "<group>"; };
 		2C9F841A2A45E9F100A2F1FD /* UIColor+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Hex.swift"; sourceTree = "<group>"; };
+		2CA3BB112A62D005006D56BA /* TodoListViewModelSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewModelSUI.swift; sourceTree = "<group>"; };
+		2CA3BB142A62D29B006D56BA /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListCellSUI.swift; sourceTree = "<group>"; };
+		2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetauilSUI.swift; sourceTree = "<group>"; };
+		2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCellSUI.swift; sourceTree = "<group>"; };
 		2CAC791D2A4AF8EB00A02382 /* TaskListHeaderTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListHeaderTableView.swift; sourceTree = "<group>"; };
 		2CB15C912A36515E0060584F /* TodoLost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoLost.xctestplan; sourceTree = "<group>"; };
 		2CD382DC2A4326A000C82343 /* ServiceAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceAssembly.swift; sourceTree = "<group>"; };
@@ -550,6 +563,32 @@
 			path = ColorPicker;
 			sourceTree = "<group>";
 		};
+		2CA3BB152A62D9AD006D56BA /* TaskList */ = {
+			isa = PBXGroup;
+			children = (
+				2CA3BB202A62E951006D56BA /* Cells */,
+				2CD4EDBA2A61F4BC00ED0CFB /* TodoListSUI.swift */,
+			);
+			path = TaskList;
+			sourceTree = "<group>";
+		};
+		2CA3BB162A62DA16006D56BA /* TaskDetail */ = {
+			isa = PBXGroup;
+			children = (
+				2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */,
+			);
+			path = TaskDetail;
+			sourceTree = "<group>";
+		};
+		2CA3BB202A62E951006D56BA /* Cells */ = {
+			isa = PBXGroup;
+			children = (
+				2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */,
+				2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */,
+			);
+			path = Cells;
+			sourceTree = "<group>";
+		};
 		2CAC791C2A4AF8C300A02382 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
@@ -562,7 +601,9 @@
 			isa = PBXGroup;
 			children = (
 				2CD4EDB82A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift */,
-				2CD4EDBA2A61F4BC00ED0CFB /* TodoListSUI.swift */,
+				2CA3BB152A62D9AD006D56BA /* TaskList */,
+				2CA3BB162A62DA16006D56BA /* TaskDetail */,
+				2CA3BB112A62D005006D56BA /* TodoListViewModelSUI.swift */,
 				2CD4EDBC2A61F4BD00ED0CFB /* Assets.xcassets */,
 				2CD4EDBE2A61F4BD00ED0CFB /* Preview Content */,
 			);
@@ -710,11 +751,12 @@
 			};
 			buildConfigurationList = 2C6C23D82A34AEFB002B107C /* Build configuration list for PBXProject "TodoLost" */;
 			compatibilityVersion = "Xcode 14.0";
-			developmentRegion = en;
+			developmentRegion = ru;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 2C6C23D42A34AEFB002B107C;
 			packageReferences = (
@@ -870,6 +912,8 @@
 				2CE19BCF2A52F9F400674392 /* TodoItemPutRequest.swift in Sources */,
 				2C507EAE2A48AE8E005F8B4A /* IdentifableCell.swift in Sources */,
 				2CE19BCD2A52F43A00674392 /* TodoItemGetRequest.swift in Sources */,
+				2CA3BB1F2A62E94B006D56BA /* AddCellSUI.swift in Sources */,
+				2CA3BB192A62DAB0006D56BA /* TaskListCellSUI.swift in Sources */,
 				2C507EA62A48AB4B005F8B4A /* TaskListDataSourceProvider.swift in Sources */,
 				2C30557F2A4C8646001C3E5D /* SplashScreenAnimator.swift in Sources */,
 				2C9F841B2A45E9F100A2F1FD /* UIColor+Hex.swift in Sources */,
@@ -881,6 +925,7 @@
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */,
 				2C07DC5A2A5809C000170E76 /* URLSession+.swift in Sources */,
+				2CA3BB1C2A62DD3D006D56BA /* TaskDetauilSUI.swift in Sources */,
 				2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */,
 				2C80499C2A513FAE00F60FB0 /* RequestService.swift in Sources */,
 				2C8049B12A51CB5C00F60FB0 /* Methods.swift in Sources */,
@@ -907,6 +952,7 @@
 				2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */,
 				2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */,
 				2C80499A2A513F8200F60FB0 /* JSONParser.swift in Sources */,
+				2CA3BB132A62D03E006D56BA /* TodoListViewModelSUI.swift in Sources */,
 				2CE19BCB2A52BAE100674392 /* TodoItemDeleteRequest.swift in Sources */,
 				2CE7558B2A5BCDAE00978908 /* CoreDataStorage.swift in Sources */,
 				2C507EA32A48A532005F8B4A /* TaskListRouter.swift in Sources */,
@@ -949,8 +995,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2CA3BB1B2A62DC4F006D56BA /* TaskDetauilSUI.swift in Sources */,
+				2CA3BB182A62DA77006D56BA /* TaskListCellSUI.swift in Sources */,
+				2CA3BB122A62D005006D56BA /* TodoListViewModelSUI.swift in Sources */,
 				2CD4EDBB2A61F4BC00ED0CFB /* TodoListSUI.swift in Sources */,
 				2CD4EDB92A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift in Sources */,
+				2CA3BB1E2A62E943006D56BA /* AddCellSUI.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -974,6 +1024,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				2C6C23EC2A34AEFD002B107C /* Base */,
+				2CA3BB142A62D29B006D56BA /* ru */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -986,6 +1037,7 @@
 			baseConfigurationReference = 2C8049A12A51695400F60FB0 /* TodoLostConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -1047,6 +1099,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
