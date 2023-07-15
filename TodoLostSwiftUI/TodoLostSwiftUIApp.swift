@@ -11,7 +11,7 @@ import SwiftUI
 struct TodoLostSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            TodoListSUI()
         }
     }
 }
