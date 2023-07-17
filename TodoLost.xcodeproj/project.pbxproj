@@ -71,8 +71,8 @@
 		2CA3BB132A62D03E006D56BA /* TodoListViewModelSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB112A62D005006D56BA /* TodoListViewModelSUI.swift */; };
 		2CA3BB182A62DA77006D56BA /* TaskListCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */; };
 		2CA3BB192A62DAB0006D56BA /* TaskListCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */; };
-		2CA3BB1B2A62DC4F006D56BA /* TaskDetauilSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */; };
-		2CA3BB1C2A62DD3D006D56BA /* TaskDetauilSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */; };
+		2CA3BB1B2A62DC4F006D56BA /* TaskDetailSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1A2A62DC4F006D56BA /* TaskDetailSUI.swift */; };
+		2CA3BB1C2A62DD3D006D56BA /* TaskDetailSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1A2A62DC4F006D56BA /* TaskDetailSUI.swift */; };
 		2CA3BB1E2A62E943006D56BA /* AddCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */; };
 		2CA3BB1F2A62E94B006D56BA /* AddCellSUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */; };
 		2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CAC791D2A4AF8EB00A02382 /* TaskListHeaderTableView.swift */; };
@@ -179,7 +179,7 @@
 		2CA3BB112A62D005006D56BA /* TodoListViewModelSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewModelSUI.swift; sourceTree = "<group>"; };
 		2CA3BB142A62D29B006D56BA /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		2CA3BB172A62DA77006D56BA /* TaskListCellSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListCellSUI.swift; sourceTree = "<group>"; };
-		2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetauilSUI.swift; sourceTree = "<group>"; };
+		2CA3BB1A2A62DC4F006D56BA /* TaskDetailSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskDetailSUI.swift; sourceTree = "<group>"; };
 		2CA3BB1D2A62E943006D56BA /* AddCellSUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCellSUI.swift; sourceTree = "<group>"; };
 		2CAC791D2A4AF8EB00A02382 /* TaskListHeaderTableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskListHeaderTableView.swift; sourceTree = "<group>"; };
 		2CB15C912A36515E0060584F /* TodoLost.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = TodoLost.xctestplan; sourceTree = "<group>"; };
@@ -575,7 +575,7 @@
 		2CA3BB162A62DA16006D56BA /* TaskDetail */ = {
 			isa = PBXGroup;
 			children = (
-				2CA3BB1A2A62DC4F006D56BA /* TaskDetauilSUI.swift */,
+				2CA3BB1A2A62DC4F006D56BA /* TaskDetailSUI.swift */,
 			);
 			path = TaskDetail;
 			sourceTree = "<group>";
@@ -834,7 +834,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
+			shellScript = "#\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
 		};
 		3B2AB116C1E50E2AC36FC5F0 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -925,7 +925,7 @@
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */,
 				2C07DC5A2A5809C000170E76 /* URLSession+.swift in Sources */,
-				2CA3BB1C2A62DD3D006D56BA /* TaskDetauilSUI.swift in Sources */,
+				2CA3BB1C2A62DD3D006D56BA /* TaskDetailSUI.swift in Sources */,
 				2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */,
 				2C80499C2A513FAE00F60FB0 /* RequestService.swift in Sources */,
 				2C8049B12A51CB5C00F60FB0 /* Methods.swift in Sources */,
@@ -995,7 +995,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2CA3BB1B2A62DC4F006D56BA /* TaskDetauilSUI.swift in Sources */,
+				2CA3BB1B2A62DC4F006D56BA /* TaskDetailSUI.swift in Sources */,
 				2CA3BB182A62DA77006D56BA /* TaskListCellSUI.swift in Sources */,
 				2CA3BB122A62D005006D56BA /* TodoListViewModelSUI.swift in Sources */,
 				2CD4EDBB2A61F4BC00ED0CFB /* TodoListSUI.swift in Sources */,

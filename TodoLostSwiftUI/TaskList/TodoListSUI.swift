@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct TodoListSUI: View {
+    @State var isPresented: Bool = false
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -33,7 +35,10 @@ struct TodoListSUI: View {
                     ) {
                         ForEach(TodoListViewModelSUI.getModels(), id: \.id) { item in
                             NavigationLink {
-                                TaskDetauilSUI(item: item)
+                                TaskDetailSUI(task: item)
+                                    .sheet(isPresented: $isPresented) {
+                                        
+                                    }
                             } label: {
                                 TaskCellSUI(
                                     status: item.status,

@@ -17,5 +17,4 @@ struct AddCellSUI: View {
         .listRowInsets(EdgeInsets(top: 0, leading: 52, bottom: 0, trailing: 16))
         .listRowBackground(Color(uiColor: Colors.backSecondary ?? UIColor.red))
     }
-    
 }

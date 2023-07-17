@@ -77,7 +77,7 @@ struct TodoListViewModelSUI: Hashable {
                 title: "Погладить кота",
                 subtitle: Date.now.toString(format: "dd MMMM"),
                 importance: .important,
-                deadline: Date.now,
+                deadline: Date.distantFuture,
                 isDone: false,
                 dateEdited: Date(),
                 hexColor: nil

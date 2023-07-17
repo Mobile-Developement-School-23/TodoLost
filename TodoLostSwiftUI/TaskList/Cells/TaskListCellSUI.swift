@@ -23,7 +23,7 @@ struct TaskCellSUI: View {
                     if importance != .basic && status != .statusDone {
                         importanceImage?
                             .resizable()
-                            .frame(width: 16, height: 16)
+                            .frame(width: 16, height: 20)
                             .foregroundColor(Color(uiColor: Colors.labelTertiary ?? UIColor.red))
                     }
                     
