@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C04A6052A672E7400D3234E /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6042A672E7400D3234E /* SectionHeaderView.swift */; };
+		2C04A6062A672E8600D3234E /* SectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6042A672E7400D3234E /* SectionHeaderView.swift */; };
+		2C04A6082A672F3400D3234E /* AddBottomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6072A672F3400D3234E /* AddBottomButton.swift */; };
+		2C04A6092A672F3400D3234E /* AddBottomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6072A672F3400D3234E /* AddBottomButton.swift */; };
+		2C04A60C2A67332E00D3234E /* TaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A60B2A67332E00D3234E /* TaskEditorView.swift */; };
+		2C04A60D2A67332E00D3234E /* TaskEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A60B2A67332E00D3234E /* TaskEditorView.swift */; };
+		2C04A60F2A67335600D3234E /* ImportanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A60E2A67335600D3234E /* ImportanceView.swift */; };
+		2C04A6102A67335600D3234E /* ImportanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A60E2A67335600D3234E /* ImportanceView.swift */; };
+		2C04A6122A67337900D3234E /* DeadlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6112A67337900D3234E /* DeadlineView.swift */; };
+		2C04A6132A67337900D3234E /* DeadlineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6112A67337900D3234E /* DeadlineView.swift */; };
+		2C04A6152A6733A700D3234E /* DeadlineDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6142A6733A700D3234E /* DeadlineDatePicker.swift */; };
+		2C04A6162A6733A700D3234E /* DeadlineDatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6142A6733A700D3234E /* DeadlineDatePicker.swift */; };
+		2C04A6182A6733CC00D3234E /* DeleteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6172A6733CC00D3234E /* DeleteButton.swift */; };
+		2C04A6192A6733CC00D3234E /* DeleteButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C04A6172A6733CC00D3234E /* DeleteButton.swift */; };
 		2C07DC5A2A5809C000170E76 /* URLSession+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C07DC592A5809C000170E76 /* URLSession+.swift */; };
 		2C1603F02A5458EB00FE6CE8 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C1603EF2A5458EB00FE6CE8 /* NetworkManager.swift */; };
 		2C2016302A4EDC89004EB2A7 /* CocoaLumberjackSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 2C20162F2A4EDC89004EB2A7 /* CocoaLumberjackSwift */; };
@@ -115,6 +129,13 @@
 
 /* Begin PBXFileReference section */
 		1FAFD59BFF832BC9F03568DB /* Pods-TodoLostTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TodoLostTests.release.xcconfig"; path = "Target Support Files/Pods-TodoLostTests/Pods-TodoLostTests.release.xcconfig"; sourceTree = "<group>"; };
+		2C04A6042A672E7400D3234E /* SectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SectionHeaderView.swift; sourceTree = "<group>"; };
+		2C04A6072A672F3400D3234E /* AddBottomButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddBottomButton.swift; sourceTree = "<group>"; };
+		2C04A60B2A67332E00D3234E /* TaskEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskEditorView.swift; sourceTree = "<group>"; };
+		2C04A60E2A67335600D3234E /* ImportanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportanceView.swift; sourceTree = "<group>"; };
+		2C04A6112A67337900D3234E /* DeadlineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlineView.swift; sourceTree = "<group>"; };
+		2C04A6142A6733A700D3234E /* DeadlineDatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlineDatePicker.swift; sourceTree = "<group>"; };
+		2C04A6172A6733CC00D3234E /* DeleteButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteButton.swift; sourceTree = "<group>"; };
 		2C07DC592A5809C000170E76 /* URLSession+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSession+.swift"; sourceTree = "<group>"; };
 		2C1603EF2A5458EB00FE6CE8 /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		2C2016332A4EF00A004EB2A7 /* LumberjackLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LumberjackLogger.swift; sourceTree = "<group>"; };
@@ -255,6 +276,27 @@
 				35E1CEC2918624B4F8EEFB98 /* Pods_TodoLostTests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		2C04A6032A672E5400D3234E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2C04A6042A672E7400D3234E /* SectionHeaderView.swift */,
+				2C04A6072A672F3400D3234E /* AddBottomButton.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		2C04A60A2A67330B00D3234E /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				2C04A60B2A67332E00D3234E /* TaskEditorView.swift */,
+				2C04A60E2A67335600D3234E /* ImportanceView.swift */,
+				2C04A6112A67337900D3234E /* DeadlineView.swift */,
+				2C04A6142A6733A700D3234E /* DeadlineDatePicker.swift */,
+				2C04A6172A6733CC00D3234E /* DeleteButton.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		2C1603EE2A5458CE00FE6CE8 /* Managers */ = {
@@ -567,6 +609,7 @@
 			isa = PBXGroup;
 			children = (
 				2CA3BB202A62E951006D56BA /* Cells */,
+				2C04A6032A672E5400D3234E /* Views */,
 				2CD4EDBA2A61F4BC00ED0CFB /* TodoListSUI.swift */,
 			);
 			path = TaskList;
@@ -575,6 +618,7 @@
 		2CA3BB162A62DA16006D56BA /* TaskDetail */ = {
 			isa = PBXGroup;
 			children = (
+				2C04A60A2A67330B00D3234E /* Views */,
 				2CA3BB1A2A62DC4F006D56BA /* TaskDetailSUI.swift */,
 			);
 			path = TaskDetail;
@@ -834,7 +878,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
+			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\"\n";
 		};
 		3B2AB116C1E50E2AC36FC5F0 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -913,6 +957,7 @@
 				2C507EAE2A48AE8E005F8B4A /* IdentifableCell.swift in Sources */,
 				2CE19BCD2A52F43A00674392 /* TodoItemGetRequest.swift in Sources */,
 				2CA3BB1F2A62E94B006D56BA /* AddCellSUI.swift in Sources */,
+				2C04A60C2A67332E00D3234E /* TaskEditorView.swift in Sources */,
 				2CA3BB192A62DAB0006D56BA /* TaskListCellSUI.swift in Sources */,
 				2C507EA62A48AB4B005F8B4A /* TaskListDataSourceProvider.swift in Sources */,
 				2C30557F2A4C8646001C3E5D /* SplashScreenAnimator.swift in Sources */,
@@ -920,16 +965,20 @@
 				2C507E9C2A48A4BB005F8B4A /* TaskListViewController.swift in Sources */,
 				2C8049AB2A51CAA700F60FB0 /* TodoListGetRequest.swift in Sources */,
 				2C29D4702A61F60C009965F0 /* TodoListSUI.swift in Sources */,
+				2C04A6062A672E8600D3234E /* SectionHeaderView.swift in Sources */,
 				2C2016342A4EF00A004EB2A7 /* LumberjackLogger.swift in Sources */,
 				2C3055812A4C8646001C3E5D /* SplashScreenViewController.swift in Sources */,
 				2C633F622A3F5A8000BD2F29 /* TaskDetailConfigurator.swift in Sources */,
 				2CAC791E2A4AF8EB00A02382 /* TaskListHeaderTableView.swift in Sources */,
 				2C07DC5A2A5809C000170E76 /* URLSession+.swift in Sources */,
+				2C04A6122A67337900D3234E /* DeadlineView.swift in Sources */,
 				2CA3BB1C2A62DD3D006D56BA /* TaskDetailSUI.swift in Sources */,
 				2CF941AA2A4D63A300555DB5 /* TransitionAnimationVC.swift in Sources */,
 				2C80499C2A513FAE00F60FB0 /* RequestService.swift in Sources */,
 				2C8049B12A51CB5C00F60FB0 /* Methods.swift in Sources */,
 				2CD382DD2A4326A000C82343 /* ServiceAssembly.swift in Sources */,
+				2C04A6182A6733CC00D3234E /* DeleteButton.swift in Sources */,
+				2C04A6152A6733A700D3234E /* DeadlineDatePicker.swift in Sources */,
 				2C9F84192A45BC2B00A2F1FD /* UIColor+HexFormatter.swift in Sources */,
 				2C507E9F2A48A4F0005F8B4A /* TaskListPresenter.swift in Sources */,
 				2C21E4842A41CFE800DAE09A /* Date+DateFormatter.swift in Sources */,
@@ -949,6 +998,7 @@
 				2C64362B2A4E0F9600E08C4D /* AddCell.swift in Sources */,
 				2C8049A02A51406700F60FB0 /* TodoListModel.swift in Sources */,
 				2C6C23E12A34AEFC002B107C /* AppDelegate.swift in Sources */,
+				2C04A60F2A67335600D3234E /* ImportanceView.swift in Sources */,
 				2C740FDA2A40B10E00884C79 /* Icons.swift in Sources */,
 				2C9F84132A459D2500A2F1FD /* TaskDetailRouter.swift in Sources */,
 				2C80499A2A513F8200F60FB0 /* JSONParser.swift in Sources */,
@@ -968,6 +1018,7 @@
 				2C507EA82A48ABF5005F8B4A /* TaskViewModel.swift in Sources */,
 				2C9B8B252A37295000CC591A /* FileCache.swift in Sources */,
 				2C633F832A3F7A2900BD2F29 /* PresentationAssembly.swift in Sources */,
+				2C04A6082A672F3400D3234E /* AddBottomButton.swift in Sources */,
 				2C633F602A3F5A2700BD2F29 /* TaskDetailPresenter.swift in Sources */,
 				2C9F84112A459BD600A2F1FD /* ColorPickerConfigurator.swift in Sources */,
 			);
@@ -996,9 +1047,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				2CA3BB1B2A62DC4F006D56BA /* TaskDetailSUI.swift in Sources */,
+				2C04A60D2A67332E00D3234E /* TaskEditorView.swift in Sources */,
+				2C04A6102A67335600D3234E /* ImportanceView.swift in Sources */,
 				2CA3BB182A62DA77006D56BA /* TaskListCellSUI.swift in Sources */,
+				2C04A6092A672F3400D3234E /* AddBottomButton.swift in Sources */,
+				2C04A6162A6733A700D3234E /* DeadlineDatePicker.swift in Sources */,
 				2CA3BB122A62D005006D56BA /* TodoListViewModelSUI.swift in Sources */,
 				2CD4EDBB2A61F4BC00ED0CFB /* TodoListSUI.swift in Sources */,
+				2C04A6132A67337900D3234E /* DeadlineView.swift in Sources */,
+				2C04A6192A6733CC00D3234E /* DeleteButton.swift in Sources */,
+				2C04A6052A672E7400D3234E /* SectionHeaderView.swift in Sources */,
 				2CD4EDB92A61F4BC00ED0CFB /* TodoLostSwiftUIApp.swift in Sources */,
 				2CA3BB1E2A62E943006D56BA /* AddCellSUI.swift in Sources */,
 			);
