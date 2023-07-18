@@ -17,8 +17,6 @@ struct TaskDetailSUI: View {
     @State private var deadline: Date?
     @State private var isDatePickerVisible = false
     
-    // ???: Как работает эта штука? почему теперь свойство вызывается как функция чтобы сработало закрытие экрана?
-    // решение честно стырено с интернета без понимания что за магия тут написана
     @Environment(\.dismiss) private var dismiss
     
     init(task: TodoListViewModelSUI?) {
@@ -44,7 +42,6 @@ struct TaskDetailSUI: View {
                             ? Color(uiColor: Colors.labelTertiary ?? UIColor.red)
                             : Color(uiColor: Colors.labelPrimary ?? UIColor.red)
                         )
-                    // ???: Как это говно работает? Почему чтобы кнопки появились их нужно добавить сюда?
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button("Отменить") {
@@ -91,15 +88,13 @@ struct TaskDetailSUI: View {
                                 Text("Сделать до")
                                 if isDeadline {
                                     Button {
-                                        // TODO: Работает с каким то багом
-                                        // после того как состояние устанавливается в true,
-                                        // не сбрасывается в false при переключении свитча
-                                        //                                        isDatePickerVisible = true
+                                        withAnimation {
+                                            isDatePickerVisible = true
+                                        }
                                     } label: {
                                         Text(selectedDate.toString())
                                             .font(Font(Fonts.footnote))
                                     }
-                                    
                                 }
                             }
                             .onAppear {
@@ -110,12 +105,19 @@ struct TaskDetailSUI: View {
                                     isDatePickerVisible = false
                                 }
                             }
+                            .onChange(of: isDeadline, perform: { newValue in
+                                withAnimation {
+                                    if !newValue {
+                                        isDatePickerVisible = false
+                                    }
+                                }
+                            })
                             .padding(16)
                             .animation(.easeOut(duration: 0.2), value: isDeadline)
                         }
                         .frame(height: 56)
                         
-                        if isDatePickerVisible || isDeadline {
+                        if isDatePickerVisible {
                             Divider()
                                 .padding([.leading, .trailing], 16)
                             
@@ -127,8 +129,8 @@ struct TaskDetailSUI: View {
                                 .onChange(of: selectedDate) { newDate in
                                     selectedDate = newDate
                                 }
+                                .animation(.easeOut(duration: 0.2), value: isDatePickerVisible)
                         }
-                        
                     }
                     .background(Color(uiColor: Colors.backSecondary ?? UIColor.red))
                     .cornerRadius(16)
