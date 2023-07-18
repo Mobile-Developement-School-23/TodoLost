@@ -8,7 +8,8 @@
 import SwiftUI
 
 struct TodoListSUI: View {
-    @State var isPresented: Bool = false
+    @State private var isPresented: Bool = false
+    @State private var selectedItem: TodoListViewModelSUI?
     
     var body: some View {
         NavigationStack {
@@ -34,8 +35,9 @@ struct TodoListSUI: View {
                         .listRowInsets(EdgeInsets(top: 18, leading: 16, bottom: 12, trailing: 16))
                     ) {
                         ForEach(TodoListViewModelSUI.getModels(), id: \.id) { item in
-                            NavigationLink {
-                                TaskDetailSUI(task: item)
+                            Button {
+                                selectedItem = item
+                                isPresented = true
                             } label: {
                                 TaskCellSUI(
                                     status: item.status,
@@ -54,7 +56,12 @@ struct TodoListSUI: View {
                             .onTapGesture {
                                 isPresented = true
                             }
-                            .sheet(isPresented: $isPresented) {}
+                    }
+                    .sheet(isPresented: $isPresented) {
+                        TaskDetailSUI(task: selectedItem)
+                            .onDisappear {
+                                selectedItem = nil
+                            }
                     }
                 }
                 .navigationTitle("Мои дела")

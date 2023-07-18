@@ -10,6 +10,10 @@ import SwiftUI
 struct TaskDetailSUI: View {
     let task: TodoListViewModelSUI?
     
+    // TODO: Вынести в отдельные константы по аналогии с UIKit
+    private let placeholderColor = Color(uiColor: Colors.labelTertiary ?? UIColor.red)
+    private let mainColor = Color(uiColor: Colors.labelPrimary ?? UIColor.red)
+    
     @State var text: String
     @State private var selectedOption = 0
     @State private var isDeadline = false
@@ -17,10 +21,19 @@ struct TaskDetailSUI: View {
     @State private var deadline: Date?
     @State private var isDatePickerVisible = false
     
+    @State private var editorTextColor: Color
+    @State private var isEditing = false
+    
     @Environment(\.dismiss) private var dismiss
     
     init(task: TodoListViewModelSUI?) {
         self.task = task
+        
+        _editorTextColor = State(
+            initialValue: task == nil
+            ? placeholderColor
+            : mainColor
+        )
         
         if let task {
             _text = State(initialValue: task.title)
@@ -37,11 +50,7 @@ struct TaskDetailSUI: View {
                     TextEditor(text: $text)
                         .padding(EdgeInsets(top: 12, leading: 16,bottom: 5 ,trailing: 16))
                         .font(Font(Fonts.body))
-                        .foregroundColor(
-                            task == nil
-                            ? Color(uiColor: Colors.labelTertiary ?? UIColor.red)
-                            : Color(uiColor: Colors.labelPrimary ?? UIColor.red)
-                        )
+                        .foregroundColor(editorTextColor)
                         .toolbar {
                             ToolbarItem(placement: .navigationBarLeading) {
                                 Button("Отменить") {
@@ -54,6 +63,17 @@ struct TaskDetailSUI: View {
                             }
                         }
                         .background(Color(uiColor: Colors.backSecondary ?? UIColor.red))
+                        .onTapGesture {
+                            isEditing = true
+                        }
+                        .onChange(of: isEditing) { newValue in
+                            if newValue {
+                                if editorTextColor == placeholderColor {
+                                    editorTextColor = mainColor
+                                    text = ""
+                                }
+                            }
+                        }
                         .frame(height: 120)
                         .cornerRadius(16)
                         .scrollContentBackground(.hidden)
@@ -116,6 +136,17 @@ struct TaskDetailSUI: View {
                             .animation(.easeOut(duration: 0.2), value: isDeadline)
                         }
                         .frame(height: 56)
+                        // Костыль для проверки скрытия клавиатуры
+                        // ???: Как можно более грамотно скрыть клавиатуру
+                        // чтобы не ломать работу Picker
+                        .onTapGesture {
+                            hideKeyboard()
+                            isEditing = false
+                            if text == "" {
+                                text = "Что нужно сделать?"
+                                editorTextColor = placeholderColor
+                            }
+                        }
                         
                         if isDatePickerVisible {
                             Divider()
@@ -155,5 +186,11 @@ struct TaskDetailSUI: View {
 struct TaskDetauilSUI_Previews: PreviewProvider {
     static var previews: some View {
         TaskDetailSUI(task: nil)
+    }
+}
+
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
