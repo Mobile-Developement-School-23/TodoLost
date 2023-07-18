@@ -36,9 +36,6 @@ struct TodoListSUI: View {
                         ForEach(TodoListViewModelSUI.getModels(), id: \.id) { item in
                             NavigationLink {
                                 TaskDetailSUI(task: item)
-                                    .sheet(isPresented: $isPresented) {
-                                        
-                                    }
                             } label: {
                                 TaskCellSUI(
                                     status: item.status,
@@ -54,6 +51,10 @@ struct TodoListSUI: View {
                         }
                         
                         AddCellSUI()
+                            .onTapGesture {
+                                isPresented = true
+                            }
+                            .sheet(isPresented: $isPresented) {}
                     }
                 }
                 .navigationTitle("Мои дела")
@@ -63,8 +64,13 @@ struct TodoListSUI: View {
                 VStack {
                     Spacer()
                     
-                    Button(action: {}, label: {
+                    Button(action: {
+                        isPresented = true
+                    }, label: {
                         Image(uiImage: Icons.addPlusButton.image ?? UIImage())
+                    })
+                    .sheet(isPresented: $isPresented, content: {
+                        TaskDetailSUI(task: nil)
                     })
                 }
             }

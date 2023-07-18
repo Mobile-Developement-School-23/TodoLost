@@ -13,16 +13,20 @@ struct TaskDetailSUI: View {
     @State var text: String
     @State private var selectedOption = 0
     @State private var isDeadline = false
-    @State private var selectedDate = Date.now
+    @State private var selectedDate = Date().addingTimeInterval(86400)
     @State private var deadline: Date?
     @State private var isDatePickerVisible = false
+    
+    // ???: Как работает эта штука? почему теперь свойство вызывается как функция чтобы сработало закрытие экрана?
+    // решение честно стырено с интернета без понимания что за магия тут написана
+    @Environment(\.dismiss) private var dismiss
     
     init(task: TodoListViewModelSUI?) {
         self.task = task
         
         if let task {
             _text = State(initialValue: task.title)
-            _selectedDate = State(initialValue: task.deadline ?? Date.now)
+            _selectedDate = State(initialValue: task.deadline ?? Date().addingTimeInterval(86400))
         } else {
             _text = State(initialValue: "Что надо сделать?")
         }
@@ -36,10 +40,22 @@ struct TaskDetailSUI: View {
                         .padding(EdgeInsets(top: 12, leading: 16,bottom: 5 ,trailing: 16))
                         .font(Font(Fonts.body))
                         .foregroundColor(
-                            task?.title == ""
+                            task == nil
                             ? Color(uiColor: Colors.labelTertiary ?? UIColor.red)
                             : Color(uiColor: Colors.labelPrimary ?? UIColor.red)
                         )
+                    // ???: Как это говно работает? Почему чтобы кнопки появились их нужно добавить сюда?
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarLeading) {
+                                Button("Отменить") {
+                                    dismiss()
+                                }
+                            }
+                            
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button("Сохранить") {}
+                            }
+                        }
                         .background(Color(uiColor: Colors.backSecondary ?? UIColor.red))
                         .frame(height: 120)
                         .cornerRadius(16)
@@ -80,7 +96,7 @@ struct TaskDetailSUI: View {
                                         // не сбрасывается в false при переключении свитча
                                         //                                        isDatePickerVisible = true
                                     } label: {
-                                        Text(selectedDate.toString(format: "dd MMMM"))
+                                        Text(selectedDate.toString())
                                             .font(Font(Fonts.footnote))
                                     }
                                     
@@ -127,12 +143,9 @@ struct TaskDetailSUI: View {
                 }
             }
             .padding([.top, .leading, .trailing], 16)
-        }
-        .navigationTitle("Дело")
-        .navigationBarTitleDisplayMode(.inline)
-        .background(Color(uiColor: Colors.backPrimary ?? UIColor.red))
-        .toolbar {
-            Button("Сохранить") {}
+            .background(Color(uiColor: Colors.backPrimary ?? UIColor.red))
+            .navigationTitle("Дело")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
