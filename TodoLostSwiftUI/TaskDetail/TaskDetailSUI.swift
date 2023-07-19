@@ -68,17 +68,6 @@ struct TaskDetailSUI: View {
                             selectedDate: $selectedDate,
                             task: task
                         )
-                        // Костыль для проверки скрытия клавиатуры
-                        // ???: Как можно более грамотно скрыть клавиатуру
-                        // чтобы не ломать работу Picker
-                        .onTapGesture {
-                            hideKeyboard()
-                            isEditing = false
-                            if text == "" {
-                                text = "Что нужно сделать?"
-                                editorTextColor = placeholderColor
-                            }
-                        }
                         
                         DeadlineDatePicker(
                             selectedDate: $selectedDate,
@@ -104,6 +93,15 @@ struct TaskDetailSUI: View {
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Сохранить") {}
+                }
+            }
+            // Костыль для проверки скрытия клавиатуры чтобы не ломать работу Picker
+            .onTapGesture(count: 2) {
+                hideKeyboard()
+                isEditing = false
+                if text == "" {
+                    text = "Что нужно сделать?"
+                    editorTextColor = placeholderColor
                 }
             }
         }
