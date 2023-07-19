@@ -50,6 +50,9 @@ struct TodoListSUI: View {
                 AddBottomButton(isPresented: $isPresented)
             }
         }
+        .onAppear {
+            UINavigationBar.appearance().layoutMargins.left = 32
+        }
     }
 }
 
