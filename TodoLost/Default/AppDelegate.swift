@@ -1,4 +1,4 @@
-import UIKit
+import SwiftUI
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -11,6 +11,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         
         createAndShowStartVC()
+//        createAndShowStartSUIVC()
         
         return true
     }
@@ -31,6 +32,12 @@ private extension AppDelegate {
 
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = navigationController
+        window?.makeKeyAndVisible()
+    }
+    
+    func createAndShowStartSUIVC() {
+        window = UIWindow(frame: UIScreen.main.bounds)
+        window?.rootViewController = UIHostingController(rootView: TodoListSUI())
         window?.makeKeyAndVisible()
     }
 }

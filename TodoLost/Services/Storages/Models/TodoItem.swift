@@ -4,6 +4,14 @@ enum Importance: String {
     case low
     case basic
     case important
+    
+    var index: Int {
+        switch self {
+        case .low: return 0
+        case .basic: return 1
+        case .important: return 2
+        }
+    }
 }
 
 struct TodoItem {
