@@ -1092,7 +1092,6 @@
 /* Begin XCBuildConfiguration section */
 		2C6C24052A34AEFE002B107C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2C8049A12A51695400F60FB0 /* TodoLostConfig.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
