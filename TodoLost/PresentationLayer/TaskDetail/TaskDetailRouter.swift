@@ -33,9 +33,11 @@ final class TaskDetailRouter: TaskDetailRoutingLogic {
         switch target {
         case .colorPicker:
             let colorPickerVC = ColorPickerViewController()
-            colorPickerVC.completion = completion
             colorPickerVC.modalPresentationStyle = .formSheet
-            PresentationAssembly().colorPicker.config(view: colorPickerVC)
+            PresentationAssembly().colorPicker.config(
+                view: colorPickerVC,
+                completion: completion
+            )
             
             guard let currentViewController = navigationController.visibleViewController else {
                 SystemLogger.error("Не удалось получить текущий VC")

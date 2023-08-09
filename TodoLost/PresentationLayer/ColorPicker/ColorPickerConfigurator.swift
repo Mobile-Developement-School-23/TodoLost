@@ -10,12 +10,14 @@ import UIKit
 /// Конфигурация MVP модуля
 final class ColorPickerConfigurator {
     func config(
-        view: UIViewController
+        view: UIViewController,
+        completion: ((String) -> Void)?
     ) {
         guard let view = view as? ColorPickerViewController else { return }
         let presenter = ColorPickerPresenter(view: view)
         
         view.presenter = presenter
+        view.completion = completion
         presenter.view = view
     }
 }
