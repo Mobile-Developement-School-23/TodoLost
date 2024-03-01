@@ -36,15 +36,22 @@ final class RequestSender: IRequestSender {
         
         let session = URLSession.shared
         let task = session.dataTask(with: urlRequest) { data, response, error in
+			
+			let result: Result<(Parser.Model?, Data?, URLResponse?), NetworkError>
+			
+			defer {
+				completionHandler(result)
+			}
+			
             if let error = error {
                 SystemLogger.error(error.localizedDescription)
-                completionHandler(.failure(.networkError))
+                result = .failure(.networkError)
                 return
             }
             
             guard let statusCode = (response as? HTTPURLResponse)?.statusCode else {
                 SystemLogger.error("Ошибка получения кода статуса")
-                completionHandler(.failure(.statusCodeError))
+				result = .failure(.statusCodeError)
                 return
             }
             
@@ -54,17 +61,22 @@ final class RequestSender: IRequestSender {
                 switch statusCode {
                 case 400:
                     let serverMessage = HTTPURLResponse.localizedString(forStatusCode: statusCode)
-                    completionHandler(.failure(.messageError(serverMessage)))
+					result = .failure(.messageError(serverMessage))
+					return
                 case 401:
-                    completionHandler(.failure(.authError))
+					result = .failure(.authError)
+					return
                 case 404:
-                    completionHandler(.failure(.elementNotFound))
+					result = .failure(.elementNotFound)
+					return
                 case 500...:
-                    completionHandler(.failure(.serverUnavailable))
+					result = .failure(.serverUnavailable)
+					return
                 default:
                     SystemLogger.error(statusCode.description)
                     let serverMessage = HTTPURLResponse.localizedString(forStatusCode: statusCode)
-                    completionHandler(.failure(.messageError(serverMessage)))
+					result = .failure(.messageError(serverMessage))
+					return
                 }
             }
             
@@ -75,12 +87,12 @@ final class RequestSender: IRequestSender {
             
             if let data = data,
                let parseModel: Parser.Model = config.parser?.parse(data: data) {
-                completionHandler(.success((parseModel, nil, nil)))
+				result = .success((parseModel, nil, nil))
             } else if let data = data {
                 // кейс на случай, когда не нужно парсить модель, но ответ получить нужно
-                completionHandler(.success((nil, data, response)))
+				result = .success((nil, data, response))
             } else {
-                completionHandler(.failure(.parseError))
+				result = .failure(.parseError)
             }
         }
         task.resume()
